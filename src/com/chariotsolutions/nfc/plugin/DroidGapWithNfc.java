@@ -24,7 +24,6 @@ public class DroidGapWithNfc extends DroidGap {
 
 		// App has been opened via the intent filter
 		Intent resumedIntent = getIntent();
-		Log.d("NdefPlugin", Integer.toString(resumedIntent.getFlags()));
 		if(NfcAdapter.ACTION_NDEF_DISCOVERED.equalsIgnoreCase(resumedIntent.getAction())) {
 			if (ndefReaderPlugin == null) {
 				NdefReaderPlugin.saveIntent(resumedIntent);
