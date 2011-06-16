@@ -2,7 +2,6 @@ package com.chariotsolutions.nfc.plugin;
 
 import android.content.Intent;
 import android.nfc.NfcAdapter;
-import android.util.Log;
 
 import com.phonegap.DroidGap;
 
