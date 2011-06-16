@@ -28,9 +28,9 @@ public class DroidGapWithNfc extends DroidGap {
 		if(NfcAdapter.ACTION_NDEF_DISCOVERED.equalsIgnoreCase(resumedIntent.getAction())) {
 			if (ndefReaderPlugin == null) {
 				NdefReaderPlugin.saveIntent(resumedIntent);
-				return;
-			}
-			ndefReaderPlugin.parseMessage(resumedIntent);
+			} else {
+			    ndefReaderPlugin.parseMessage(resumedIntent);
+		    }
 			setIntent(new Intent());
 		}
 	}
