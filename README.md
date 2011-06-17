@@ -4,11 +4,11 @@
 ### Event Types:
 * NDEF Tag read
 
-### ndefTagRead
+### ndef
 
 This is an event that fires when user initiates contact with an NFC Tag with a supported mime type
 
-<pre>document.addEventListener("ndefTagRead", yourCallbackFunction, false);</pre>
+<pre>document.addEventListener("ndef", yourCallbackFunction, false);</pre>
 
 ### Add Plugin
 Something to do with jar?
