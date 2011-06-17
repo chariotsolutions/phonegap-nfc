@@ -24,7 +24,7 @@ Change the <code>extends DroidGap</code> to <code>extends DroidGapWithNfc</code>
 </pre>
 
 ### Details
-If you need to listen for NFC tag detection on Android you can register and event listenter for the 'ndefTagRead' event. You will also need to 'register' a mime type with the plugin which matches the mime type you used to write your tags
+To listen for NFC tag detection on Android you can register an event listener for the 'ndef' event. You will also need to 'register' a mime type with the plugin which matches the mime type you used to write your tags
 
 Typically, you will want to attach an event listener with document.addEventListener once you receive the PhoneGap 'deviceready' event.
 
@@ -36,7 +36,7 @@ Typically, you will want to attach an event listener with document.addEventListe
 
 <pre> window.plugins.NdefReaderPlugin.register("text/pg", win, fail); </pre>
 
-<pre> document.addEventListener("nfc", myNfcListener, false); </pre>
+<pre> document.addEventListener("ndef", myNfcListener, false); </pre>
 
 ### Full Example - AndroidManifest.xml
 
