@@ -11,7 +11,7 @@ This is an event that fires when user initiates contact with an NFC Tag with a s
 <pre>document.addEventListener("ndef", yourCallbackFunction, false);</pre>
 
 ### Add Plugin
-Something to do with jar?
+Add the phonegap-nfc.jar to your project in Eclipse. Right click on libs and select Build Path > Configure Build Path. Choose Java Build Path and select the Libraries tab. Click add Jars and select phonegap-nfc.jar. If you are building an Android project from the command line jar files found in libs are automatically compiled in.
 
 ### Extend DroidGapWithNfc
 In your main application activity you need to do the following. 
