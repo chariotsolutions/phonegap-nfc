@@ -5,3 +5,5 @@ proguard.cfg
 default.properties
 gen/
 libs/
+target/
+Makefile
