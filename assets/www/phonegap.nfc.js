@@ -5,6 +5,12 @@ NdefPlugin.prototype.register = function(mime_type, win, fail) {
   PhoneGap.exec(win, fail, "NdefPlugin", "register", [mime_type]);
 };
 
+// TODO send bytes to NdefPlugin
+// TODO allow writing multiple records
+NdefPlugin.prototype.writeTag =  function (mime_type, tag_data, win, fail) {
+  PhoneGap.exec(win, fail, "NdefPlugin", "writeTag", [mime_type, tag_data]);
+};    
+
 NdefPlugin.bytesToString = function (bytes) {
   var bytesAsString = "";
   for (var i = 0; i < bytes.length; i++) {

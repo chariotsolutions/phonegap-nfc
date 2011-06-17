@@ -1,5 +1,6 @@
 package com.chariotsolutions.nfc.plugin;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
@@ -11,13 +12,18 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.Ndef;
+import android.nfc.tech.NdefFormatable;
 import android.os.Parcelable;
+import android.os.Vibrator;
 import android.util.Log;
 
 import com.phonegap.api.Plugin;
@@ -27,6 +33,8 @@ import com.phonegap.api.PluginResult.Status;
 public class NdefPlugin extends Plugin {
 	private static Stack<Intent> queuedIntents = new Stack<Intent>();
 	private static final String REGISTER = "register";
+	private static final String WRITE_TAG = "writeTag";
+	private Intent currentIntent = null;
 	private static String TAG = "NdefPlugin";
 	private PendingIntent pendingIntent = null;
 	private IntentFilter[] intentFilters = null;
@@ -61,6 +69,46 @@ public class NdefPlugin extends Plugin {
 				parseMessage(queuedIntents.pop());
 			}
 			return new PluginResult(Status.OK);
+		} else if (action.equalsIgnoreCase(WRITE_TAG)) {
+			Log.d(TAG, "===== WRITE TAG =====");
+			
+			Vibrator v = (Vibrator) this.ctx.getSystemService(Context.VIBRATOR_SERVICE);
+	    	v.vibrate(100);
+	    	// TODO check for null currentIntent
+	    	Tag tag = currentIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+	    
+	        String mimeType;
+	        String tagData;
+	        
+	        // TODO future versions should handle multiple messages
+	    	try {
+				mimeType = (String) data.getString(0);
+				tagData = (String) data.getString(1);
+
+			} catch (JSONException e) {
+				// TODO deal with too few arguments
+				Log.e(TAG, "error reading mimeType or tagData");
+				throw new RuntimeException(e);
+			}
+	    	
+	    	Log.d(TAG, "mimeType " + mimeType);
+	    	Log.d(TAG, "tagData " + tagData);
+	    	
+	        NdefRecord textRecord = new NdefRecord(NdefRecord.TNF_MIME_MEDIA, mimeType.getBytes(),
+	                new byte[] {}, tagData.getBytes());
+	        NdefMessage message = new NdefMessage(new NdefRecord[] {
+	            textRecord
+	        });
+	    	
+	    	if (tagData.length() > 0) {
+	    		writeTag(message, tag);    		
+//	    		hideKeyboard();
+	    	} else {
+	    		toast("Not writing an empty tag - silly!");
+//	    		hideKeyboard();
+	    	}
+	    	return new PluginResult(Status.OK);
+			
 		}
 		return new PluginResult(Status.NO_RESULT);
 	}
@@ -101,6 +149,7 @@ public class NdefPlugin extends Plugin {
 
 	public void parseMessage(Intent intent) {
 		if (intent.getAction().equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
+			this.currentIntent = intent;
 			Parcelable[] rawData = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 			JSONArray jsonData = moveBytesToJSON(rawData);
 			Log.d(TAG, jsonData.toString());
@@ -159,6 +208,59 @@ public class NdefPlugin extends Plugin {
 		return jsonData;
 
 	}
+	
+	// stolen from Write.java in Writey
+	// TODO remove toast
+	// TODO send PluginResult back to Phonegap
+    private boolean writeTag(NdefMessage message, Tag tag) {
+		Log.d(TAG, "writeTag");
+        int size = message.toByteArray().length;
+
+        try {
+            Ndef ndef = Ndef.get(tag);
+            if (ndef != null) {
+                ndef.connect();
+
+                if (!ndef.isWritable()) {
+                    toast("Tag is read-only.");
+                    return false;
+                }
+                if (ndef.getMaxSize() < size) {
+                    toast("Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size
+                            + " bytes.");
+                    return false;
+                }
+
+                ndef.writeNdefMessage(message);
+                toast("Wrote message to pre-formatted tag.");
+                return true;
+            } else {
+                NdefFormatable format = NdefFormatable.get(tag);
+                if (format != null) {
+                    try {
+                        format.connect();
+                        format.format(message);
+                        toast("Formatted tag and wrote message");
+                        return true;
+                    } catch (IOException e) {
+                        toast("Failed to format tag.");
+                        return false;
+                    }
+                } else {
+                    toast("Tag doesn't support NDEF.");
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            toast("Failed to write tag");
+        }
+        return false;
+    }
+    
+    private void toast(String text) {
+    	//Toast.makeText(this.ctx, text, Toast.LENGTH_SHORT).show();
+    	Log.d(TAG + "-TOAST", text);
+    }
 
 	public void pauseNfc() {
 		this.ctx.runOnUiThread(new NfcPausable(ctx));
