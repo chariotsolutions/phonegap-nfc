@@ -52,7 +52,7 @@ body {
     
       var message = messages[i];
 
-      var tagDataAsString = NdefReaderPlugin.bytesToString(message.records);
+      var tagDataAsString = NdefPlugin.bytesToString(message.records);
       
       var p = document.createElement('p');
       p.appendChild(document.createTextNode(tagDataAsString));
@@ -75,7 +75,7 @@ body {
     //Using setTimeout as a work around, problems with plugin initialization
     //http://groups.google.com/group/phonegap/browse_thread/thread/9c0adba823797b53
     window.setTimeout ( function() { 
-      window.plugins.NdefReaderPlugin.register(tagMimeType, win, fail); 
+      window.plugins.NdefPlugin.register(tagMimeType, win, fail); 
       } , 50 );
   };
 

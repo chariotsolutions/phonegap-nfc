@@ -24,10 +24,10 @@ import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
 import com.phonegap.api.PluginResult.Status;
 
-public class NdefReaderPlugin extends Plugin {
+public class NdefPlugin extends Plugin {
 	private static Stack<Intent> queuedIntents = new Stack<Intent>();
 	private static final String REGISTER = "register";
-	private static String TAG = "NdefReaderPlugin";
+	private static String TAG = "NdefPlugin";
 	private PendingIntent pendingIntent = null;
 	private IntentFilter[] intentFilters = null;
 
@@ -104,7 +104,7 @@ public class NdefReaderPlugin extends Plugin {
 			Parcelable[] rawData = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 			JSONArray jsonData = moveBytesToJSON(rawData);
 			Log.d(TAG, jsonData.toString());
-			String command = "NdefReaderPlugin.fireNfc(" + jsonData + ")";
+			String command = "NdefPlugin.fireNfc(" + jsonData + ")";
 			this.sendJavascript(command);
 		}
 	}

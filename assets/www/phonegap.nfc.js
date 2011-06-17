@@ -1,11 +1,11 @@
-var NdefReaderPlugin = function() {
+var NdefPlugin = function() {
 };
 
-NdefReaderPlugin.prototype.register = function(mime_type, win, fail) {
-  PhoneGap.exec(win, fail, "NdefReaderPlugin", "register", [mime_type]);
+NdefPlugin.prototype.register = function(mime_type, win, fail) {
+  PhoneGap.exec(win, fail, "NdefPlugin", "register", [mime_type]);
 };
 
-NdefReaderPlugin.bytesToString = function (bytes) {
+NdefPlugin.bytesToString = function (bytes) {
   var bytesAsString = "";
   for (var i = 0; i < bytes.length; i++) {
     bytesAsString += String.fromCharCode(bytes[i]);
@@ -13,7 +13,7 @@ NdefReaderPlugin.bytesToString = function (bytes) {
   return bytesAsString;
 };
 
-NdefReaderPlugin.fireNfc = function (tagData) {
+NdefPlugin.fireNfc = function (tagData) {
   var e = document.createEvent('Events'),
   type = 'ndef';
   
@@ -31,8 +31,8 @@ NdefReaderPlugin.fireNfc = function (tagData) {
  */
 PhoneGap.addConstructor(function() { 
   // Register the javascript plugin with PhoneGap
-  PhoneGap.addPlugin('NdefReaderPlugin', new NdefReaderPlugin());
+  PhoneGap.addPlugin('NdefPlugin', new NdefPlugin());
 
   // Register the native class of plugin with PhoneGap
-  navigator.app.addService("NdefReaderPlugin", "com.chariotsolutions.nfc.plugin.NdefReaderPlugin"); 
+  navigator.app.addService("NdefPlugin", "com.chariotsolutions.nfc.plugin.NdefPlugin"); 
 });

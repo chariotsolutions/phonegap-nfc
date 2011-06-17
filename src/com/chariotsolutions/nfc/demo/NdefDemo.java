@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import com.chariotsolutions.nfc.plugin.DroidGapWithNfc;
 
-public class NfcReaderDemo extends DroidGapWithNfc {	
+public class NdefDemo extends DroidGapWithNfc {	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

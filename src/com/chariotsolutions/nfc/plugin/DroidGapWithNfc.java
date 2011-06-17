@@ -10,7 +10,7 @@ import com.phonegap.DroidGap;
  */
 public class DroidGapWithNfc extends DroidGap {
 	//when the 'register' call finishes NdefReaderPlugin gets initialized by the plug-in
-	public NdefReaderPlugin ndefReaderPlugin = null;
+	public NdefPlugin ndefReaderPlugin = null;
 
 	@Override
 	public void onResume() {
@@ -25,7 +25,7 @@ public class DroidGapWithNfc extends DroidGap {
 		Intent resumedIntent = getIntent();
 		if(NfcAdapter.ACTION_NDEF_DISCOVERED.equalsIgnoreCase(resumedIntent.getAction())) {
 			if (ndefReaderPlugin == null) {
-				NdefReaderPlugin.saveIntent(resumedIntent);
+				NdefPlugin.saveIntent(resumedIntent);
 			} else {
 			    ndefReaderPlugin.parseMessage(resumedIntent);
 		    }
