@@ -69,13 +69,17 @@ public class NdefPlugin extends Plugin {
 				parseMessage(queuedIntents.pop());
 			}
 			return new PluginResult(Status.OK);
-		} else if (action.equalsIgnoreCase(WRITE_TAG)) {
-			Log.d(TAG, "===== WRITE TAG =====");
-			
+		} else if (action.equalsIgnoreCase(WRITE_TAG)) {	
 			Vibrator v = (Vibrator) this.ctx.getSystemService(Context.VIBRATOR_SERVICE);
 	    	v.vibrate(100);
-	    	// TODO check for null currentIntent
-	    	Tag tag = currentIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+
+	    	Tag tag = null;
+	    	if (currentIntent == null) {
+	    		Log.e(TAG, "Failed to write tag, recieved null intent");
+	    		return new PluginResult(Status.ERROR);
+	    	} else {
+	    		currentIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+	    	}
 	    
 	        String mimeType;
 	        String tagData;
@@ -91,22 +95,15 @@ public class NdefPlugin extends Plugin {
 				throw new RuntimeException(e);
 			}
 	    	
-	    	Log.d(TAG, "mimeType " + mimeType);
-	    	Log.d(TAG, "tagData " + tagData);
-	    	
+			//hum problem
+			//what should the data type be here?
 	        NdefRecord textRecord = new NdefRecord(NdefRecord.TNF_MIME_MEDIA, mimeType.getBytes(),
 	                new byte[] {}, tagData.getBytes());
 	        NdefMessage message = new NdefMessage(new NdefRecord[] {
 	            textRecord
 	        });
 	    	
-	    	if (tagData.length() > 0) {
-	    		writeTag(message, tag);    		
-//	    		hideKeyboard();
-	    	} else {
-	    		toast("Not writing an empty tag - silly!");
-//	    		hideKeyboard();
-	    	}
+	    	writeTag(message, tag);    		
 	    	return new PluginResult(Status.OK);
 			
 		}
@@ -208,11 +205,8 @@ public class NdefPlugin extends Plugin {
 		return jsonData;
 
 	}
-	
-	// stolen from Write.java in Writey
-	// TODO remove toast
-	// TODO send PluginResult back to Phonegap
-    private boolean writeTag(NdefMessage message, Tag tag) {
+
+    private PluginResult writeTag(NdefMessage message, Tag tag) {
 		Log.d(TAG, "writeTag");
         int size = message.toByteArray().length;
 
@@ -222,18 +216,16 @@ public class NdefPlugin extends Plugin {
                 ndef.connect();
 
                 if (!ndef.isWritable()) {
-                    toast("Tag is read-only.");
-                    return false;
+                    Log.e(TAG, "Failed to write tag - read only");
+                    return new PluginResult(Status.ERROR);
                 }
                 if (ndef.getMaxSize() < size) {
-                    toast("Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size
-                            + " bytes.");
-                    return false;
+                    Log.e(TAG, "Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size + " bytes.");
+                    return new PluginResult(Status.ERROR);
                 }
 
                 ndef.writeNdefMessage(message);
-                toast("Wrote message to pre-formatted tag.");
-                return true;
+                return new PluginResult(Status.OK);
             } else {
                 NdefFormatable format = NdefFormatable.get(tag);
                 if (format != null) {
@@ -241,25 +233,20 @@ public class NdefPlugin extends Plugin {
                         format.connect();
                         format.format(message);
                         toast("Formatted tag and wrote message");
-                        return true;
+                        return new PluginResult(Status.OK);
                     } catch (IOException e) {
-                        toast("Failed to format tag.");
-                        return false;
+                        Log.e(TAG, "Failed to format tag.");
+                        return new PluginResult(Status.ERROR);
                     }
                 } else {
-                    toast("Tag doesn't support NDEF.");
-                    return false;
+                    Log.e(TAG, "Tag doesn't support NDEF.");
+                    return new PluginResult(Status.ERROR);
                 }
             }
         } catch (Exception e) {
-            toast("Failed to write tag");
+            Log.e(TAG, "Failed to write tag");
         }
-        return false;
-    }
-    
-    private void toast(String text) {
-    	//Toast.makeText(this.ctx, text, Toast.LENGTH_SHORT).show();
-    	Log.d(TAG + "-TOAST", text);
+        return new PluginResult(Status.ERROR);
     }
 
 	public void pauseNfc() {
