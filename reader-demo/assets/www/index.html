@@ -65,8 +65,13 @@ body {
   document.addEventListener("ndef", myNfcListener, false);
     
   var ready = function() {
-    var win = function () {
+    var win = function () {      
       console.log("registered "+ tagMimeType);
+      
+      window.plugins.NdefPlugin.registerForWrite(function() {
+      }, function() {
+      	alert('did fail');
+      }); 
     },
 
     fail = function() {
@@ -76,8 +81,8 @@ body {
     //Using setTimeout as a work around, problems with plugin initialization
     //http://groups.google.com/group/phonegap/browse_thread/thread/9c0adba823797b53
     window.setTimeout ( function() { 
-      window.plugins.NdefPlugin.register(tagMimeType, win, fail); 
-      } , 50 );
+      window.plugins.NdefPlugin.register(tagMimeType, win, fail);      
+      } , 500 );
   };
 
   document.addEventListener("menubutton", function() {

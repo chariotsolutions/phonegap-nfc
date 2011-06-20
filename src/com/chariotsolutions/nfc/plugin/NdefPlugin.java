@@ -2,6 +2,7 @@ package com.chariotsolutions.nfc.plugin;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
@@ -38,31 +39,28 @@ public class NdefPlugin extends Plugin {
 	private Intent currentIntent = null;
 	private static String TAG = "NdefPlugin";
 	private PendingIntent pendingIntent = null;
-	private IntentFilter[] intentFilters = null;
+	private List<IntentFilter> intentFilters = null;
 	private String[][] techLists = null;
 
 	@Override
 	public PluginResult execute(String action, JSONArray data, String callbackId) {
 		if (action.equalsIgnoreCase(REGISTER)) {
+
 			Intent intent = new Intent(ctx, ctx.getClass());
 			intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			pendingIntent = PendingIntent.getActivity(ctx, 0, intent, 0);
 
 			try {
-				intentFilters = new IntentFilter[] { addDataTypeToNewIntentFilter(data) };
+				if (intentFilters == null) {
+					intentFilters = new ArrayList<IntentFilter>();
+				}
+				intentFilters.add(addDataTypeToNewIntentFilter(data));
 			} catch (InstantiationException e) {
 				Log.e(TAG, e.toString());
 				return new PluginResult(Status.ERROR);
 			}
-			
-			if (data.get(1)) {
-		        
-		        techLists = new String[][] { 
-		        		{ Ndef.class.getName() },
-						{ NdefFormatable.class.getName() } };
-			}
-			
+
 			try {
 				registerPluginWithMainActivity();
 			} catch (Exception e) {
@@ -70,39 +68,27 @@ public class NdefPlugin extends Plugin {
 				return new PluginResult(Status.ERROR);
 			}
 
-			this.ctx.runOnUiThread(new NfcRunnable(ctx,
-					this.getPendingIntent(), this.getIntentFilters()));
+			try {
+				this.ctx.runOnUiThread(new NfcRunnable(ctx,
+					this.getPendingIntent(), this.getIntentFilters().toArray(new IntentFilter[this.getIntentFilters().size()]), null));
+			} catch ( Exception e ) {
+				Log.e(TAG, e.toString());
+			} 
 
 			while(!queuedIntents.isEmpty()) {
 				parseMessage(queuedIntents.pop());
 			}
+			
 			return new PluginResult(Status.OK);
-		} else if (registerForWrite) { 
-			Intent intent = new Intent(ctx, ctx.getClass());
-			intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			pendingIntent = PendingIntent.getActivity(ctx, 0, intent, 0);
-
-			try {
-				intentFilters = new IntentFilter[] { addDataTypeToNewIntentFilter(data) };
-			} catch (InstantiationException e) {
-				Log.e(TAG, e.toString());
-				return new PluginResult(Status.ERROR);
+		} else if (action.equalsIgnoreCase(REGISTER_FOR_WRITE)) { 	
+			if (intentFilters == null) {
+				intentFilters = new ArrayList<IntentFilter>();
 			}
-
-			try {
-				registerPluginWithMainActivity();
-			} catch (Exception e) {
-				Log.e(TAG, e.toString());
-				return new PluginResult(Status.ERROR);
-			}
-
-			this.ctx.runOnUiThread(new NfcRunnable(ctx,
-					this.getPendingIntent(), this.getIntentFilters()));
-
-			while(!queuedIntents.isEmpty()) {
-				parseMessage(queuedIntents.pop());
-			}
+			intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED));
+	        techLists = new String[][] { 
+	        		{ Ndef.class.getName() },
+					{ NdefFormatable.class.getName() } };
+	        
 			return new PluginResult(Status.OK);
 		} else if (action.equalsIgnoreCase(WRITE_TAG)) {	
 			Vibrator v = (Vibrator) this.ctx.getSystemService(Context.VIBRATOR_SERVICE);
@@ -142,6 +128,7 @@ public class NdefPlugin extends Plugin {
 	    	return new PluginResult(Status.OK);
 			
 		}
+		Log.d(TAG, "no result");
 		return new PluginResult(Status.NO_RESULT);
 	}
 
@@ -175,19 +162,33 @@ public class NdefPlugin extends Plugin {
 		return pendingIntent;
 	}
 
-	private IntentFilter[] getIntentFilters() {
+	private List<IntentFilter> getIntentFilters() {
 		return intentFilters;
 	}
 
 	public void parseMessage(Intent intent) {
+		String command = "";
 		if (intent.getAction().equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
 			this.currentIntent = intent;
 			Parcelable[] rawData = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 			JSONArray jsonData = moveBytesToJSON(rawData);
 			Log.d(TAG, jsonData.toString());
-			String command = "NdefPlugin.fireNfc(" + jsonData + ")";
-			this.sendJavascript(command);
+			command = "NdefPlugin.fireNfc(" + jsonData + ")";
+		} else if (intent.getAction().equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
+			Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+			
+			String[] tagTechs = tag.getTechList();
+			for (String s : tagTechs) {
+				if (s.equalsIgnoreCase(NdefFormatable.class.getName())) {
+					command = "alert('Fire NdefFormatable event');";
+				} else if (s.equalsIgnoreCase(Ndef.class.getName())) {
+					command = "alert('Fire Ndef event');";
+				} else {
+					command = "alert('Scanned a tag I don't understand ' + "+s+");";
+				}
+			}			
 		}
+		this.sendJavascript(command);
 	}
 
 	/**
@@ -289,7 +290,7 @@ public class NdefPlugin extends Plugin {
 	}
 
 	public void startNfc() {
-		this.ctx.runOnUiThread(new NfcRunnable(ctx, this.getPendingIntent(), this.getIntentFilters()));
+		this.ctx.runOnUiThread(new NfcRunnable(ctx, this.getPendingIntent(), this.getIntentFilters().toArray(new IntentFilter[this.getIntentFilters().size()]), this.techLists));
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -307,8 +308,10 @@ public class NdefPlugin extends Plugin {
 		private Activity activity = null;
 		private PendingIntent pendingIntent = null;
 		private IntentFilter[] intentFilters = null;
-
-		public NfcRunnable(Activity activity, PendingIntent pendingIntent, IntentFilter[] intentFilters) {
+		private String[][] techLists = null;
+		
+		public NfcRunnable(Activity activity, PendingIntent pendingIntent, IntentFilter[] intentFilters, String[][] techLists) {
+			this.techLists = techLists;
 			this.activity = activity;
 			this.pendingIntent = pendingIntent;
 			this.intentFilters = intentFilters;
@@ -324,7 +327,7 @@ public class NdefPlugin extends Plugin {
 		public void run() {
 			Log.d(TAG, "starting NFC!");
 			NfcAdapter.getDefaultAdapter(activity).enableForegroundDispatch(
-					activity, pendingIntent, intentFilters, null);
+					activity, pendingIntent, intentFilters, techLists);
 		}
 	}
 

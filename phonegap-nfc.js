@@ -2,7 +2,12 @@ var NdefPlugin = function() {
 };
 
 NdefPlugin.prototype.register = function(mime_type, win, fail) {
+    console.log('registering');
   PhoneGap.exec(win, fail, "NdefPlugin", "register", [mime_type]);
+};
+
+NdefPlugin.prototype.registerForWrite = function(win, fail) {
+    PhoneGap.exec(win, fail, "NdefPlugin", "registerForWrite", []);
 };
 
 // TODO send bytes to NdefPlugin
