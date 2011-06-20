@@ -4,7 +4,7 @@
 
 * Android
 
-## Getting Started.
+## Getting Started - Reading Tags.
 
 There are four steps needed to get NFC working in your PhoneGap application.
 
