@@ -58,16 +58,6 @@ body {
       p.appendChild(document.createTextNode(tagDataAsString));
       display.appendChild(p);
       display.insertBefore(p, display.firstChild);
-     
-      // overwrite tag value
-      window.plugins.NdefPlugin.writeTag(tagMimeType, "booya", 
-        function () { 
-          alert("Your tag has been overwritten.");
-        }, 
-        function () { 
-          alert("Failed to write to tag.");
-        }
-      );
       
     }
   }
