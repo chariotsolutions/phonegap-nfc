@@ -41,7 +41,6 @@ public class NdefPlugin extends Plugin {
 
 	@Override
 	public PluginResult execute(String action, JSONArray data, String callbackId) {
-		Log.d(TAG, "executing");
 		if (action.equalsIgnoreCase(REGISTER)) {
 			Intent intent = new Intent(ctx, ctx.getClass());
 			intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
