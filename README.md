@@ -1,46 +1,29 @@
-### NFC
-"NFC PhoneGap integration"
+# NFC PhoneGap integration
 
-### Event Types:
-* NDEF Tag read
-
-### ndef
-
-This is an event that fires when user initiates contact with an NFC Tag with a supported mime type
-
-<pre>document.addEventListener("ndef", yourCallbackFunction, false);</pre>
-
-### Add Plugin
-Add the phonegap-nfc.jar to your project in Eclipse. Right click on libs and select Build Path > Configure Build Path. Choose Java Build Path and select the Libraries tab. Click add Jars and select phonegap-nfc.jar. If you are building an Android project from the command line jar files found in libs are automatically compiled in.
-
-### Extend DroidGapWithNfc
-In your main application activity you need to do the following. 
-Change the <code>extends DroidGap</code> to <code>extends DroidGapWithNfc</code> and add the import <code>import com.chariotsolutions.nfc.plugin.DroidGapWithNfc;</code>
-
-### Import plugin
-<pre><code>
-&lt;script type="text/javascript" charset="utf-8" src="phonegap.nfc.js"&gt;&lt;/script&gt;
-</code>
-</pre>
-
-### Details
-To listen for NFC tag detection on Android you can register an event listener for the 'ndef' event. You will also need to 'register' a mime type with the plugin which matches the mime type you used to write your tags
-
-Typically, you will want to attach an event listener with document.addEventListener once you receive the PhoneGap 'deviceready' event.
-
-### Supported Platforms
+## Supported Platforms
 
 * Android
 
-### Quick Example
+## Getting Started.
 
-<pre> window.plugins.NdefReaderPlugin.register("text/pg", win, fail); </pre>
+There are four steps needed to get NFC working in your PhoneGap application.
 
-<pre> document.addEventListener("ndef", myNfcListener, false); </pre>
+* Import phonegap-nfc JavaScript library
+* Import phonegap-nfc Java library
+* Modify the AndroidManifest.xml
+* Modify the applications main activity.
 
-### Full Example - AndroidManifest.xml
+### Import phonegap-nfc JavaScript library
+<pre>
+	<code>
+&lt;script type="text/javascript" charset="utf-8" src="phonegap.nfc.js"&gt;&lt;/script&gt;
+	</code>
+</pre>
 
-Will also need to amend your AndroidManifest.xml with the following:
+### Import phonegap-nfc Java library
+Add the phonegap-nfc.jar to your project in Eclipse. Right click on libs and select Build Path > Configure Build Path. Choose Java Build Path and select the Libraries tab. Click add Jars and select phonegap-nfc.jar. If you are building an Android project from the command line jar files found in libs are automatically compiled in.
+
+### Modify the AndroidManifest.xml
 Allow use of NFC:
 <pre>
 &lt;uses-permission android:name="android.permission.NFC" /&gt;
@@ -55,16 +38,33 @@ Update your activity to include the following intent filter
 	&lt;category android:name="android.intent.category.DEFAULT" /&gt;
 &lt;/intent-filter&gt;
 </pre>
-### Note: <code>data android:mimeType="text/pg"</code> this mimeType should match the mimeType you specified in JavaScript
+**Note: <code>data android:mimeType="text/pg"</code> this should match the data type you specified in JavaScript**
 
 Lastly update the <code>minSdkVersion</code> to '10' if you don't have that in your AndroidManifest.xml just add the whole tag in:
 <pre>
 &lt;uses-sdk android:minSdkVersion="10" /&gt;	
 </pre>
 
-### Full Example - index.html
+### Modify the applications main activity.
+In your main activity you need to change the <code>extends DroidGap</code> to <code>extends DroidGapWithNfc</code> and add the import <code>import com.chariotsolutions.nfc.plugin.DroidGapWithNfc;</code>
+(This is likely under project_name/src)
 
-See [index.html](https://github.com/chariotsolutions/phonegap-nfc/blob/master/assets/www/index.html)
+# Usage:
+
+### Event Types:
+
+ * NDEF Tag read (ndef)
+ * Writable Tag read (writeable)
+
+### Registering the plugin
+In order for the NFC hardware to match our app with a tag we need to 'register' our plugin and a data type we want to read. This should match the data type used to write the tag.
+
+<pre> window.plugins.NdefReaderPlugin.register("text/pg", win, fail); </pre>
+
+This is an event that fires when user initiates contact with an NFC Tag with the data type you supplied (be sure this matches the data type in the AndroidManifest.xml)
+
+<pre>document.addEventListener("ndef", yourCallbackFunction, false);</pre>
+<pre>document.addEventListener("writeable", yourCallbackFunction, false);</pre>
 
 ### Known Issues:
 After hitting the home button (pausing the application), and scanning a tag the application resumes, but fails to read the tag.
