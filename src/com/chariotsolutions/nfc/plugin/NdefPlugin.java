@@ -232,7 +232,7 @@ public class NdefPlugin extends Plugin {
                     try {
                         format.connect();
                         format.format(message);
-                        toast("Formatted tag and wrote message");
+                        Log.e(TAG, "Formatted tag and wrote message");
                         return new PluginResult(Status.OK);
                     } catch (IOException e) {
                         Log.e(TAG, "Failed to format tag.");
