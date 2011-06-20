@@ -34,14 +34,50 @@ public class NdefPlugin extends Plugin {
 	private static Stack<Intent> queuedIntents = new Stack<Intent>();
 	private static final String REGISTER = "register";
 	private static final String WRITE_TAG = "writeTag";
+	private static final String REGISTER_FOR_WRITE = "registerForWrite";
 	private Intent currentIntent = null;
 	private static String TAG = "NdefPlugin";
 	private PendingIntent pendingIntent = null;
 	private IntentFilter[] intentFilters = null;
+	private String[][] techLists = null;
 
 	@Override
 	public PluginResult execute(String action, JSONArray data, String callbackId) {
 		if (action.equalsIgnoreCase(REGISTER)) {
+			Intent intent = new Intent(ctx, ctx.getClass());
+			intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			pendingIntent = PendingIntent.getActivity(ctx, 0, intent, 0);
+
+			try {
+				intentFilters = new IntentFilter[] { addDataTypeToNewIntentFilter(data) };
+			} catch (InstantiationException e) {
+				Log.e(TAG, e.toString());
+				return new PluginResult(Status.ERROR);
+			}
+			
+			if (data.get(1)) {
+		        
+		        techLists = new String[][] { 
+		        		{ Ndef.class.getName() },
+						{ NdefFormatable.class.getName() } };
+			}
+			
+			try {
+				registerPluginWithMainActivity();
+			} catch (Exception e) {
+				Log.e(TAG, e.toString());
+				return new PluginResult(Status.ERROR);
+			}
+
+			this.ctx.runOnUiThread(new NfcRunnable(ctx,
+					this.getPendingIntent(), this.getIntentFilters()));
+
+			while(!queuedIntents.isEmpty()) {
+				parseMessage(queuedIntents.pop());
+			}
+			return new PluginResult(Status.OK);
+		} else if (registerForWrite) { 
 			Intent intent = new Intent(ctx, ctx.getClass());
 			intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

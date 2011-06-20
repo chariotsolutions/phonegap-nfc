@@ -54,7 +54,7 @@ In your main activity you need to change the <code>extends DroidGap</code> to <c
 ### Event Types:
 
  * NDEF Tag read (ndef)
- * Writable Tag read (writeable)
+ * Writable Tag read (writeable) (coming soon)
 
 ### Registering the plugin
 In order for the NFC hardware to match our app with a tag we need to 'register' our plugin and a data type we want to read. This should match the data type used to write the tag.
