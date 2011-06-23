@@ -4,3 +4,4 @@ target/
 Makefile
 .DS_Store
 reader-demo/libs/phonegap-nfc.jar
+reader-demo/assets/www/phonegap-nfc.js
