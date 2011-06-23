@@ -35,7 +35,7 @@ public class NdefPlugin extends Plugin {
 	private static Stack<Intent> queuedIntents = new Stack<Intent>();
 	private static final String REGISTER = "register";
 	private static final String WRITE_TAG = "writeTag";
-	private static final String REGISTER_FOR_WRITE = "registerForWrite";
+	private static final String REGISTER_FOR_WRITE = "registerForWrite"; // TODO rename, it's not write
 	private Intent currentIntent = null;
 	private static String TAG = "NdefPlugin";
 	private PendingIntent pendingIntent = null;
@@ -171,9 +171,12 @@ public class NdefPlugin extends Plugin {
 		if (intent.getAction().equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
 			this.currentIntent = intent;
 			Parcelable[] rawData = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-			JSONArray jsonData = moveBytesToJSON(rawData);
-			Log.d(TAG, jsonData.toString());
-			command = "NdefPlugin.fireNfc(" + jsonData + ")";
+			for (Parcelable parcelable : Arrays.asList(rawData)) {
+				JSONArray jsonData = messageToJSON((NdefMessage)parcelable);
+				command = "NdefPlugin.fireNfc(" + jsonData + ")";
+				this.sendJavascript(command);
+			}
+			
 		} else if (intent.getAction().equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
 			Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 			
@@ -186,60 +189,41 @@ public class NdefPlugin extends Plugin {
 				} else {
 					command = "alert('Scanned a tag I don't understand ' + "+s+");";
 				}
+				this.sendJavascript(command);
 			}			
 		}
-		this.sendJavascript(command);
 	}
 
-	/**
-     * Build a JSON representation of the NDEF Messages
-     * There are one or more messages.
-     * Each message contains one or more records.
-     * Each record is a byte array.
-     * [
-     *   {
-     *     records : [
-     *       [ byte, byte, byte, byte ]
-     *     ]
-     *   },
-     *   {
-	 *     records : [
-	 *       [ byte, byte, byte, byte ],
-	 *       [ byte, byte, byte, byte ]
- 	 *     ]
-     *   }
-	 * ]
-	 * 
-	 * @param rawMessages Parcelable[] of NdefMessages
-	 * @return JSON
-	 */
-	private JSONArray moveBytesToJSON(Parcelable[] rawMessages) {
+	private JSONArray messageToJSON(NdefMessage message) {
+		List<JSONObject> list = new ArrayList<JSONObject>(); 
+		List<NdefRecord> records = Arrays.asList(message.getRecords());
 
-		JSONArray jsonData = new JSONArray();
-		List<Parcelable> messages = Arrays.asList(rawMessages);
-		for (Parcelable parcelable : messages) {
-			NdefMessage message = (NdefMessage) parcelable;
-			List<NdefRecord> records = Arrays.asList(message.getRecords());
-
-			JSONObject jsonMessage = new JSONObject();
-			JSONArray jsonRecords = new JSONArray();
-
-			for (NdefRecord r : records) {
-				for (int i = 0; i < r.getPayload().length; i++) {
-					jsonRecords.put(r.getPayload()[i]);
-				}
-			}
-
-			try {
-				jsonMessage.put("records", jsonRecords);
-			} catch (JSONException e) {
-				//Not sure why this would happen, docs are unclear.
-				Log.e(TAG,"Failed to add message records to JSON: "+ jsonRecords.toString());
-			}
-			jsonData.put(jsonMessage);
+		for (NdefRecord r : records) {
+			list.add(recordToJSON(r));
 		}
-		return jsonData;
-
+		return new JSONArray(list);
+	}
+	
+	private JSONObject recordToJSON(NdefRecord record) {
+		JSONObject json = new JSONObject();
+		try {					
+			json.put("tnf", record.getTnf());
+			json.put("type", byteArrayToJSON(record.getType()));
+			json.put("id", byteArrayToJSON(record.getId()));
+			json.put("payload", byteArrayToJSON(record.getPayload()));
+		} catch (JSONException e) {
+			//Not sure why this would happen, documentation is unclear.
+			Log.e(TAG,"Failed to convert ndef record into json: " + record.toString(), e);
+		}
+		return json;
+	}
+	
+	private JSONArray byteArrayToJSON(byte[] bytes) {
+		JSONArray json = new JSONArray();
+		for (int i = 0; i < bytes.length; i++) {
+			json.put(bytes[i]);
+		}
+		return json;
 	}
 
     private PluginResult writeTag(NdefMessage message, Tag tag) {
@@ -340,7 +324,7 @@ public class NdefPlugin extends Plugin {
 
 		/**
 		 * pausing NFC needs to be run on the main (ui thread)
-		 * http://developer.android .com/reference/android/nfc/NfcAdapter.html#
+		 * http://developer.android.com/reference/android/nfc/NfcAdapter.html#
 		 * disableForegroundDispatch (android.app.Activity)
 		 */
 		public void run() {

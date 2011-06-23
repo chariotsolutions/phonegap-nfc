@@ -38,28 +38,37 @@ body {
 }
 </style>
 <script type="text/javascript">
-
+  /*global NdefPlugin*/
   var tagMimeType = "text/pg"; 
   
-  // Called when an NFC Tag is scanned matching mime type
   function myNfcListener(nfcEvent) {
 
-    var messages = nfcEvent.tagData,    
-      display = document.getElementById("tagContents");    
+    var records = nfcEvent.tagData,    
+      display = document.getElementById("tagContents"),
+      div = document.createElement("div");
   
-    //NDEF Tags can contain multiple messages
-    for (var i = 0; i < messages.length; i++) {
+      div.appendChild(document.createTextNode(new Date()));
+      div.appendChild(document.createElement("br"));
+      div.appendChild(document.createTextNode(
+        "NDEF Message contains " + records.length + " record" + ((records.length === 1) ? "" : "s"))
+      );
     
-      var message = messages[i];
-
-      var tagDataAsString = NdefPlugin.bytesToString(message.records);
-      
-      var p = document.createElement('p');
-      p.appendChild(document.createTextNode(tagDataAsString));
-      display.appendChild(p);
-      display.insertBefore(p, display.firstChild);
-      
+      for (var i = 0; i < records.length; i++) {
+    
+        var record = records[i],
+          p = document.createElement('p'),
+          tagDataAsString,
+          recordType = NdefPlugin.bytesToString(record.type); 	 
+      	 
+	      if (recordType === tagMimeType) { // only print records matching our mime type (for now)
+      	  tagDataAsString = NdefPlugin.bytesToString(record.payload);
+        } else {
+      	  tagDataAsString = "Skipping type " + recordType;
+        }
+        p.appendChild(document.createTextNode(tagDataAsString));
+        div.appendChild(p);
     }
+    display.insertBefore(div, display.firstChild);         
   }
 
   document.addEventListener("ndef", myNfcListener, false);
