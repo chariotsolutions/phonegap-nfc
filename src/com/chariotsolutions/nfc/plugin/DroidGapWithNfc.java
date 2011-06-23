@@ -32,7 +32,7 @@ public class DroidGapWithNfc extends DroidGap {
 			setIntent(new Intent());
 		}
 	}
-
+	
 	@Override
 	public void onPause() {
 		super.onPause();

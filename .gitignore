@@ -1,9 +1,5 @@
 bin/
 proguard.cfg
-.classpath
-.project
-default.properties
-gen/
-libs/
 target/
 Makefile
+.DS_Store
