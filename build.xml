@@ -1,0 +1,34 @@
+<project name="NFC Read Demo" default="dist" basedir=".">
+    <description>
+
+    </description>
+  <!-- set global properties for this build -->
+  <property name="src.dir" location="src"/>
+  <property name="build.dir" location="target"/>
+  <property name="android_sdk" location="/Users/kevingriffin/Development/libs/android10.jar"/>
+  <property name="phonegap_jar" location="phonegap.jar"/>
+  
+  <target name="compile" description="build a new version of phonegap-nfc.jar" >
+      <javac srcdir="${src.dir}" destdir="${build.dir}" debug="on" source="1.6" includeantruntime="false">
+        <classpath>
+            <path location="${android_sdk}"/>
+            <path location="${phonegap_jar}"/>
+        </classpath>
+      </javac>      
+  </target>
+  
+  <target name="jar" description=" bundle phonegap-nfc">
+      
+  </target>
+  
+  
+  <target name="dist" description="copy phonegap-nfc jars and js files to the appropriate location" >
+      <copy file="phonegap-nfc.js" todir="reader-demo/assets/www/"/>
+      <copy file="phonegap-nfc.jar" todir="reader-demo/libs"/>
+  </target>
+
+  <target name="clean" description="clean up" >
+      <delete file="reader-demo/assets/www/phonegap-nfc.js"/>
+      <delete file="reader-demo/libs/phonegap-nfc.jar"/>
+  </target>
+</project>
