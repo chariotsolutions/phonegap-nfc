@@ -1,7 +1,6 @@
 package com.chariotsolutions.nfc.plugin;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,13 +56,6 @@ public class NdefPlugin extends Plugin {
 				}
 				intentFilters.add(addDataTypeToNewIntentFilter(data));
 			} catch (InstantiationException e) {
-				Log.e(TAG, e.toString());
-				return new PluginResult(Status.ERROR);
-			}
-
-			try {
-				registerPluginWithMainActivity();
-			} catch (Exception e) {
 				Log.e(TAG, e.toString());
 				return new PluginResult(Status.ERROR);
 			}
@@ -269,25 +261,6 @@ public class NdefPlugin extends Plugin {
         return new PluginResult(Status.ERROR);
     }
 
-	public void pauseNfc() {
-		this.ctx.runOnUiThread(new NfcPausable(ctx));
-	}
-
-	public void startNfc() {
-		this.ctx.runOnUiThread(new NfcRunnable(ctx, this.getPendingIntent(), this.getIntentFilters().toArray(new IntentFilter[this.getIntentFilters().size()]), this.techLists));
-	}
-
-	@SuppressWarnings("rawtypes")
-	private void registerPluginWithMainActivity() throws Exception {
-		// get the class of the 'main' activity (this could change per app hence the reflection)
-		Class mainActivityClass = Class.forName(this.ctx.getClass().getName());
-
-		Field ndefReaderPluginField = mainActivityClass.getField("ndefReaderPlugin");
-		// cast the 'phonegapActivity' to our main activity
-		Object mainActivity = mainActivityClass.cast(this.ctx);
-		ndefReaderPluginField.set(mainActivity, this);
-	}
-
 	class NfcRunnable implements Runnable {
 		private Activity activity = null;
 		private PendingIntent pendingIntent = null;
@@ -328,11 +301,37 @@ public class NdefPlugin extends Plugin {
 		 * disableForegroundDispatch (android.app.Activity)
 		 */
 		public void run() {
+			Log.d(TAG, "Pausing NFC");
 			NfcAdapter.getDefaultAdapter(activity).disableForegroundDispatch(activity);
 		}
 	}
 
 	public static void saveIntent(Intent intent) {
 		queuedIntents.push(intent);
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		this.ctx.runOnUiThread(new NfcPausable(ctx));
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		this.ctx.runOnUiThread(new NfcRunnable(ctx, this.getPendingIntent(), this.getIntentFilters().toArray(new IntentFilter[this.getIntentFilters().size()]), this.techLists));
+		
+		Intent resumedIntent = ctx.getIntent();
+		if(NfcAdapter.ACTION_NDEF_DISCOVERED.equalsIgnoreCase(resumedIntent.getAction())) {
+			parseMessage(resumedIntent);
+			ctx.setIntent(new Intent());
+		}
+	}
+	
+	@Override
+	public void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		parseMessage(intent);
+		Log.d(TAG, "new intent");
 	}
 }
