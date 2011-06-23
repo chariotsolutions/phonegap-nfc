@@ -3,3 +3,4 @@ proguard.cfg
 target/
 Makefile
 .DS_Store
+reader-demo/libs/phonegap-nfc.jar
