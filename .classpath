@@ -2,6 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="phonegap.jar"/>
-	<classpathentry kind="lib" path="/Users/kevingriffin/Development/Android/android-sdk-mac_86/platforms/android-10/android.jar"/>
+	<classpathentry kind="lib" path="/usr/local/android/platforms/android-10/android.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
