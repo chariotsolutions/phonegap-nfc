@@ -1,4 +1,4 @@
-<project name="PhoneGap NFC Plugin" default="help" basedir=".">
+<project name="PhoneGap NFC Plugin" default="demo" basedir=".">
     <description>
 
     </description>
@@ -6,8 +6,8 @@
   <property name="src.dir" location="src"/>
   <property name="build.dir" location="target"/>
   
-  <property file="build.properties" />
-  
+  <property file="build.properties" />	
+	
   <target name="compile" description="build a new version of phonegap-nfc.jar" >
       <delete includeemptydirs="true">
          <fileset dir="${build.dir}" includes="**/*"/>
