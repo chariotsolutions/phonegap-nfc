@@ -6,3 +6,4 @@ Makefile
 reader-demo/libs/phonegap-nfc.jar
 reader-demo/assets/www/phonegap-nfc.js
 build.properties
+.classpath
