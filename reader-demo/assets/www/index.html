@@ -38,7 +38,7 @@ body {
 }
 </style>
 <script type="text/javascript">
-  /*global NdefPlugin*/
+  /*global NdefPlugin, Ndef, stringToBytes */
   var tagMimeType = "text/pg"; 
   
   function myNfcListener(nfcEvent) {
@@ -60,15 +60,27 @@ body {
           tagDataAsString,
           recordType = NdefPlugin.bytesToString(record.type); 	 
       	 
-	      if (recordType === tagMimeType) { // only print records matching our mime type (for now)
-      	  tagDataAsString = NdefPlugin.bytesToString(record.payload);
-        } else {
-      	  tagDataAsString = "Skipping type " + recordType;
-        }
+      	 
+      	 tagDataAsString =  recordType + " " + NdefPlugin.bytesToString(record.payload);
+//	      if (recordType === tagMimeType) { // only print records matching our mime type (for now)
+//      	  	tagDataAsString = NdefPlugin.bytesToString(record.payload);
+//          } else {
+//      	  	tagDataAsString = "Skipping type " + recordType;
+//          }
         p.appendChild(document.createTextNode(tagDataAsString));
         div.appendChild(p);
     }
     display.insertBefore(div, display.firstChild);         
+    
+    // Write a tag
+    var message = [
+      Ndef.mimeMediaRecord(tagMimeType, stringToBytes("This is a mimeMediaMessage of type " + tagMimeType)),
+      Ndef.uriRecord("http://chariotsolutions.com"),
+      Ndef.textRecord("This is a test...")   
+    ];
+    
+    NdefPlugin.writeTag(message, function () { alert("Wrote Data!"); }, function () { alert("Write failed"); });
+    
   }
 
   document.addEventListener("ndef", myNfcListener, false);

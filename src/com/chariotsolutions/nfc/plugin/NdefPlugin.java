@@ -99,32 +99,36 @@ public class NdefPlugin extends Plugin {
 	    		Log.e(TAG, "Failed to write tag, recieved null intent");
 	    		return new PluginResult(Status.ERROR);
 	    	} else {
-	    		currentIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+	    		tag = currentIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
 	    	}
 	    
-	        String mimeType;
-	        String tagData;
-	        
-	        // TODO future versions should handle multiple messages
-	    	try {
-				mimeType = (String) data.getString(0);
-				tagData = (String) data.getString(1);
-
+	    	JSONArray ndefMessageJSON;
+	    	
+	        try {
+	        	Log.e(TAG, data.getString(0));
+	        	ndefMessageJSON = new JSONArray(data.getString(0));
 			} catch (JSONException e) {
-				// TODO deal with too few arguments
-				Log.e(TAG, "error reading mimeType or tagData");
-				throw new RuntimeException(e);
+				Log.e(TAG, "error reading ndefMessage from JSON");
+	    		return new PluginResult(Status.ERROR);
 			}
 	    	
-			//hum problem
-			//what should the data type be here?
-	        NdefRecord textRecord = new NdefRecord(NdefRecord.TNF_MIME_MEDIA, mimeType.getBytes(),
-	                new byte[] {}, tagData.getBytes());
-	        NdefMessage message = new NdefMessage(new NdefRecord[] {
-	            textRecord
-	        });
-	    	
-	    	writeTag(message, tag);    		
+			NdefRecord[] records = new NdefRecord[ndefMessageJSON.length()];
+			for (int i = 0; i < ndefMessageJSON.length(); i++) {				
+				try {
+					// This seems kludgy am I using JSON wrong? (Or is it just Java?)
+					JSONObject record = ndefMessageJSON.getJSONObject(i);
+					byte tnf = (byte) record.getInt("tnf");
+					byte[] type = jsonToByteArray(record.getJSONArray("type"));
+					byte[] id = jsonToByteArray(record.getJSONArray("id"));
+					byte[] payload = jsonToByteArray(record.getJSONArray("payload"));
+					records[i] = new NdefRecord(tnf, type, id, payload);
+				} catch (JSONException e) {
+					Log.e(TAG, "error reading record from JSON", e);
+		    		return new PluginResult(Status.ERROR);
+				}
+			}
+				    	
+	    	writeTag(new NdefMessage(records), tag);    		
 	    	return new PluginResult(Status.OK);
 			
 		}
@@ -224,6 +228,14 @@ public class NdefPlugin extends Plugin {
 			json.put(bytes[i]);
 		}
 		return json;
+	}
+	
+	private byte[] jsonToByteArray(JSONArray json) throws JSONException {
+		byte[] b = new byte[json.length()];
+		for (int i = 0; i < json.length(); i++) {
+			b[i] = (byte)json.getInt(i);
+		}
+		return b;
 	}
 
     private PluginResult writeTag(NdefMessage message, Tag tag) {
