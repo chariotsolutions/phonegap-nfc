@@ -2,9 +2,9 @@ package com.chariotsolutions.nfc.demo;
 
 import android.os.Bundle;
 
-import com.chariotsolutions.nfc.plugin.DroidGapWithNfc;
+import com.phonegap.DroidGap;
 
-public class NdefDemo extends DroidGapWithNfc {	
+public class NdefDemo extends DroidGap {	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

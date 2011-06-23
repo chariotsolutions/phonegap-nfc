@@ -6,12 +6,11 @@
 
 ## Getting Started - Reading Tags.
 
-There are four steps needed to get NFC working in your PhoneGap application.
+There are three steps needed to get NFC working in your PhoneGap application.
 
 * Import phonegap-nfc JavaScript library
 * Import phonegap-nfc Java library
 * Modify the AndroidManifest.xml
-* Modify the applications main activity.
 
 ### Import phonegap-nfc JavaScript library
 <pre>
@@ -44,10 +43,6 @@ Lastly update the <code>minSdkVersion</code> to '10' if you don't have that in y
 <pre>
 &lt;uses-sdk android:minSdkVersion="10" /&gt;	
 </pre>
-
-### Modify the applications main activity.
-In your main activity you need to change the <code>extends DroidGap</code> to <code>extends DroidGapWithNfc</code> and add the import <code>import com.chariotsolutions.nfc.plugin.DroidGapWithNfc;</code>
-(This is likely under project_name/src)
 
 # Usage:
 

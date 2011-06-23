@@ -1,9 +1,9 @@
 bin/
 proguard.cfg
-.classpath
-.project
-default.properties
-gen/
-libs/
 target/
 Makefile
+.DS_Store
+reader-demo/libs/phonegap-nfc.jar
+reader-demo/assets/www/phonegap-nfc.js
+build.properties
+.classpath
