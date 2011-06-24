@@ -43,6 +43,7 @@ public class NdefPlugin extends Plugin {
 
 	@Override
 	public PluginResult execute(String action, JSONArray data, String callbackId) {
+		Log.d(TAG, "ARSE");
 		if (action.equalsIgnoreCase(REGISTER)) {
 
 			Intent intent = new Intent(ctx, ctx.getClass());
@@ -323,14 +324,14 @@ public class NdefPlugin extends Plugin {
 	}
 	
 	@Override
-	public void onPause() {
-		super.onPause();
+	public void onPause(boolean multitasking) {
+		super.onPause(multitasking);
 		this.ctx.runOnUiThread(new NfcPausable(ctx));
 	}
 	
 	@Override
-	public void onResume() {
-		super.onResume();
+	public void onResume(boolean multitasking) {
+		super.onResume(multitasking);
 		this.ctx.runOnUiThread(new NfcRunnable(ctx, this.getPendingIntent(), this.getIntentFilters().toArray(new IntentFilter[this.getIntentFilters().size()]), this.techLists));
 		
 		Intent resumedIntent = ctx.getIntent();
