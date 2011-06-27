@@ -140,15 +140,6 @@ var NdefPlugin = {
       PhoneGap.exec(win, fail, "NdefPlugin", "writeTag", [ndefMessage]);
     },
         
-    fireMimeTypeEvent: function (ndefMessage) {
-        NdefPlugin.fireEvent('ndef-mime', ndefMessage);
-    },    
-    fireNdefEvent: function (ndefMessage) {
-        NdefPlugin.fireEvent('ndef', ndefMessage);
-    },
-    fireUnformattedTagEvent: function () {
-        NdefPlugin.fireEvent('ndef-unformatted', []);
-    },
     // Java is responsible for calling this method
     // Type is ndef-mime, ndef, or ndef-unformatted
     fireEvent: function (type, tagData) {
@@ -167,7 +158,6 @@ var NdefPlugin = {
  */
 PhoneGap.addConstructor(function() { 
   // Register the javascript plugin with PhoneGap
-  //PhoneGap.addPlugin('NdefPlugin', new NdefPlugin());
   PhoneGap.addPlugin('NdefPlugin', NdefPlugin);
 
   // Register the native class of plugin with PhoneGap
