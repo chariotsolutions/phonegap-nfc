@@ -1,25 +1,8 @@
 /*global PhoneGap*/
-// http://stackoverflow.com/questions/1240408/reading-bytes-from-a-javascript-string#1242596
-function stringToBytes ( str ) {
-    var ch, st, re = [];
-    for (var i = 0; i < str.length; i++ ) {
-      ch = str.charCodeAt(i);  // get char 
-      st = [];                 // set up "stack"
-      do {
-        st.push( ch & 0xFF );  // push byte to stack
-        ch = ch >> 8;          // shift value down by 1 byte
-      }  
-      while ( ch );
-      // add stack contents to result
-      // done because chars have "wrong" endianness
-      re = re.concat( st.reverse() );
-    }
-    // return an array of bytes
-    return re;
-}
 
 var Ndef = {
     // see android.nfc.NdefRecord for documentation about constants
+    // http://developer.android.com/reference/android/nfc/NdefRecord.html
     TNF_EMPTY: 0x0,
     TNF_WELL_KNOWN: 0x01,
     TNF_MIME_MEDIA: 0x02,
@@ -37,7 +20,19 @@ var Ndef = {
     RTD_HANDOVER_REQUEST: [0x48, 0x72], // "Hr"
     RTD_HANDOVER_SELECT: [0x48, 0x73], // "Hs"
 
-    record: function (tnf, type, id, payload) { // TODO get a better name
+    /**
+     * Creates a JSON representation of a NDEF Record.
+     * 
+     * @tnf 3-bit TNF (Type Name Format) - use one of the TNF_* constants
+     * @type byte array, containing zero to 255 bytes, must not be null
+     * @id byte array, containing zero to 255 bytes, must not be null
+     * @payload byte array, containing zero to (2 ** 32 - 1) bytes, must not be null
+     *
+     * @returns JSON representation of a NDEF record
+     * 
+     * @see Ndef.textRecord, Ndef.uriRecord and Ndef.mimeMediaRecord for examples        
+     */
+    record: function (tnf, type, id, payload) {
         return {
             tnf: tnf,
             type: type,
@@ -46,26 +41,46 @@ var Ndef = {
         };
     },
 
-    // TODO people should build their own helper methods and call Ndef.record(...)
-    // textRecord, uriRecord and mimeMediaRecord are provided for convenience and as examples
-        
-    textRecord: function (text) {
+    /**
+     * Helper that creates a NDEF record containing plain text.
+     *
+     * @text String
+     * @id byte[] (optional)
+     */
+    textRecord: function (text, id) {
         var languageCode = 'en', // TODO get from browser
-            payload = [];            
-
+            payload = [];         
+            
+        if (!id) { id = []; }   
+        
         payload.push(languageCode.length);        
-        Ndef.concatArray(payload, stringToBytes(languageCode));
-        Ndef.concatArray(payload, stringToBytes(text));
+        Ndef.concatArray(payload, Ndef.stringToBytes(languageCode));
+        Ndef.concatArray(payload, Ndef.stringToBytes(text));
 
-        return Ndef.record(Ndef.TNF_WELL_KNOWN, Ndef.RTD_TEXT, [], payload);
+        return Ndef.record(Ndef.TNF_WELL_KNOWN, Ndef.RTD_TEXT, id, payload);
     },
-    
-    uriRecord: function (text) {
-        return Ndef.record(Ndef.TNF_ABSOLUTE_URI, Ndef.RTD_URI, [], stringToBytes(text));
+
+    /**
+     * Helper that creates a NDEF record containing an absolute URI.
+     *
+     * @text String
+     * @id byte[] (optional)
+     */
+    uriRecord: function (text, id) {
+        if (!id) { id = []; }   
+        return Ndef.record(Ndef.TNF_ABSOLUTE_URI, Ndef.RTD_URI, id, Ndef.stringToBytes(text));
     },
-    
-    mimeMediaRecord: function (mimeType, payload) {
-        return Ndef.record(Ndef.TNF_MIME_MEDIA, stringToBytes(mimeType), [], payload);
+
+    /**
+     * Helper that creates a NDEF record containing an mimeMediaRecord.
+     *
+     * @mimeType String
+     * @payload byte[]
+     * @id byte[] (optional)
+     */    
+    mimeMediaRecord: function (mimeType, payload, id) {
+        if (!id) { id = []; }   
+        return Ndef.record(Ndef.TNF_MIME_MEDIA, Ndef.stringToBytes(mimeType), id, payload);
     },
     
     concatArray: function (a1, a2) { // this isn't built in?
@@ -73,46 +88,75 @@ var Ndef = {
             a1.push(a2[i]);
         }
         return a1;
+    },
+    
+    bytesToString: function (bytes) {
+      var bytesAsString = "";
+      for (var i = 0; i < bytes.length; i++) {
+        bytesAsString += String.fromCharCode(bytes[i]);
+      }
+      return bytesAsString;
+    },
+    
+    // http://stackoverflow.com/questions/1240408/reading-bytes-from-a-javascript-string#1242596
+    stringToBytes: function ( str ) {
+        var ch, st, re = [];
+        for (var i = 0; i < str.length; i++ ) {
+          ch = str.charCodeAt(i);  // get char 
+          st = [];                 // set up "stack"
+          do {
+            st.push( ch & 0xFF );  // push byte to stack
+            ch = ch >> 8;          // shift value down by 1 byte
+          }  
+          while ( ch );
+          // add stack contents to result
+          // done because chars have "wrong" endianness
+          re = re.concat( st.reverse() );
+        }
+        // return an array of bytes
+        return re;
     }
     
 };
 
-var NdefPlugin = function() {
-};
+var NdefPlugin = {
 
-NdefPlugin.prototype.register = function(mime_type, win, fail) {
-    console.log('registering');
-  PhoneGap.exec(win, fail, "NdefPlugin", "register", [mime_type]);
-};
-
-// TODO rename this shite
-NdefPlugin.prototype.registerForWrite = function(win, fail) {
-    PhoneGap.exec(win, fail, "NdefPlugin", "registerForWrite", []);
-};
-
-// Message should be an Array of NDEF records
-// Must be called from the event handler so we have a tag
-NdefPlugin.writeTag = function (ndefMessage, win, fail) {
-  console.log('writeTag');
-  PhoneGap.exec(win, fail, "NdefPlugin", "writeTag", [ndefMessage]);
-};
-
-NdefPlugin.bytesToString = function (bytes) {
-  var bytesAsString = "";
-  for (var i = 0; i < bytes.length; i++) {
-    bytesAsString += String.fromCharCode(bytes[i]);
-  }
-  return bytesAsString;
-};
-
-NdefPlugin.fireNfc = function (tagData) {
-  var e = document.createEvent('Events'),
-  type = 'ndef';
-  
-  e.initEvent(type);
-  e.tagData = tagData;
-  
-  document.dispatchEvent(e);
+    addMimeTypeListener: function (mime_type, callback, win, fail) {
+        document.addEventListener("ndef-mime", callback, false);    
+        PhoneGap.exec(win, fail, "NdefPlugin", "registerMimeType", [mime_type]);
+    },
+    
+    addNdefListener: function (callback, win, fail) {
+        document.addEventListener("ndef", callback, false);                
+        PhoneGap.exec(win, fail, "NdefPlugin", "registerNdef", []);
+    },
+    
+    addNdefFormattableListener: function (callback, win, fail) { 
+        document.addEventListener("ndef-unformatted", callback, false);                
+        PhoneGap.exec(win, fail, "NdefPlugin", "registerNdefFormattable", []);
+    },
+    
+    writeTag: function (ndefMessage, win, fail) {
+      PhoneGap.exec(win, fail, "NdefPlugin", "writeTag", [ndefMessage]);
+    },
+        
+    fireMimeTypeEvent: function (ndefMessage) {
+        NdefPlugin.fireEvent('ndef-mime', ndefMessage);
+    },    
+    fireNdefEvent: function (ndefMessage) {
+        NdefPlugin.fireEvent('ndef', ndefMessage);
+    },
+    fireUnformattedTagEvent: function () {
+        NdefPlugin.fireEvent('ndef-unformatted', []);
+    },
+    // Java is responsible for calling this method
+    // Type is ndef-mime, ndef, or ndef-unformatted
+    fireEvent: function (type, tagData) {
+        var e = document.createEvent('Events');
+        e.initEvent(type);
+        e.tagData = tagData;
+        document.dispatchEvent(e);        
+    }     
 };
 
 /**
@@ -123,7 +167,8 @@ NdefPlugin.fireNfc = function (tagData) {
  */
 PhoneGap.addConstructor(function() { 
   // Register the javascript plugin with PhoneGap
-  PhoneGap.addPlugin('NdefPlugin', new NdefPlugin());
+  //PhoneGap.addPlugin('NdefPlugin', new NdefPlugin());
+  PhoneGap.addPlugin('NdefPlugin', NdefPlugin);
 
   // Register the native class of plugin with PhoneGap
   navigator.app.addService("NdefPlugin", "com.chariotsolutions.nfc.plugin.NdefPlugin"); 

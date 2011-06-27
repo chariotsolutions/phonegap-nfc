@@ -38,7 +38,7 @@ body {
 }
 </style>
 <script type="text/javascript">
-  /*global NdefPlugin, Ndef, stringToBytes */
+  /*global NdefPlugin, Ndef */
   var tagMimeType = "text/pg"; 
   
   function myNfcListener(nfcEvent) {
@@ -46,71 +46,73 @@ body {
     var records = nfcEvent.tagData,    
       display = document.getElementById("tagContents"),
       div = document.createElement("div");
-  
+
+      // TODO simplify.  Use a template, don't track tag history
       div.appendChild(document.createTextNode(new Date()));
       div.appendChild(document.createElement("br"));
       div.appendChild(document.createTextNode(
         "NDEF Message contains " + records.length + " record" + ((records.length === 1) ? "" : "s"))
       );
-    
+        
       for (var i = 0; i < records.length; i++) {
     
         var record = records[i],
           p = document.createElement('p'),
           tagDataAsString,
-          recordType = NdefPlugin.bytesToString(record.type); 	 
-      	 
-      	 
-      	 tagDataAsString =  recordType + " " + NdefPlugin.bytesToString(record.payload);
-//	      if (recordType === tagMimeType) { // only print records matching our mime type (for now)
-//      	  	tagDataAsString = NdefPlugin.bytesToString(record.payload);
-//          } else {
-//      	  	tagDataAsString = "Skipping type " + recordType;
-//          }
+          recordType = Ndef.bytesToString(record.type);   
+                
+        tagDataAsString =  recordType + " " + Ndef.bytesToString(record.payload);
         p.appendChild(document.createTextNode(tagDataAsString));
         div.appendChild(p);
     }
     display.insertBefore(div, display.firstChild);         
     
-    // Write a tag
+    // writeTag();
+  }
+
+  function writeTag() {
     var message = [
-      Ndef.mimeMediaRecord(tagMimeType, stringToBytes("This is a mimeMediaMessage of type " + tagMimeType)),
+      Ndef.mimeMediaRecord(tagMimeType, Ndef.stringToBytes("This is a mimeMediaMessage of type " + tagMimeType)),
       Ndef.uriRecord("http://chariotsolutions.com"),
       Ndef.textRecord("This is a test...")   
     ];
     
-    NdefPlugin.writeTag(message, function () { alert("Wrote Data!"); }, function () { alert("Write failed"); });
-    
+    NdefPlugin.writeTag(message, function () { alert("Wrote Data!"); }, function () { alert("Write failed"); });    
+  }
+  
+  function alertFunction(message) {
+    return function () {
+      alert(message);
+    };
   }
 
-  document.addEventListener("ndef", myNfcListener, false);
-    
-  var ready = function() {
-    var win = function () {      
-      console.log("registered "+ tagMimeType);
-      
-      window.plugins.NdefPlugin.registerForWrite(function() {
-      }, function() {
-      	alert('did fail');
-      }); 
-    },
-
-    fail = function() {
-      alert('Failed to register mime type ' + tagMimeType + ' with NFC');
+  function logFunction(message) {
+    return function () {
+      console.log(message);
     };
+  }
+  
+  var ready = function () {
     
-    //Using setTimeout as a work around, problems with plugin initialization
-    //http://groups.google.com/group/phonegap/browse_thread/thread/9c0adba823797b53
-    window.setTimeout ( function() { 
-      window.plugins.NdefPlugin.register(tagMimeType, win, fail);      
-      } , 500 );
+    function win() {
+      console.log("Listening for tags with mime type "+ tagMimeType);
+    }
+    
+    function fail() {
+      alert('Failed to register mime type ' + tagMimeType + ' with NFC');
+    }
+    
+    window.plugins.NdefPlugin.addMimeTypeListener(tagMimeType, myNfcListener, win, fail); 
+    
   };
 
-  document.addEventListener("menubutton", function() {
+  document.addEventListener("menubutton", function () {
   	document.getElementById("tagContents").innerHTML = "";
   }, false);
 
-  document.addEventListener('deviceready', ready, false);
+  // deviceready is being called before the plugins finish initializing
+  // add setTimeout as a kludge until the real problem is fixed
+  document.addEventListener('deviceready', function () { window.setTimeout(ready, 500); }, false);
 </script>
 </head>
 

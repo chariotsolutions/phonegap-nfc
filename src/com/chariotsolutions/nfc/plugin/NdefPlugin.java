@@ -32,9 +32,15 @@ import com.phonegap.api.PluginResult.Status;
 
 public class NdefPlugin extends Plugin {
 	private static Stack<Intent> queuedIntents = new Stack<Intent>();
-	private static final String REGISTER = "register";
+	private static final String REGISTER_MIME_TYPE = "registerMimeType";
+	private static final String REGISTER_NDEF = "registerNdef"; 
+	private static final String REGISTER_NDEF_FORMATTABLE = "registerNdefFormattable"; 
 	private static final String WRITE_TAG = "writeTag";
-	private static final String REGISTER_FOR_WRITE = "registerForWrite"; // TODO rename, it's not write
+
+	private static final String NDEF = "ndef"; 
+	private static final String NDEF_MIME = "ndef-mime"; 
+	private static final String NDEF_UNFORMATTED = "ndef-unformatted"; 
+	
 	private Intent currentIntent = null;
 	private static String TAG = "NdefPlugin";
 	private PendingIntent pendingIntent = null;
@@ -42,8 +48,9 @@ public class NdefPlugin extends Plugin {
 	private String[][] techLists = null;
 
 	@Override
+	// TODO refactor this into multiple methods
 	public PluginResult execute(String action, JSONArray data, String callbackId) {
-		if (action.equalsIgnoreCase(REGISTER)) {
+		if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
 
 			Intent intent = new Intent(ctx, ctx.getClass());
 			intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -72,7 +79,7 @@ public class NdefPlugin extends Plugin {
 			}
 			
 			return new PluginResult(Status.OK);
-		} else if (action.equalsIgnoreCase(REGISTER_FOR_WRITE)) { 	
+		} else if (action.equalsIgnoreCase(REGISTER_NDEF)) { 	
 			if (intentFilters == null) {
 				intentFilters = new ArrayList<IntentFilter>();
 			}
@@ -82,6 +89,9 @@ public class NdefPlugin extends Plugin {
 					{ NdefFormatable.class.getName() } };
 	        
 			return new PluginResult(Status.OK);
+		} else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATTABLE)) {
+			// TODO implement me!
+			return new PluginResult(Status.ERROR);
 		} else if (action.equalsIgnoreCase(WRITE_TAG)) {	
 			Vibrator v = (Vibrator) this.ctx.getSystemService(Context.VIBRATOR_SERVICE);
 	    	v.vibrate(100);
@@ -163,31 +173,45 @@ public class NdefPlugin extends Plugin {
 	}
 
 	public void parseMessage(Intent intent) {
-		String command = "";
-		if (intent.getAction().equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
-			this.currentIntent = intent;
+		String action = intent.getAction();
+		this.currentIntent = intent;
+
+		if (action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
 			Parcelable[] rawData = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-			for (Parcelable parcelable : Arrays.asList(rawData)) {
-				JSONArray jsonData = messageToJSON((NdefMessage)parcelable);
-				command = "NdefPlugin.fireNfc(" + jsonData + ")";
-				this.sendJavascript(command);
+			for (Parcelable message : rawData) {			    
+			    fireNdefEvent(NDEF_MIME, message);
 			}
 			
-		} else if (intent.getAction().equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
+		} else if (action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
 			Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-			
-			String[] tagTechs = tag.getTechList();
-			for (String s : tagTechs) {
-				if (s.equalsIgnoreCase(NdefFormatable.class.getName())) {
-					command = "alert('Fire NdefFormatable event');";
-				} else if (s.equalsIgnoreCase(Ndef.class.getName())) {
-					command = "alert('Fire Ndef event');";
+						
+			for (String tagTech : tag.getTechList()) {
+				if (tagTech.equalsIgnoreCase(NdefFormatable.class.getName())) {
+					fireNdefEvent(NDEF_UNFORMATTED);
+				} else if (tagTech.equalsIgnoreCase(Ndef.class.getName())) {
+					for (Parcelable message : intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)) {
+						fireNdefEvent(NDEF, message);
+					}
 				} else {
-					command = "alert('Scanned a tag I don't understand ' + "+s+");";
+					this.sendJavascript("alert('Scanned a tag I don't understand ' + " + tagTech + ");");
 				}
-				this.sendJavascript(command);
-			}			
-		}
+			} 
+		} 
+	}
+	
+	private void fireNdefEvent(String type) {
+	    JSONArray jsonData = new JSONArray();			    
+		fireNdefEvent(type, jsonData);
+	}
+	
+	private void fireNdefEvent(String type, Parcelable parcelable) {
+	    JSONArray jsonData = messageToJSON((NdefMessage)parcelable);
+		fireNdefEvent(type, jsonData);
+	}
+	
+	private void fireNdefEvent(String type, JSONArray ndefMessage) {
+	    String command = "NdefPlugin.fireEvent('" + type + "', " + ndefMessage + ")";
+		this.sendJavascript(command);
 	}
 
 	private JSONArray messageToJSON(NdefMessage message) {
