@@ -6,15 +6,21 @@
   <property name="src.dir" location="src"/>
   <property name="build.dir" location="target"/>
   
-  <property file="build.properties" />	
-	
+  <!-- The default.properties file is created and updated by the 'android' tool, as well
+       as ADT.
+       This file is an integral part of the build system for your application and
+       should be checked in in Version Control Systems. -->
+  <property file="reader-demo/default.properties" />
+  <property file="build.properties" />
+  
   <target name="compile" description="build a new version of phonegap-nfc.jar" >
+      <mkdir dir="${build.dir}"/>
       <delete includeemptydirs="true">
-         <fileset dir="${build.dir}" includes="**/*"/>
-       </delete>
+        <fileset dir="${build.dir}" includes="**/*"/>
+      </delete>
       <javac srcdir="${src.dir}" destdir="${build.dir}" debug="on" source="1.6" includeantruntime="false">
         <classpath>
-            <path location="${sdk.dir}/android.jar"/>
+            <path location="${sdk.dir}/platforms/${target}/android.jar"/>
             <path location="${phonegap}"/>
         </classpath>
       </javac>      
