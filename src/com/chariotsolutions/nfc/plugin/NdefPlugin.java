@@ -85,9 +85,6 @@ public class NdefPlugin extends Plugin {
 			
 			return new PluginResult(Status.OK);
 		} else if (action.equalsIgnoreCase(WRITE_TAG)) {	
-			Vibrator v = (Vibrator) this.ctx.getSystemService(Context.VIBRATOR_SERVICE);
-	    	v.vibrate(100);
-
 	    	Tag tag = null;
 	    	if (currentIntent == null) {
 	    		Log.e(TAG, "Failed to write tag, recieved null intent");
