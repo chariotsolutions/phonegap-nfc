@@ -70,6 +70,10 @@ body {
     // writeTag();
   }
 
+  function myNdefFormattableListener(ndefFormattableEvent) {
+    alert('formattable');
+  }
+
   function writeTag() {
     var message = [
       Ndef.mimeMediaRecord(tagMimeType, Ndef.stringToBytes("This is a mimeMediaMessage of type " + tagMimeType)),
@@ -102,7 +106,20 @@ body {
       alert('Failed to register mime type ' + tagMimeType + ' with NFC');
     }
     
-    window.plugins.NdefPlugin.addMimeTypeListener(tagMimeType, myNfcListener, win, fail); 
+    function win1() {
+      console.log("win 1");
+    }
+    
+    function fail1() {
+      alert('fail 2');
+    }
+    window.plugins.NdefPlugin.addMimeTypeListener(tagMimeType, myNfcListener, win, fail);  
+    window.plugins.NdefPlugin.addNdefFormattableListener(myNdefFormattableListener, win1, fail1);
+    window.plugins.NdefPlugin.addNdefListener(myNfcListener, function() {
+      alert('win');
+    }, function() {
+      alert('fail');
+    });  
     
   };
 
