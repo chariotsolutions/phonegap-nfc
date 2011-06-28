@@ -12,7 +12,6 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
@@ -23,7 +22,6 @@ import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.os.Parcelable;
-import android.os.Vibrator;
 import android.util.Log;
 
 import com.phonegap.api.Plugin;
