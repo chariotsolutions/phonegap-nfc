@@ -45,18 +45,19 @@ public class NdefPlugin extends Plugin {
 	private static String TAG = "NdefPlugin";
 	private PendingIntent pendingIntent = null;
 	private List<IntentFilter> intentFilters = null;
-	private String[][] techLists = null;
+	private ArrayList<String[]> techLists = null;
 
 	@Override
 	// TODO refactor this into multiple methods
 	public PluginResult execute(String action, JSONArray data, String callbackId) {
-		if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
-
+		if (pendingIntent == null) {
 			Intent intent = new Intent(ctx, ctx.getClass());
 			intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			pendingIntent = PendingIntent.getActivity(ctx, 0, intent, 0);
-
+		}
+		
+		if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
 			try {
 				if (intentFilters == null) {
 					intentFilters = new ArrayList<IntentFilter>();
@@ -67,31 +68,22 @@ public class NdefPlugin extends Plugin {
 				return new PluginResult(Status.ERROR);
 			}
 
-			try {
-				this.ctx.runOnUiThread(new NfcRunnable(ctx,
-					this.getPendingIntent(), this.getIntentFilters().toArray(new IntentFilter[this.getIntentFilters().size()]), null));
-			} catch ( Exception e ) {
-				Log.e(TAG, e.toString());
-			} 
-
-			while(!queuedIntents.isEmpty()) {
-				parseMessage(queuedIntents.pop());
-			}
+			enableNfc(); 			
+			parseQueuedMessages();
+			
+			return new PluginResult(Status.OK);			
+		} else if (action.equalsIgnoreCase(REGISTER_NDEF)) { 	
+			addTechList(new String[] { Ndef.class.getName() });
+			enableNfc(); 
+			parseQueuedMessages();
 			
 			return new PluginResult(Status.OK);
-		} else if (action.equalsIgnoreCase(REGISTER_NDEF)) { 	
-			if (intentFilters == null) {
-				intentFilters = new ArrayList<IntentFilter>();
-			}
-			intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED));
-	        techLists = new String[][] { 
-	        		{ Ndef.class.getName() },
-					{ NdefFormatable.class.getName() } };
-	        
-			return new PluginResult(Status.OK);
 		} else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATTABLE)) {
-			// TODO implement me!
-			return new PluginResult(Status.ERROR);
+			addTechList(new String[] { NdefFormatable.class.getName()});
+			enableNfc();
+			parseQueuedMessages();
+			
+			return new PluginResult(Status.OK);
 		} else if (action.equalsIgnoreCase(WRITE_TAG)) {	
 			Vibrator v = (Vibrator) this.ctx.getSystemService(Context.VIBRATOR_SERVICE);
 	    	v.vibrate(100);
@@ -136,6 +128,41 @@ public class NdefPlugin extends Plugin {
 		}
 		Log.d(TAG, "no result");
 		return new PluginResult(Status.NO_RESULT);
+	}
+
+	private void addTechList(String[] list) {
+		this.addTechFilter();
+		this.addToTechList(list);	    
+	}
+
+	private void parseQueuedMessages() {
+		while(!queuedIntents.isEmpty()) {
+			parseMessage(queuedIntents.pop());
+		}
+	}
+
+	private void addTechFilter() {
+		if (intentFilters == null) {
+			intentFilters = new ArrayList<IntentFilter>();
+		}
+		intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED));
+	}
+
+	private void addToTechList(String[] techs) {
+		if (techLists == null) {
+			techLists = new ArrayList<String[]>();
+		}
+		techLists.add(techs);
+	}	
+	
+	private void enableNfc() {
+		try {
+			this.ctx.runOnUiThread(new NfcRunnable(ctx,
+				this.getPendingIntent(), this.getIntentFilters().toArray(new IntentFilter[this.getIntentFilters().size()]), 
+				techLists.toArray(new String[0][0])));
+		} catch ( Exception e ) {
+			Log.e(TAG, e.toString());
+		}
 	}
 
 	private IntentFilter addDataTypeToNewIntentFilter(JSONArray data)
@@ -188,12 +215,11 @@ public class NdefPlugin extends Plugin {
 			for (String tagTech : tag.getTechList()) {
 				if (tagTech.equalsIgnoreCase(NdefFormatable.class.getName())) {
 					fireNdefEvent(NDEF_UNFORMATTED);
+					return;
 				} else if (tagTech.equalsIgnoreCase(Ndef.class.getName())) {
 					for (Parcelable message : intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)) {
 						fireNdefEvent(NDEF, message);
 					}
-				} else {
-					this.sendJavascript("alert('Scanned a tag I don't understand ' + " + tagTech + ");");
 				}
 			} 
 		} 
@@ -355,7 +381,8 @@ public class NdefPlugin extends Plugin {
 	@Override
 	public void onResume(boolean multitasking) {
 		super.onResume(multitasking);
-		this.ctx.runOnUiThread(new NfcRunnable(ctx, this.getPendingIntent(), this.getIntentFilters().toArray(new IntentFilter[this.getIntentFilters().size()]), this.techLists));
+		this.ctx.runOnUiThread(new NfcRunnable(ctx, this.getPendingIntent(), this.getIntentFilters().toArray(new IntentFilter[this.getIntentFilters().size()]), 
+				this.techLists.toArray(new String[0][0])));
 		
 		Intent resumedIntent = ctx.getIntent();
 		if(NfcAdapter.ACTION_NDEF_DISCOVERED.equalsIgnoreCase(resumedIntent.getAction())) {
