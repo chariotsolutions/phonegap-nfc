@@ -20,13 +20,13 @@ body {
 }
 
 #instructions {
-	text-align: center;
-	padding: 40px 10px 20px 10px;
+  text-align: center;
+  padding: 40px 10px 20px 10px;
 }
 
 #instructions p:last-child {
-	padding-top: 60px;
-	font-size: .8em;
+  padding-top: 60px;
+  font-size: .8em;
 }
 
 h1 {
@@ -60,21 +60,21 @@ h1 {
       
     }
     
-  	return ("record type: <b>" +  recordType + "<\/b>" + 
-  	  "<br/>" + payload
-  	); 	
+    return ("record type: <b>" +  recordType + "<\/b>" + 
+      "<br/>" + payload
+    );  
   }
   
   function clearScreen() {
-  	document.getElementById("tagContents").innerHTML = "";
+    document.getElementById("tagContents").innerHTML = "";
   }
   
   function showInstructions() {
-  	document.getElementById("tagContents").innerHTML =
-  	  "<div id='instructions'>" +
-      "	<p>Scan a tag to begin.<\/p>" +
-      "	<p>Expecting Mime Media Tags with a type of " + tagMimeType + ".<\/p>" +      
-      "	<p>Use the menu button to clear the screen.<\/p>" +
+    document.getElementById("tagContents").innerHTML =
+      "<div id='instructions'>" +
+      " <p>Scan a tag to begin.<\/p>" +
+      " <p>Expecting Mime Media Tags with a type of " + tagMimeType + ".<\/p>" +      
+      " <p>Use the menu button to clear the screen.<\/p>" +
       "<\/div>";
   }
     
