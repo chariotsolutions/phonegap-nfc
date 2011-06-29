@@ -1,9 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-
 <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-
 <title>PhoneGap</title>
 <script type="text/javascript" charset="utf-8" src="phonegap.0.9.5.js"></script>
 <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>
@@ -19,10 +17,6 @@ body {
   margin:0;
   padding-right: 20px;
   padding-left: 20px;
-}
-
-#tagContent p:first-child {
-  font-size: .8em;	
 }
 
 #instructions {
@@ -47,6 +41,30 @@ h1 {
   /*global NdefPlugin, Ndef */
   var tagMimeType = "text/pg"; 
   
+  function template(record) {  
+    var recordType = Ndef.bytesToString(record.type),
+      payload;
+      
+    if (recordType === "T") {
+      var langCodeLength = payload[0],
+        text = record.payload.slice((1 + langCodeLength), record.payload.length);
+        
+      payload = Ndef.bytesToString(text);
+      
+    } else if (recordType === "U") {
+      var url = Ndef.bytesToString(record.payload);
+      payload = "<a href='" + url + "'>" + url + "<\/a>";
+      
+    } else {      
+      payload = Ndef.bytesToString(record.payload);
+      
+    }
+    
+  	return ("record type: <b>" +  recordType + "<\/b>" + 
+  	  "<br/>" + payload
+  	); 	
+  }
+  
   function clearScreen() {
   	document.getElementById("tagContents").innerHTML = "";
   }
@@ -59,26 +77,7 @@ h1 {
       "	<p>Use the menu button to clear the screen.<\/p>" +
       "<\/div>";
   }
-  
-  function template(record) {
-      
-    var recordType = Ndef.bytesToString(record.type),
-      payload = Ndef.bytesToString(record.payload);
     
-    if (recordType === "T") {  // TODO check TNF too
-      var data = record.payload.slice(3, record.payload.length);
-      payload = Ndef.bytesToString(data);
-    } else if (recordType === "U") {
-      var url = Ndef.bytesToString(record.payload);
-      payload = "<a href='" + url + "'>" + url + "<\/a>";
-    }
-    
-  	return ("record type: <b>" +  recordType + "<\/b>" + 
-  	  "<br/>" + 
-      payload
-  	); 	
-  }
-  
   function myNfcListener(nfcEvent) {
     console.log(JSON.stringify(nfcEvent.tagData));
 
@@ -95,16 +94,11 @@ h1 {
         var record = records[i],
           p = document.createElement('p');
                     
-          p.innerHTML = template(record);
-//        p.appendChild(document.createTextNode("record type: " + Ndef.bytesToString(record.type)));
-//        p.appendChild(document.createElement('br'));  
-//        p.appendChild(document.createTextNode(Ndef.bytesToString(record.payload)));  
-
+        p.innerHTML = template(record);
         display.appendChild(p);
     }
 
     navigator.notification.vibrate(100);   
-    //window.setTimeout(showInstructions, 20000); 
   }
   
   var ready = function () {
