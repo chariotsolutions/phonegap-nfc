@@ -2,7 +2,16 @@
 
 ## Supported Platforms
 
-* Android
+* Android 
+
+## Getting Started - Project set up with Eclipse (ADT Plugin).
+
+* Import the phonegap-nfc project into Eclipse
+    * Configure build path for android.jar
+    * Configure build path for phonegap.jar (0.9.6+)
+* run <code>ant copy</code>
+* Import reader-demo into Eclipse
+
 
 ## Getting Started - Reading Tags.
 

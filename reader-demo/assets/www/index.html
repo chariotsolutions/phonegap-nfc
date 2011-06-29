@@ -79,7 +79,6 @@ h1 {
   }
     
   function myNfcListener(nfcEvent) {
-    console.log(JSON.stringify(nfcEvent.tagData));
 
     clearScreen();
 
@@ -97,7 +96,6 @@ h1 {
         p.innerHTML = template(record);
         display.appendChild(p);
     }
-
     navigator.notification.vibrate(100);   
   }
   
@@ -111,7 +109,7 @@ h1 {
       alert('Failed to register mime type ' + tagMimeType + ' with NFC');
     }
     
-    window.plugins.NdefPlugin.addMimeTypeListener(tagMimeType, myNfcListener, win, fail); 
+    window.plugins.NdefPlugin.addMimeTypeListener(tagMimeType, myNfcListener, win, fail);  
     
     showInstructions();    
             
