@@ -46,7 +46,7 @@ h1 {
       payload;
       
     if (recordType === "T") {
-      var langCodeLength = payload[0],
+      var langCodeLength = record.payload[0],
         text = record.payload.slice((1 + langCodeLength), record.payload.length);
         
       payload = Ndef.bytesToString(text);
