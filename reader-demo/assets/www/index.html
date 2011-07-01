@@ -1,9 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-
 <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-
 <title>PhoneGap</title>
 <script type="text/javascript" charset="utf-8" src="phonegap.0.9.5.js"></script>
 <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>
@@ -13,87 +11,92 @@ body {
   margin: 0;
   padding: 0;
   background-color: #BADA55;
-  color:  #fff;
-}
-
-.title {
-  text-shadow: 0px -1px 1px #000;
-  border-bottom: 1px solid #000;
-  padding: 10px 0 10px 0;
-  text-align: center;
-}
-
-.clear {
-  text-align: center;
-  border-bottom: 1px solid #000;
-  padding-bottom: 10px;
-  margin: 0;
 }
 
 #tagContents {
   margin:0;
-  border-top: 1px solid #fff;
-  padding: 10px;
-  font-size: 200%;
+  padding-right: 20px;
+  padding-left: 20px;
 }
+
+#instructions {
+  text-align: center;
+  padding: 40px 10px 20px 10px;
+}
+
+#instructions p:last-child {
+  padding-top: 60px;
+  font-size: .8em;
+}
+
+h1 {
+  font-size: 1.25em;
+  text-align: center;
+  border-bottom: 1px solid #000;
+  padding: 0 10px 10px 10px;
+}  
+
 </style>
 <script type="text/javascript">
   /*global NdefPlugin, Ndef */
   var tagMimeType = "text/pg"; 
   
+  function template(record) {  
+    var recordType = Ndef.bytesToString(record.type),
+      payload;
+      
+    if (recordType === "T") {
+      var langCodeLength = record.payload[0],
+        text = record.payload.slice((1 + langCodeLength), record.payload.length);
+        
+      payload = Ndef.bytesToString(text);
+      
+    } else if (recordType === "U") {
+      var url = Ndef.bytesToString(record.payload);
+      payload = "<a href='" + url + "'>" + url + "<\/a>";
+      
+    } else {      
+      payload = Ndef.bytesToString(record.payload);
+      
+    }
+    
+    return ("record type: <b>" +  recordType + "<\/b>" + 
+      "<br/>" + payload
+    );  
+  }
+  
+  function clearScreen() {
+    document.getElementById("tagContents").innerHTML = "";
+  }
+  
+  function showInstructions() {
+    document.getElementById("tagContents").innerHTML =
+      "<div id='instructions'>" +
+      " <p>Scan a tag to begin.<\/p>" +
+      " <p>Expecting Mime Media Tags with a type of " + tagMimeType + ".<\/p>" +      
+      " <p>Use the menu button to clear the screen.<\/p>" +
+      "<\/div>";
+  }
+    
   function myNfcListener(nfcEvent) {
+    console.log(JSON.stringify(nfcEvent.tagData));
+    clearScreen();
 
     var records = nfcEvent.tagData,    
-      display = document.getElementById("tagContents"),
-      div = document.createElement("div");
-
-      // TODO simplify.  Use a template, don't track tag history
-      div.appendChild(document.createTextNode(new Date()));
-      div.appendChild(document.createElement("br"));
-      div.appendChild(document.createTextNode(
-        "NDEF Message contains " + records.length + " record" + ((records.length === 1) ? "" : "s"))
+      display = document.getElementById("tagContents");
+      display.appendChild(document.createTextNode(
+        "Scanned a NDEF tag with " + records.length + " record" + ((records.length === 1) ? "" : "s"))
       );
         
       for (var i = 0; i < records.length; i++) {
     
         var record = records[i],
-          p = document.createElement('p'),
-          tagDataAsString,
-          recordType = Ndef.bytesToString(record.type);   
-                
-        tagDataAsString =  recordType + " " + Ndef.bytesToString(record.payload);
-        p.appendChild(document.createTextNode(tagDataAsString));
-        div.appendChild(p);
+          p = document.createElement('p');
+                    
+        p.innerHTML = template(record);
+        display.appendChild(p);
     }
-    display.insertBefore(div, display.firstChild);         
-    
-    // writeTag();
-  }
-
-  function myNdefFormattableListener(ndefFormattableEvent) {
-    alert('formattable');
-  }
-
-  function writeTag() {
-    var message = [
-      Ndef.mimeMediaRecord(tagMimeType, Ndef.stringToBytes("This is a mimeMediaMessage of type " + tagMimeType)),
-      Ndef.uriRecord("http://chariotsolutions.com"),
-      Ndef.textRecord("This is a test...")   
-    ];
-    
-    NdefPlugin.writeTag(message, function () { alert("Wrote Data!"); }, function () { alert("Write failed"); });    
-  }
-  
-  function alertFunction(message) {
-    return function () {
-      alert(message);
-    };
-  }
-
-  function logFunction(message) {
-    return function () {
-      console.log(message);
-    };
+    navigator.notification.vibrate(100);   
   }
   
   var ready = function () {
@@ -106,37 +109,28 @@ body {
       alert('Failed to register mime type ' + tagMimeType + ' with NFC');
     }
     
-    function win1() {
-      console.log("win 1");
-    }
+    window.plugins.NdefPlugin.addMimeTypeListener(tagMimeType, myNfcListener, win, fail);
+    window.plugins.NdefPlugin.addNdefListener(function () { 
+      alert("This is an NDEF tag but doesn't have the mime type (" + tagMimeType + ") we're looking for."); 
+    });
+    window.plugins.NdefPlugin.addNdefFormattableListener(function () { alert("This tag is formattable"); });
     
-    function fail1() {
-      alert('fail 2');
-    }
-    window.plugins.NdefPlugin.addMimeTypeListener(tagMimeType, myNfcListener, win, fail);  
-    window.plugins.NdefPlugin.addNdefFormattableListener(myNdefFormattableListener, win1, fail1);
-    window.plugins.NdefPlugin.addNdefListener(myNfcListener, function() {
-      alert('win');
-    }, function() {
-      alert('fail');
-    });  
-    
+    showInstructions();    
+            
   };
 
-  document.addEventListener("menubutton", function () {
-  	document.getElementById("tagContents").innerHTML = "";
-  }, false);
+  document.addEventListener("menubutton", showInstructions, false);
 
   // deviceready is being called before the plugins finish initializing
   // add setTimeout as a kludge until the real problem is fixed
   document.addEventListener('deviceready', function () { window.setTimeout(ready, 500); }, false);
+     
 </script>
 </head>
 
 <body>
-  <h1 class="title">PhoneGap NFC Reader</h1>
-  <p class="clear">Hit the menu button to clear</p>
-    <div id="tagContents">
-    </div>
+  <h1>PhoneGap NFC Reader</h1>
+  <div id="tagContents">
+  </div>
 </body>
 </html>

@@ -23,9 +23,9 @@ There are three steps needed to get NFC working in your PhoneGap application.
 
 ### Import phonegap-nfc JavaScript library
 <pre>
-	<code>
+  <code>
 &lt;script type="text/javascript" charset="utf-8" src="phonegap.nfc.js"&gt;&lt;/script&gt;
-	</code>
+  </code>
 </pre>
 
 ### Import phonegap-nfc Java library
@@ -41,16 +41,16 @@ Allow use of NFC:
 Update your activity to include the following intent filter
 <pre>
 &lt;intent-filter&gt;
-	&lt;action android:name="android.nfc.action.NDEF_DISCOVERED" /&gt;
-	&lt;data android:mimeType="text/pg" /&gt;
-	&lt;category android:name="android.intent.category.DEFAULT" /&gt;
+  &lt;action android:name="android.nfc.action.NDEF_DISCOVERED" /&gt;
+  &lt;data android:mimeType="text/pg" /&gt;
+  &lt;category android:name="android.intent.category.DEFAULT" /&gt;
 &lt;/intent-filter&gt;
 </pre>
 **Note: <code>data android:mimeType="text/pg"</code> this should match the data type you specified in JavaScript**
 
 Lastly update the <code>minSdkVersion</code> to '10' if you don't have that in your AndroidManifest.xml just add the whole tag in:
 <pre>
-&lt;uses-sdk android:minSdkVersion="10" /&gt;	
+&lt;uses-sdk android:minSdkVersion="10" /&gt; 
 </pre>
 
 # Usage:
