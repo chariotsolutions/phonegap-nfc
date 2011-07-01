@@ -139,6 +139,10 @@ var NdefPlugin = {
     writeTag: function (ndefMessage, win, fail) {
       PhoneGap.exec(win, fail, "NdefPlugin", "writeTag", [ndefMessage]);
     },
+
+    p2p: function (ndefMessage, win, fail) {
+      PhoneGap.exec(win, fail, "NdefPlugin", "p2p", [ndefMessage]);
+    },
         
     // Java is responsible for calling this method
     // Type is ndef-mime, ndef, or ndef-unformatted
