@@ -58,6 +58,10 @@ public class NdefPlugin extends Plugin {
             pendingIntent = PendingIntent.getActivity(ctx, 0, intent, 0);
         }
         
+        if (techLists == null) { 
+        	techLists = new ArrayList<String[]>();
+        }
+        
         if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
             try {
                 if (intentFilters == null) {
@@ -162,9 +166,6 @@ public class NdefPlugin extends Plugin {
     }
 
     private void addToTechList(String[] techs) {
-        if (techLists == null) {
-            techLists = new ArrayList<String[]>();
-        }
         techLists.add(techs);
     }   
     
@@ -378,6 +379,7 @@ public class NdefPlugin extends Plugin {
         public void run() {
             Log.d(TAG, "Pausing NFC");
             NfcAdapter.getDefaultAdapter(activity).disableForegroundDispatch(activity);
+            NfcAdapter.getDefaultAdapter(activity).disableForegroundNdefPush(activity);
         }
     }
 
