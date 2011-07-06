@@ -51,22 +51,10 @@ public class NdefPlugin extends Plugin {
     @Override
     // TODO refactor this into multiple methods
     public PluginResult execute(String action, JSONArray data, String callbackId) {
-        if (pendingIntent == null) {
-            Intent intent = new Intent(ctx, ctx.getClass());
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            pendingIntent = PendingIntent.getActivity(ctx, 0, intent, 0);
-        }
-        
-        if (techLists == null) { 
-        	techLists = new ArrayList<String[]>();
-        }
+        initializeFilters();
         
         if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
             try {
-                if (intentFilters == null) {
-                    intentFilters = new ArrayList<IntentFilter>();
-                }
                 intentFilters.add(addDataTypeToNewIntentFilter(data));
             } catch (InstantiationException e) {
                 Log.e(TAG, e.toString());
@@ -133,6 +121,23 @@ public class NdefPlugin extends Plugin {
         return new PluginResult(Status.NO_RESULT);
     }
 
+	private void initializeFilters() {
+		if (pendingIntent == null) {
+            Intent intent = new Intent(ctx, ctx.getClass());
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            pendingIntent = PendingIntent.getActivity(ctx, 0, intent, 0);
+        }
+        
+        if (techLists == null) { 
+        	techLists = new ArrayList<String[]>();
+        }
+        
+        if (intentFilters == null) {
+            intentFilters = new ArrayList<IntentFilter>();
+        }
+	}
+
 	private NdefRecord[] jsonToNdefRecords(String ndefMessageAsJSON) throws JSONException {
 		JSONArray jsonRecords = new JSONArray(ndefMessageAsJSON);
 		NdefRecord[] records = new NdefRecord[jsonRecords.length()];
@@ -159,9 +164,6 @@ public class NdefPlugin extends Plugin {
     }
 
     private void addTechFilter() {
-        if (intentFilters == null) {
-            intentFilters = new ArrayList<IntentFilter>();
-        }
         intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED));
     }
 
