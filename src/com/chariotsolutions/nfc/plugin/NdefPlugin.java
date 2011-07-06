@@ -51,7 +51,7 @@ public class NdefPlugin extends Plugin {
     @Override
     // TODO refactor this into multiple methods
     public PluginResult execute(String action, JSONArray data, String callbackId) {
-        initializeFilters();
+        initialize();
         
         if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
             try {
@@ -121,7 +121,7 @@ public class NdefPlugin extends Plugin {
         return new PluginResult(Status.NO_RESULT);
     }
 
-	private void initializeFilters() {
+	private void initialize() {
 		if (pendingIntent == null) {
             Intent intent = new Intent(ctx, ctx.getClass());
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
