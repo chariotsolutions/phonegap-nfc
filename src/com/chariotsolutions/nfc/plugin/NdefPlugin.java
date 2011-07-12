@@ -124,8 +124,7 @@ public class NdefPlugin extends Plugin {
 	private void initialize() {
 		if (pendingIntent == null) {
             Intent intent = new Intent(ctx, ctx.getClass());
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             pendingIntent = PendingIntent.getActivity(ctx, 0, intent, 0);
         }
         
