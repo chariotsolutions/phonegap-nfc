@@ -38,7 +38,7 @@ h1 {
 
 </style>
 <script type="text/javascript">
-  /*global NdefPlugin, Ndef */
+  /*global Ndef */
   var tagMimeType = "text/pg"; 
   
   function template(record) {  
@@ -109,11 +109,11 @@ h1 {
       alert('Failed to register mime type ' + tagMimeType + ' with NFC');
     }
     
-    window.plugins.NdefPlugin.addMimeTypeListener(tagMimeType, myNfcListener, win, fail);
-    window.plugins.NdefPlugin.addNdefListener(function () { 
+    navigator.nfc.addMimeTypeListener(tagMimeType, myNfcListener, win, fail);
+    navigator.nfc.addNdefListener(function () { 
       alert("This is an NDEF tag but doesn't have the mime type (" + tagMimeType + ") we're looking for."); 
     });
-    window.plugins.NdefPlugin.addNdefFormattableListener(function () { alert("This tag is formattable"); });
+    navigator.nfc.addNdefFormattableListener(function () { alert("This tag is formattable"); });
     
     showInstructions();    
             

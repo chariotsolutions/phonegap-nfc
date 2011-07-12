@@ -4,6 +4,6 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="libs/phonegap-nfc.jar"/>
-	<classpathentry kind="lib" path="libs/phonegap.0.9.5.jar"/>
+	<classpathentry kind="lib" path="/usr/local/phonegap-0.9.6/Android/phonegap.0.9.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

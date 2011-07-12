@@ -119,7 +119,7 @@ var Ndef = {
     
 };
 
-var NdefPlugin = {
+navigator.nfc = {
 
     addMimeTypeListener: function (mime_type, callback, win, fail) {
         document.addEventListener("ndef-mime", callback, false);    
@@ -162,7 +162,7 @@ var NdefPlugin = {
  */
 PhoneGap.addConstructor(function() { 
   // Register the javascript plugin with PhoneGap
-  PhoneGap.addPlugin('NdefPlugin', NdefPlugin);
+  PhoneGap.addPlugin('NdefPlugin', navigator.nfc);
 
   // Register the native class of plugin with PhoneGap
   navigator.app.addService("NdefPlugin", "com.chariotsolutions.nfc.plugin.NdefPlugin"); 

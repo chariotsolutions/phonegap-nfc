@@ -252,7 +252,7 @@ public class NdefPlugin extends Plugin {
     }
     
     private void fireNdefEvent(String type, JSONArray ndefMessage) {
-        String command = "NdefPlugin.fireEvent('" + type + "', " + ndefMessage + ")";
+        String command = "navigator.nfc.fireEvent('" + type + "', " + ndefMessage + ")";
         this.sendJavascript(command);
     }
 
