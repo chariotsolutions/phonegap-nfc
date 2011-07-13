@@ -1,50 +1,31 @@
-<project name="PhoneGap NFC Plugin" default="copy" basedir=".">
-    <description>
+<?xml version="1.0"?>
+<project name="PhoneGap NFC Plugin" default="jar" basedir=".">
 
-    </description>
   <!-- set global properties for this build -->
   <property name="src.dir" location="src"/>
   <property name="build.dir" location="target"/>
-  
-  <!-- The default.properties file is created and updated by the 'android' tool, as well
-       as ADT.
-       This file is an integral part of the build system for your application and
-       should be checked in in Version Control Systems. -->
-  <property file="reader-demo/default.properties" />
-  <property file="build.properties" />
-  
+  <property file="build.properties"/>
+  <property name="target" value="android-10"/>
+
   <target name="compile" description="build a new version of phonegap-nfc.jar">
-      <mkdir dir="${build.dir}"/>
-      <delete includeemptydirs="true">
-        <fileset dir="${build.dir}" includes="**/*"/>
-      </delete>
-      <javac srcdir="${src.dir}" destdir="${build.dir}" debug="on" source="1.6" includeantruntime="false">
-        <classpath>
-            <path location="${sdk.dir}/platforms/${target}/android.jar"/>
-            <path location="${phonegap.jar}"/>
-        </classpath>
-      </javac>      
-  </target>
-  
-  <target name="jar" depends="compile" description=" bundle phonegap-nfc">
-      <jar destfile="phonegap-nfc.jar"
-             basedir="${build.dir}"
-        />
-  </target>
-  
-  <target name="build" depends="clean, jar" description="recompile and distribute phonegap-nfc for development" >
-      <copy file="phonegap-nfc.js" todir="reader-demo/assets/www/"/>
-      <copy file="phonegap-nfc.jar" todir="reader-demo/libs"/>
-  </target>
-  
-  <target name="copy" description="copy phonegap-nfc and phonegap jars and js files to the appropriate location" >
-      <copy file="phonegap-nfc.js" todir="reader-demo/assets/www/"/>
-      <copy file="phonegap-nfc.jar" todir="reader-demo/libs"/>
-      <copy file="${phonegap.jar}" todir="reader-demo/libs"/>
+    <mkdir dir="${build.dir}"/>
+    <delete includeemptydirs="true">
+      <fileset dir="${build.dir}" includes="**/*"/>
+    </delete>
+    <javac srcdir="${src.dir}" destdir="${build.dir}" debug="on" source="1.6" includeantruntime="false">
+      <classpath>
+        <path location="${sdk.dir}/platforms/${target}/android.jar"/>
+        <path location="${phonegap.jar}"/>
+      </classpath>
+    </javac>
   </target>
 
-  <target name="clean" description="clean up" >
-      <delete file="reader-demo/assets/www/phonegap-nfc.js"/>
-      <delete file="reader-demo/libs/phonegap-nfc.jar"/>
+  <target name="jar" depends="compile" description="bundle phonegap-nfc">
+    <jar destfile="phonegap-nfc.jar" basedir="${build.dir}"/>
+  </target>
+
+  <target name="clean" description="clean up">
+    <delete dir="${build.dir}"/>
+    <delete file="phonegap-nfc.jar"/>
   </target>
 </project>
