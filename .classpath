@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="/usr/local/android/platforms/android-10/android.jar"/>
-	<classpathentry kind="lib" path="/usr/local/phonegap-1.0.0rc1/Android/phonegap-1.0.0rc1.jar"/>
-	<classpathentry kind="output" path="bin"/>
-</classpath>
