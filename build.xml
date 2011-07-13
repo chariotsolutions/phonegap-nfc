@@ -1,13 +1,21 @@
 <?xml version="1.0"?>
 <project name="PhoneGap NFC Plugin" default="jar" basedir=".">
 
-  <!-- set global properties for this build -->
   <property name="src.dir" location="src"/>
   <property name="build.dir" location="target"/>
+
+  <!-- use build.properties to override sdk.dir and phonegap.home if necessary -->
   <property file="build.properties"/>
+  
+  <!-- android sdk -->
+  <property name="sdk.dir" value="/usr/local/android"/>
   <property name="target" value="android-10"/>
 
-  <target name="compile" description="build a new version of phonegap-nfc.jar">
+  <property name="phonegap.version" value="1.0.0rc1"/>  
+  <property name="phonegap.home" value="/usr/local/phonegap-${phonegap.version}"/>  
+  <property name="phonegap.jar" value="${phonegap.home}/Android/phonegap-${phonegap.version}.jar"/>  
+
+  <target name="compile" description="compile code">
     <mkdir dir="${build.dir}"/>
     <delete includeemptydirs="true">
       <fileset dir="${build.dir}" includes="**/*"/>
@@ -20,7 +28,7 @@
     </javac>
   </target>
 
-  <target name="jar" depends="compile" description="bundle phonegap-nfc">
+  <target name="jar" depends="compile" description="build a new version of phonegap-nfc.jar">
     <jar destfile="phonegap-nfc.jar" basedir="${build.dir}"/>
   </target>
 
