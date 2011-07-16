@@ -41,9 +41,6 @@ Ensure that the `minSdkVersion` is 10
 
     <uses-sdk android:minSdkVersion="10" />
 
-Usage
-===========
-
 
 NFC
 ===========
