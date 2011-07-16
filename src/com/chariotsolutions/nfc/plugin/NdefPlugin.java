@@ -34,7 +34,8 @@ public class NdefPlugin extends Plugin {
     private static final String REGISTER_NDEF = "registerNdef"; 
     private static final String REGISTER_NDEF_FORMATTABLE = "registerNdefFormattable"; 
     private static final String WRITE_TAG = "writeTag";
-    private static final String P2P = "p2p";
+    private static final String SHARE_TAG = "shareTag";
+    private static final String UNSHARE_TAG = "unshareTag";
 
     private static final String NDEF = "ndef"; 
     private static final String NDEF_MIME = "ndef-mime"; 
@@ -80,7 +81,7 @@ public class NdefPlugin extends Plugin {
         } else if (action.equalsIgnoreCase(WRITE_TAG)) {    
             Tag tag = null;
             if (currentIntent == null) {
-                Log.e(TAG, "Failed to write tag, recieved null intent");
+                Log.e(TAG, "Failed to write tag, received null intent");
                 return new PluginResult(Status.ERROR);
             } else {
                 tag = currentIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
@@ -92,12 +93,12 @@ public class NdefPlugin extends Plugin {
 
             } catch (JSONException e) {
             	Log.e(TAG, "error reading ndefMessage from JSON");
-            	return new PluginResult(Status.ERROR);			
+            	return new PluginResult(Status.JSON_EXCEPTION);
             }
             
             return new PluginResult(Status.OK);
             
-        } else if (action.equalsIgnoreCase(P2P)) {
+        } else if (action.equalsIgnoreCase(SHARE_TAG)) {
         	
 			try {
 				NdefRecord[] records = jsonToNdefRecords(data.getString(0));
@@ -111,9 +112,19 @@ public class NdefPlugin extends Plugin {
 	            
 			} catch (JSONException e) {
 				Log.e(TAG, "error reading ndefMessage from JSON");
-	            return new PluginResult(Status.ERROR);			
+                return new PluginResult(Status.JSON_EXCEPTION);
 	        }
 			
+            return new PluginResult(Status.OK);
+
+        } else if (action.equalsIgnoreCase(UNSHARE_TAG)) {
+
+            this.ctx.runOnUiThread(new Runnable() {
+                public void run() {
+                    NfcAdapter.getDefaultAdapter(NdefPlugin.this.ctx).disableForegroundNdefPush(NdefPlugin.this.ctx);
+                }
+            });
+
             return new PluginResult(Status.OK);
 
         }

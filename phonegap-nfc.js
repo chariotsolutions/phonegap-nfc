@@ -121,9 +121,9 @@ var Ndef = {
 
 navigator.nfc = {
 
-    addMimeTypeListener: function (mime_type, callback, win, fail) {
+    addMimeTypeListener: function (mimeType, callback, win, fail) {
         document.addEventListener("ndef-mime", callback, false);    
-        PhoneGap.exec(win, fail, "NdefPlugin", "registerMimeType", [mime_type]);
+        PhoneGap.exec(win, fail, "NdefPlugin", "registerMimeType", [mimeType]);
     },
     
     addNdefListener: function (callback, win, fail) {
@@ -140,10 +140,14 @@ navigator.nfc = {
       PhoneGap.exec(win, fail, "NdefPlugin", "writeTag", [ndefMessage]);
     },
 
-    p2p: function (ndefMessage, win, fail) {
-      PhoneGap.exec(win, fail, "NdefPlugin", "p2p", [ndefMessage]);
+    shareTag: function (ndefMessage, win, fail) {
+      PhoneGap.exec(win, fail, "NdefPlugin", "shareTag", [ndefMessage]);
     },
-        
+
+    unshareTag: function (win, fail) {
+      PhoneGap.exec(win, fail, "NdefPlugin", "unshareTag", []);
+    },
+
     // Java is responsible for calling this method
     // Type is ndef-mime, ndef, or ndef-unformatted
     fireEvent: function (type, tagData) {
