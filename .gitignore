@@ -3,3 +3,7 @@ proguard.cfg
 target/
 Makefile
 .DS_Store
+.idea
+*.iml
+.project
+phonegap-1.0.0rc1-SNAPSHOT.jar
