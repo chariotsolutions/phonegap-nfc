@@ -1,80 +1,284 @@
-# NFC PhoneGap integration
+PhoneGap NFC Plugin
+==========================
 
-## Supported Platforms
+The PhoneGap NFC Plugin provides access to Near Field Communication (NFC) functionality, allowing applications to read NDEF message in NFC tags. A "tag" may actually be another device that appears as a tag.
 
-* Android 
+Supported Platforms
+-------------------
+* Android
 
-## Getting Started - Project set up with Eclipse (ADT Plugin).
+**Requires PhoneGap 1.0**
 
-* Import the phonegap-nfc project into Eclipse
-    * Configure build path for android.jar
-    * Configure build path for phonegap.jar (0.9.6+)
-* run <code>ant copy</code>
-* Import reader-demo into Eclipse
+Configuration
+=============
+
+Assuming you have an existing PhoneGap 1.0 Android project:
+
+### Java
+
+Download phonegap-nfc.jar and add it to lib/
+
+Configure the NdefPlugin in res/xml/plugins.xml
+
+    <plugin name="NdefPlugin" value="com.chariotsolutions.nfc.plugin.NdefPlugin"/>
+
+### JavaScript 
+
+Download phonegap-nfc.js and add it to assets/www
+    
+Include phonegap-nfc.js in index.html
+
+    <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>        
+
+### AndroidManifest.xml
+
+Add NFC permissions
+
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature android:name="android.hardware.nfc" android:required="true" />
+
+Ensure that the `minSdkVersion` is 10
+
+    <uses-sdk android:minSdkVersion="10" />
+
+Usage
+===========
 
 
-## Getting Started - Reading Tags.
+NFC
+===========
 
-There are three steps needed to get NFC working in your PhoneGap application.
+> The nfc object provides access to the devices's NFC sensor.
 
-* Import phonegap-nfc JavaScript library
-* Import phonegap-nfc Java library
-* Modify the AndroidManifest.xml
+Methods
+-------
 
-### Import phonegap-nfc JavaScript library
-<pre>
-  <code>
-&lt;script type="text/javascript" charset="utf-8" src="phonegap.nfc.js"&gt;&lt;/script&gt;
-  </code>
-</pre>
+- nfc.addMimeTypeListener
+- nfc.addNdefListener
+- nfc.addNdefFormattableListener
+- nfc.writeTag
+- nfc.shareTag
+- nfc.unshareTag
 
-### Import phonegap-nfc Java library
-Add the phonegap-nfc.jar to your project in Eclipse. Right click on libs and select Build Path > Configure Build Path. Choose Java Build Path and select the Libraries tab. Click add Jars and select phonegap-nfc.jar. If you are building an Android project from the command line jar files found in libs are automatically compiled in.
+nfc.addMimeTypeListener
+==============================
+Registers an event listener for NDEF tags matching a specified MIME type.
 
-### Modify the AndroidManifest.xml
-Allow use of NFC:
-<pre>
-&lt;uses-permission android:name="android.permission.NFC" /&gt;
-&lt;uses-feature android:name="android.hardware.nfc" android:required="true" /&gt;
-</pre>
+    navigator.nfc.addMimeTypeListener(mimeType, callback, [onSuccess], [onFailure]);
 
-Update your activity to include the following intent filter
-<pre>
-&lt;intent-filter&gt;
-  &lt;action android:name="android.nfc.action.NDEF_DISCOVERED" /&gt;
-  &lt;data android:mimeType="text/pg" /&gt;
-  &lt;category android:name="android.intent.category.DEFAULT" /&gt;
-&lt;/intent-filter&gt;
-</pre>
-**Note: <code>data android:mimeType="text/pg"</code> this should match the data type you specified in JavaScript**
+Parameters
+----------
+- __mimeType__: The MIME type to filter for messages.
+- __callback__: The callback that is called when an NDEF tag matching the MIME type is read.
+- __onSuccess__: (Optional) The callback that is called when the listener is added.
+- __onFailure__: (Optional) The callback that is called if there was an error.
 
-Lastly update the <code>minSdkVersion</code> to '10' if you don't have that in your AndroidManifest.xml just add the whole tag in:
-<pre>
-&lt;uses-sdk android:minSdkVersion="10" /&gt; 
-</pre>
+Description
+-----------
 
-# Usage:
+Function `nfc.addMimeTypeListener` registers the callback for ndef-mime events.
 
-### Event Types:
+A ndef-mime event occurs when a `Ndef.TNF_MIME_MEDIA` tag is read and matches the specified MIME type.
 
- * NDEF Tag read (ndef)
- * Writable Tag read (writeable) (coming soon)
+This function can be called multiple times to register different MIME types.
 
-### Registering the plugin
-In order for the NFC hardware to match our app with a tag we need to 'register' our plugin and a data type we want to read. This should match the data type used to write the tag.
+Supported Platforms
+-------------------
 
-<pre> window.plugins.NdefReaderPlugin.register("text/pg", win, fail); </pre>
+- Android
 
-This is an event that fires when user initiates contact with an NFC Tag with the data type you supplied (be sure this matches the data type in the AndroidManifest.xml)
+nfc.addNdefListener
+==============================
+Registers an event listener for any NDEF tag.
 
-<pre>document.addEventListener("ndef", yourCallbackFunction, false);</pre>
-<pre>document.addEventListener("writeable", yourCallbackFunction, false);</pre>
+    navigator.nfc.addNdefListener(callback, [onSuccess], [onFailure]);
 
-### Known Issues:
-After hitting the home button (pausing the application), and scanning a tag the application resumes, but fails to read the tag.
-I've reproduced this in native Android only and I am working on the issue.
+Parameters
+----------
+- __callback__: The callback that is called when an NDEF tag is read.
+- __onSuccess__: (Optional) The callback that is called when the listener is added.
+- __onFailure__: (Optional) The callback that is called if there was an error.
 
-## Licence ##
+Description
+-----------
+
+Function `nfc.addNdefListener` registers the callback for ndef events.
+
+A ndef event occurs when a NDEF tag is read.
+
+NOTE: Registered mimeTypeListeners takes precedence over the more generic NDEF listener.
+
+
+Supported Platforms
+-------------------
+
+- Android
+
+nfc.addNdefFormattableListener
+==============================
+Registers an event listener for formattable NDEF tags.
+
+    navigator.nfc.addNdefFormattableListener(callback, [onSuccess], [onFailure]);
+
+Parameters
+----------
+- __callback__: The callback that is called when NDEF formattable tag is read.
+- __onSuccess__: (Optional) The callback that is called when the listener is added.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+Description
+-----------
+
+Function `nfc.addNdefFormattableListener` registers the callback for ndef-formattable events.
+
+A ndef-formattable event occurs when a tag is read that can be NDEF formatted.  This is not fired for tags that are already formatted as NDEF.  The ndef-formattable event will not contain an NdefMessage.
+
+Supported Platforms
+-------------------
+
+- Android
+
+nfc.writeTag
+==============================
+Writes data to an NDEF tag.
+
+    navigator.nfc.writeTag(ndefMessage, [onSuccess], [onFailure]);
+
+Parameters
+----------
+- __ndefMessage__: The NdefMessage that is written to the tag.
+- __onSuccess__: (Optional) The callback that is called when the tag is written.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+Description
+-----------
+
+Function `nfc.writeTag` writes an NdefMessage to a NFC tag.
+
+This method *must* be called from within an NDEF Event Handler. 
+
+Supported Platforms
+-------------------
+
+- Android
+
+nfc.shareTag
+==============================
+Shares a NdefMessage via peer-to-peer.
+
+    navigator.nfc.shareTag(ndefMessage, [onSuccess], [onFailure]);
+
+Parameters
+----------
+- __ndefMessage__: The NdefMessage that is shared.
+- __onSuccess__: (Optional) The callback that is called when the message is pushed.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+Description
+-----------
+
+Function `nfc.shareTag` writes an NdefMessage via peer-to-peer.  This should appear as an NFC tag to another device.
+
+Supported Platforms
+-------------------
+
+- Android
+
+nfc.unshareTag
+==============================
+Stop sharing NDEF data via peer-to-peer.
+
+    navigator.nfc.unshareTag([onSuccess], [onFailure]);
+
+Parameters
+----------
+- __onSuccess__: (Optional) The callback that is called when sharing stops.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+Description
+-----------
+
+Function `nfc.unshareTag` stops sharing data via peer-to-peer.
+
+Supported Platforms
+-------------------
+
+- Android
+
+Ndef
+========
+> The Ndef object provides NDEF constants, functions for creating NdefRecords, and functions for converting data.
+> See [android.nfc.NdefRecord](http://developer.android.com/reference/android/nfc/NdefRecord.html) for documentation about constants
+
+NdefMessage
+============
+Represents an NDEF (NFC Data Exchange Format) data message that contains one or more NdefRecords.
+This plugin uses an array of NdefRecords to represent an NdefMessage.
+
+NdefRecord
+============
+Represents a logical (unchunked) NDEF (NFC Data Exchange Format) record.
+
+Properties
+----------
+- __tnf__: 3-bit TNF (Type Name Format) - use one of the TNF_* constants
+- __type__: byte array, containing zero to 255 bytes, must not be null
+- __id__: byte array, containing zero to 255 bytes, must not be null
+- __payload__: byte array, containing zero to (2 ** 32 - 1) bytes, must not be null
+
+The Ndef object has a function for creating NdefRecords
+
+    var record = Ndef.record(Ndef.TNF_ABSOLUTE_URI, Ndef.RTD_URI, [], Ndef.stringToBytes("http://chariotsolutions.com"));
+    
+There are also helper functions for some types of records
+
+    var record = Ndef.uriRecord("http://chariotsolutions.com");
+
+See `Ndef.record`, `Ndef.textRecord`, `Ndef.mimeMediaRecord`, and `Ndef.uriRecord`.
+
+The Ndef object has functions to convert some data types to and from byte arrays.  
+
+See the phonegap-nfc.js source for more documentation.
+
+NDEF Events
+============
+NDEF Events are fired when NFC tags are read.  Listeners are added by registering callback with the `nfc` object. 
+
+Properties
+----------
+- __type__: event type 
+- __tagData__: NdefMessage
+ 
+Types
+---------
+- ndef-mime
+- ndef
+- ndef-formattable
+
+Intents
+===========
+
+  Intents can be used to launch your application when a NFC tag is read.  This is optional and configured in AndroidManifest.xml.
+
+    <intent-filter>
+      <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+      <data android:mimeType="text/pg" />
+      <category android:name="android.intent.category.DEFAULT" />
+    </intent-filter>
+  
+Note: `data android:mimeType="text/pg"` should match the data type you specified in JavaScript
+
+
+Sample Projects
+================
+
+- [NFC Reader](https://github.com/don/phonegap-nfc-reader)
+- [NFC Writer](https://github.com/don/phonegap-nfc-writer)
+- [NFC Peer to Peer](https://github.com/don/phonegap-p2p)
+- [Rock Paper Scissors](https://github.com/don/rockpaperscissors)
+
+License
+================
 
 The MIT License
 
