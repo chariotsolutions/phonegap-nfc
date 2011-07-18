@@ -37,13 +37,12 @@ public class NdefPlugin extends Plugin {
     private Intent currentIntent = null;
     private static String TAG = "NdefPlugin";
     private PendingIntent pendingIntent = null;
-    private List<IntentFilter> intentFilters = null;
-    private ArrayList<String[]> techLists = null;
+    private List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
+    private ArrayList<String[]> techLists = new ArrayList<String[]>();
 
     @Override
-    // TODO refactor this into multiple methods
     public PluginResult execute(String action, JSONArray data, String callbackId) {
-        initialize();
+        createPendingIntent();
         
         if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
             try {
@@ -98,33 +97,23 @@ public class NdefPlugin extends Plugin {
             return new PluginResult(Status.OK);
 
         } else if (action.equalsIgnoreCase(UNSHARE_TAG)) {
-
             p2pMessage = null;
             stopNdefPush();
             return new PluginResult(Status.OK);
-
         }
         Log.d(TAG, "no result");
         return new PluginResult(Status.NO_RESULT);
     }
 
-	private void initialize() {
-		if (pendingIntent == null) {
+    private void createPendingIntent() {
+        if (pendingIntent == null) {
             Intent intent = new Intent(ctx, ctx.getClass());
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             pendingIntent = PendingIntent.getActivity(ctx, 0, intent, 0);
         }
-        
-        if (techLists == null) { 
-        	techLists = new ArrayList<String[]>();
-        }
-        
-        if (intentFilters == null) {
-            intentFilters = new ArrayList<IntentFilter>();
-        }
-	}
+    }
 
-	private NdefRecord[] jsonToNdefRecords(String ndefMessageAsJSON) throws JSONException {
+    private NdefRecord[] jsonToNdefRecords(String ndefMessageAsJSON) throws JSONException {
 		JSONArray jsonRecords = new JSONArray(ndefMessageAsJSON);
 		NdefRecord[] records = new NdefRecord[jsonRecords.length()];
 		for (int i = 0; i < jsonRecords.length(); i++) {                
