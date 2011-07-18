@@ -212,13 +212,17 @@ public class NdefPlugin extends Plugin {
             for (String tagTech : tag.getTechList()) {
                 if (tagTech.equalsIgnoreCase(NdefFormatable.class.getName())) {
                     fireNdefEvent(NDEF_UNFORMATTED);
-                    return;
                 } else if (tagTech.equalsIgnoreCase(Ndef.class.getName())) {
-                    for (Parcelable message : intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)) {
-                        fireNdefEvent(NDEF, message);
+                    Parcelable[] messages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+                    if (messages.length == 0) { // empty formatted tag
+                        fireNdefEvent(NDEF);
+                    } else {
+                        for (Parcelable message : messages) {
+                            fireNdefEvent(NDEF, message);
+                        }
                     }
                 }
-            } 
+            }
         } 
     }
     
