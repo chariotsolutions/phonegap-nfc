@@ -148,6 +148,10 @@ navigator.nfc = {
       PhoneGap.exec(win, fail, "NdefPlugin", "unshareTag", []);
     },
 
+    eraseTag: function (win, fail) {
+      PhoneGap.exec(win, fail, "NdefPlugin", "writeTag", [[]]);
+    },
+
     // Java is responsible for calling this method
     // Type is ndef-mime, ndef, or ndef-unformatted
     fireEvent: function (type, tagData) {
