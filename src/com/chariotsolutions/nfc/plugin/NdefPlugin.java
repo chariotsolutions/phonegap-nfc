@@ -29,7 +29,6 @@ import com.phonegap.api.PluginResult;
 import com.phonegap.api.PluginResult.Status;
 
 public class NdefPlugin extends Plugin {
-    private static Stack<Intent> queuedIntents = new Stack<Intent>();
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
     private static final String REGISTER_NDEF = "registerNdef"; 
     private static final String REGISTER_NDEF_FORMATTABLE = "registerNdefFormattable"; 
@@ -60,21 +59,17 @@ public class NdefPlugin extends Plugin {
                 Log.e(TAG, e.toString());
                 return new PluginResult(Status.ERROR);
             }
-
-            enableNfc();            
-            parseQueuedMessages();
+            enableNfc();
             
             return new PluginResult(Status.OK);         
         } else if (action.equalsIgnoreCase(REGISTER_NDEF)) {    
             addTechList(new String[] { Ndef.class.getName() });
-            enableNfc(); 
-            parseQueuedMessages();
+            enableNfc();
             
             return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATTABLE)) {
             addTechList(new String[] { NdefFormatable.class.getName()});
             enableNfc();
-            parseQueuedMessages();
             
             return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(WRITE_TAG)) {    
@@ -164,12 +159,6 @@ public class NdefPlugin extends Plugin {
     private void addTechList(String[] list) {
         this.addTechFilter();
         this.addToTechList(list);       
-    }
-
-    private void parseQueuedMessages() {
-        while(!queuedIntents.isEmpty()) {
-            parseMessage(queuedIntents.pop());
-        }
     }
 
     private void addTechFilter() {
@@ -392,10 +381,6 @@ public class NdefPlugin extends Plugin {
             NfcAdapter.getDefaultAdapter(activity).disableForegroundDispatch(activity);
             NfcAdapter.getDefaultAdapter(activity).disableForegroundNdefPush(activity);
         }
-    }
-
-    public static void saveIntent(Intent intent) {
-        queuedIntents.push(intent);
     }
     
     @Override
