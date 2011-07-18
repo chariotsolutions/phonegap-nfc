@@ -41,7 +41,6 @@ public class NdefPlugin extends Plugin {
     private static final String NDEF_MIME = "ndef-mime"; 
     private static final String NDEF_UNFORMATTED = "ndef-unformatted"; 
 
-
     private NdefMessage p2pMessage = null;
     private Intent currentIntent = null;
     private static String TAG = "NdefPlugin";
@@ -89,14 +88,14 @@ public class NdefPlugin extends Plugin {
              
             try {
             	NdefRecord[] records = jsonToNdefRecords(data.getString(0));
-                writeTag(new NdefMessage(records), tag);            
+                return writeTag(new NdefMessage(records), tag);            
 
             } catch (JSONException e) {
             	Log.e(TAG, "error reading ndefMessage from JSON");
             	return new PluginResult(Status.JSON_EXCEPTION);
             }
             
-            return new PluginResult(Status.OK);
+            //return new PluginResult(Status.OK);
             
         } else if (action.equalsIgnoreCase(SHARE_TAG)) {
         	
@@ -317,13 +316,13 @@ public class NdefPlugin extends Plugin {
 
                 if (!ndef.isWritable()) {
                     Log.e(TAG, "Failed to write tag - read only");
-                    return new PluginResult(Status.ERROR);
+                    return new PluginResult(Status.ERROR, "Tag is read only.");
                 }
                 if (ndef.getMaxSize() < size) {
-                    Log.e(TAG, "Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size + " bytes.");
-                    return new PluginResult(Status.ERROR);
+                    String errorMessage = "Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size + " bytes.";
+                    Log.e(TAG, errorMessage);
+                    return new PluginResult(Status.ERROR, errorMessage);
                 }
-
                 ndef.writeNdefMessage(message);
                 return new PluginResult(Status.OK);
             } else {
@@ -348,7 +347,7 @@ public class NdefPlugin extends Plugin {
         }
         return new PluginResult(Status.ERROR);
     }
-
+    
     class NfcRunnable implements Runnable {
         private Activity activity = null;
         private PendingIntent pendingIntent = null;
