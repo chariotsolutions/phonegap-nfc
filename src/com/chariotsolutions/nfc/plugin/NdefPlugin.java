@@ -1,32 +1,25 @@
 package com.chariotsolutions.nfc.plugin;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
-import android.nfc.Tag;
+import android.nfc.*;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.os.Parcelable;
 import android.util.Log;
-
 import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
 import com.phonegap.api.PluginResult.Status;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class NdefPlugin extends Plugin {
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
@@ -54,71 +47,60 @@ public class NdefPlugin extends Plugin {
         
         if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
             try {
-                intentFilters.add(addDataTypeToNewIntentFilter(data));
-            } catch (InstantiationException e) {
-                Log.e(TAG, e.toString());
-                return new PluginResult(Status.ERROR);
+                String mimeType = data.getString(0);
+                intentFilters.add(createIntentFilter(mimeType));
+            } catch (MalformedMimeTypeException e) {
+                return new PluginResult(Status.ERROR, "Invalid MIME Type");
+            } catch (JSONException e) {
+                return  new PluginResult(Status.JSON_EXCEPTION, "Invalid MIME Type");
             }
-            enableNfc();
+            startNfc();
             
             return new PluginResult(Status.OK);         
         } else if (action.equalsIgnoreCase(REGISTER_NDEF)) {    
             addTechList(new String[] { Ndef.class.getName() });
-            enableNfc();
+            startNfc();
             
             return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATTABLE)) {
-            addTechList(new String[] { NdefFormatable.class.getName()});
-            enableNfc();
+            addTechList(new String[]{NdefFormatable.class.getName()});
+            startNfc();
             
             return new PluginResult(Status.OK);
-        } else if (action.equalsIgnoreCase(WRITE_TAG)) {    
-            Tag tag = null;
+        } else if (action.equalsIgnoreCase(WRITE_TAG)) {
             if (currentIntent == null) {
-                Log.e(TAG, "Failed to write tag, received null intent");
-                return new PluginResult(Status.ERROR);
-            } else {
-                tag = currentIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                return new PluginResult(Status.ERROR, "Failed to write tag, received null intent");
             }
              
             try {
+                Tag tag = currentIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             	NdefRecord[] records = jsonToNdefRecords(data.getString(0));
-                return writeTag(new NdefMessage(records), tag);            
-
+                writeTag(new NdefMessage(records), tag);
             } catch (JSONException e) {
-            	Log.e(TAG, "error reading ndefMessage from JSON");
-            	return new PluginResult(Status.JSON_EXCEPTION);
+            	return new PluginResult(Status.JSON_EXCEPTION, "Error reading ndefMessage from JSON");
+            } catch (Exception e) {
+                return new PluginResult(Status.ERROR, e.getMessage());
             }
-            
-            //return new PluginResult(Status.OK);
-            
+
+            return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(SHARE_TAG)) {
         	
 			try {
 				NdefRecord[] records = jsonToNdefRecords(data.getString(0));
 	            this.p2pMessage = new NdefMessage(records);
 	            	            
-	            this.ctx.runOnUiThread(new Runnable() {
-	            	public void run() {
-	                    NfcAdapter.getDefaultAdapter(NdefPlugin.this.ctx).enableForegroundNdefPush(NdefPlugin.this.ctx, p2pMessage);
-	            	}
-	            });	            
+                startNdefPush();
 	            
 			} catch (JSONException e) {
-				Log.e(TAG, "error reading ndefMessage from JSON");
-                return new PluginResult(Status.JSON_EXCEPTION);
+                return new PluginResult(Status.JSON_EXCEPTION, "Error reading ndefMessage from JSON");
 	        }
 			
             return new PluginResult(Status.OK);
 
         } else if (action.equalsIgnoreCase(UNSHARE_TAG)) {
 
-            this.ctx.runOnUiThread(new Runnable() {
-                public void run() {
-                    NfcAdapter.getDefaultAdapter(NdefPlugin.this.ctx).disableForegroundNdefPush(NdefPlugin.this.ctx);
-                }
-            });
-
+            p2pMessage = null;
+            stopNdefPush();
             return new PluginResult(Status.OK);
 
         }
@@ -165,52 +147,64 @@ public class NdefPlugin extends Plugin {
         intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED));
     }
 
-    private void addToTechList(String[] techs) {
-        techLists.add(techs);
-    }   
-    
-    private void enableNfc() {
-        try {
-            this.ctx.runOnUiThread(new NfcRunnable(ctx,
-                this.getPendingIntent(), this.getIntentFilters().toArray(new IntentFilter[this.getIntentFilters().size()]), 
-                techLists.toArray(new String[0][0])));
-        } catch ( Exception e ) {
-            Log.e(TAG, e.toString());
-        }
+    private void startNfc() {
+        this.ctx.runOnUiThread(new Runnable() {
+            public void run() {
+                NfcAdapter.getDefaultAdapter(ctx).enableForegroundDispatch(
+                        ctx, getPendingIntent(), getIntentFilters(), getTechLists());
+                if (p2pMessage != null) {
+                    NfcAdapter.getDefaultAdapter(ctx).enableForegroundNdefPush(ctx, p2pMessage);
+                }
+            }
+        });
     }
 
-    private IntentFilter addDataTypeToNewIntentFilter(JSONArray data)
-            throws InstantiationException {
-        IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
-        String mimeType = null;
-        try {
-            mimeType = (String) data.getString(0);
-        } catch (JSONException jsone) {
-            Log.e(TAG, "No data type supplied");
-            throw new InstantiationException();
-        }
-
-        // TODO make this less crap
-        if (mimeType != null) {
-            try {
-                ndef.addDataType(mimeType.toString());
-            } catch (MalformedMimeTypeException e) {
-                Log.e(TAG, e.toString());
-                throw new InstantiationException();
+    private void stopNfc() {
+        this.ctx.runOnUiThread(new Runnable() {
+            public void run() {
+                NfcAdapter.getDefaultAdapter(ctx).disableForegroundDispatch(ctx);
+                NfcAdapter.getDefaultAdapter(ctx).disableForegroundNdefPush(ctx);
             }
-        } else {
-            Log.e(TAG, "Data Type was null");
-            throw new InstantiationException();
-        }
-        return ndef;
+        });
+    }
+
+    private void startNdefPush() {
+        this.ctx.runOnUiThread(new Runnable() {
+            public void run() {
+                NfcAdapter.getDefaultAdapter(ctx).enableForegroundNdefPush(ctx, p2pMessage);
+            }
+        });
+    }
+
+    private void stopNdefPush() {
+        this.ctx.runOnUiThread(new Runnable() {
+            public void run() {
+                NfcAdapter.getDefaultAdapter(ctx).disableForegroundNdefPush(ctx);
+            }
+        });
+    }
+
+    private void addToTechList(String[] techs) {
+        techLists.add(techs);
+    }
+
+   private IntentFilter createIntentFilter(String mimeType) throws MalformedMimeTypeException {
+        IntentFilter intentFilter = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
+        intentFilter.addDataType(mimeType);
+        return intentFilter;
     }
 
     private PendingIntent getPendingIntent() {
         return pendingIntent;
     }
 
-    private List<IntentFilter> getIntentFilters() {
-        return intentFilters;
+    private IntentFilter[] getIntentFilters() {
+        return intentFilters.toArray(new IntentFilter[intentFilters.size()]);
+    }
+
+    private String[][] getTechLists() {
+        //noinspection ToArrayCallWithZeroLengthArrayArgument
+        return techLists.toArray(new String[0][0]);
     }
 
     public void parseMessage(Intent intent) {
@@ -280,8 +274,8 @@ public class NdefPlugin extends Plugin {
     
     private JSONArray byteArrayToJSON(byte[] bytes) {
         JSONArray json = new JSONArray();
-        for (int i = 0; i < bytes.length; i++) {
-            json.put(bytes[i]);
+        for (byte aByte : bytes) {
+            json.put(aByte);
         }
         return json;
     }
@@ -294,107 +288,44 @@ public class NdefPlugin extends Plugin {
         return b;
     }
 
-    private PluginResult writeTag(NdefMessage message, Tag tag) {
-        Log.d(TAG, "writeTag");
-        int size = message.toByteArray().length;
+    private void writeTag(NdefMessage message, Tag tag) throws TagWriteException, IOException, FormatException {
 
-        try {
-            Ndef ndef = Ndef.get(tag);
-            if (ndef != null) {
-                ndef.connect();
+        Ndef ndef = Ndef.get(tag);
+        if (ndef != null) {
+            ndef.connect();
 
-                if (!ndef.isWritable()) {
-                    Log.e(TAG, "Failed to write tag - read only");
-                    return new PluginResult(Status.ERROR, "Tag is read only.");
-                }
-                if (ndef.getMaxSize() < size) {
-                    String errorMessage = "Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size + " bytes.";
-                    Log.e(TAG, errorMessage);
-                    return new PluginResult(Status.ERROR, errorMessage);
-                }
-                ndef.writeNdefMessage(message);
-                return new PluginResult(Status.OK);
-            } else {
-                NdefFormatable format = NdefFormatable.get(tag);
-                if (format != null) {
-                    try {
-                        format.connect();
-                        format.format(message);
-                        Log.e(TAG, "Formatted tag and wrote message");
-                        return new PluginResult(Status.OK);
-                    } catch (IOException e) {
-                        Log.e(TAG, "Failed to format tag.");
-                        return new PluginResult(Status.ERROR);
-                    }
-                } else {
-                    Log.e(TAG, "Tag doesn't support NDEF.");
-                    return new PluginResult(Status.ERROR);
-                }
+            if (!ndef.isWritable()) {
+                throw new TagWriteException("Tag is read only");
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to write tag");
-        }
-        return new PluginResult(Status.ERROR);
-    }
-    
-    class NfcRunnable implements Runnable {
-        private Activity activity = null;
-        private PendingIntent pendingIntent = null;
-        private IntentFilter[] intentFilters = null;
-        private String[][] techLists = null;
-        
-        public NfcRunnable(Activity activity, PendingIntent pendingIntent, IntentFilter[] intentFilters, String[][] techLists) {
-            this.techLists = techLists;
-            this.activity = activity;
-            this.pendingIntent = pendingIntent;
-            this.intentFilters = intentFilters;
-        }
 
-        /**
-         * resuming NFC needs to be run on the main (ui thread)
-         * http://developer.android.com/reference/android/nfc/NfcAdapter.html#
-         * enableForegroundDispatch
-         * (android.app.Activity,%20android.app.PendingIntent
-         * ,%20android.content.IntentFilter[],%20java.lang.String[][])
-         */
-        public void run() {
-            Log.d(TAG, "starting NFC!");
-            NfcAdapter.getDefaultAdapter(activity).enableForegroundDispatch(
-                    activity, pendingIntent, intentFilters, techLists);
-        }
-    }
-
-    class NfcPausable implements Runnable {
-        private Activity activity;
-
-        public NfcPausable(Activity activity) {
-            this.activity = activity;
-        }
-
-        /**
-         * pausing NFC needs to be run on the main (ui thread)
-         * http://developer.android.com/reference/android/nfc/NfcAdapter.html#
-         * disableForegroundDispatch (android.app.Activity)
-         */
-        public void run() {
-            Log.d(TAG, "Pausing NFC");
-            NfcAdapter.getDefaultAdapter(activity).disableForegroundDispatch(activity);
-            NfcAdapter.getDefaultAdapter(activity).disableForegroundNdefPush(activity);
+            int size = message.toByteArray().length;
+            if (ndef.getMaxSize() < size) {
+                String errorMessage = "Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size + " bytes.";
+                throw new TagWriteException(errorMessage);
+            }
+            ndef.writeNdefMessage(message);
+        } else {
+            NdefFormatable formatable = NdefFormatable.get(tag);
+            if (formatable != null) {
+                formatable.connect();
+                formatable.format(message);
+            } else {
+                throw new TagWriteException("Tag doesn't support NDEF");
+            }
         }
     }
     
     @Override
     public void onPause(boolean multitasking) {
         super.onPause(multitasking);
-        this.ctx.runOnUiThread(new NfcPausable(ctx));
+        stopNfc();
     }
     
     @Override
     public void onResume(boolean multitasking) {
         super.onResume(multitasking);
-        this.ctx.runOnUiThread(new NfcRunnable(ctx, this.getPendingIntent(), this.getIntentFilters().toArray(new IntentFilter[this.getIntentFilters().size()]), 
-                this.techLists.toArray(new String[0][0])));
-        
+        startNfc();
+
         Intent resumedIntent = ctx.getIntent();
         if(NfcAdapter.ACTION_NDEF_DISCOVERED.equalsIgnoreCase(resumedIntent.getAction())) {
             parseMessage(resumedIntent);
