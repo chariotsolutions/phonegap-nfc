@@ -14,11 +14,9 @@ import com.phonegap.api.PluginResult;
 import com.phonegap.api.PluginResult.Status;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class NdefPlugin extends Plugin {
@@ -73,10 +71,10 @@ public class NdefPlugin extends Plugin {
 
             try {
                 Tag tag = currentIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                NdefRecord[] records = jsonToNdefRecords(data.getString(0));
+                NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
                 writeTag(new NdefMessage(records), tag);
             } catch (JSONException e) {
-                return new PluginResult(Status.JSON_EXCEPTION, "Error reading ndefMessage from JSON");
+                return new PluginResult(Status.JSON_EXCEPTION, "Error reading NDEF message from JSON");
             } catch (Exception e) {
                 return new PluginResult(Status.ERROR, e.getMessage());
             }
@@ -85,13 +83,13 @@ public class NdefPlugin extends Plugin {
         } else if (action.equalsIgnoreCase(SHARE_TAG)) {
 
             try {
-                NdefRecord[] records = jsonToNdefRecords(data.getString(0));
+                NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
                 this.p2pMessage = new NdefMessage(records);
 
                 startNdefPush();
 
             } catch (JSONException e) {
-                return new PluginResult(Status.JSON_EXCEPTION, "Error reading ndefMessage from JSON");
+                return new PluginResult(Status.JSON_EXCEPTION, "Error reading NDEF message from JSON");
             }
 
             return new PluginResult(Status.OK);
@@ -111,20 +109,6 @@ public class NdefPlugin extends Plugin {
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             pendingIntent = PendingIntent.getActivity(ctx, 0, intent, 0);
         }
-    }
-
-    private NdefRecord[] jsonToNdefRecords(String ndefMessageAsJSON) throws JSONException {
-        JSONArray jsonRecords = new JSONArray(ndefMessageAsJSON);
-        NdefRecord[] records = new NdefRecord[jsonRecords.length()];
-        for (int i = 0; i < jsonRecords.length(); i++) {
-            JSONObject record = jsonRecords.getJSONObject(i);
-            byte tnf = (byte) record.getInt("tnf");
-            byte[] type = jsonToByteArray(record.getJSONArray("type"));
-            byte[] id = jsonToByteArray(record.getJSONArray("id"));
-            byte[] payload = jsonToByteArray(record.getJSONArray("payload"));
-            records[i] = new NdefRecord(tnf, type, id, payload);
-        }
-        return records;
     }
 
     private void addTechList(String[] list) {
@@ -232,53 +216,13 @@ public class NdefPlugin extends Plugin {
     }
 
     private void fireNdefEvent(String type, Parcelable parcelable) {
-        JSONArray jsonData = messageToJSON((NdefMessage) parcelable);
+        JSONArray jsonData = Util.messageToJSON((NdefMessage) parcelable);
         fireNdefEvent(type, jsonData);
     }
 
     private void fireNdefEvent(String type, JSONArray ndefMessage) {
         String command = "navigator.nfc.fireEvent('" + type + "', " + ndefMessage + ")";
         this.sendJavascript(command);
-    }
-
-    private JSONArray messageToJSON(NdefMessage message) {
-        List<JSONObject> list = new ArrayList<JSONObject>();
-        List<NdefRecord> records = Arrays.asList(message.getRecords());
-
-        for (NdefRecord r : records) {
-            list.add(recordToJSON(r));
-        }
-        return new JSONArray(list);
-    }
-
-    private JSONObject recordToJSON(NdefRecord record) {
-        JSONObject json = new JSONObject();
-        try {
-            json.put("tnf", record.getTnf());
-            json.put("type", byteArrayToJSON(record.getType()));
-            json.put("id", byteArrayToJSON(record.getId()));
-            json.put("payload", byteArrayToJSON(record.getPayload()));
-        } catch (JSONException e) {
-            //Not sure why this would happen, documentation is unclear.
-            Log.e(TAG, "Failed to convert ndef record into json: " + record.toString(), e);
-        }
-        return json;
-    }
-
-    private JSONArray byteArrayToJSON(byte[] bytes) {
-        JSONArray json = new JSONArray();
-        for (byte aByte : bytes) {
-            json.put(aByte);
-        }
-        return json;
-    }
-
-    private byte[] jsonToByteArray(JSONArray json) throws JSONException {
-        byte[] b = new byte[json.length()];
-        for (int i = 0; i < json.length(); i++) {
-            b[i] = (byte) json.getInt(i);
-        }
-        return b;
     }
 
     private void writeTag(NdefMessage message, Tag tag) throws TagWriteException, IOException, FormatException {
