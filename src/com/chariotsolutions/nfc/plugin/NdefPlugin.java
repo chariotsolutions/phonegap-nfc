@@ -23,15 +23,15 @@ import java.util.List;
 
 public class NdefPlugin extends Plugin {
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
-    private static final String REGISTER_NDEF = "registerNdef"; 
-    private static final String REGISTER_NDEF_FORMATTABLE = "registerNdefFormattable"; 
+    private static final String REGISTER_NDEF = "registerNdef";
+    private static final String REGISTER_NDEF_FORMATTABLE = "registerNdefFormattable";
     private static final String WRITE_TAG = "writeTag";
     private static final String SHARE_TAG = "shareTag";
     private static final String UNSHARE_TAG = "unshareTag";
 
-    private static final String NDEF = "ndef"; 
-    private static final String NDEF_MIME = "ndef-mime"; 
-    private static final String NDEF_UNFORMATTED = "ndef-unformatted"; 
+    private static final String NDEF = "ndef";
+    private static final String NDEF_MIME = "ndef-mime";
+    private static final String NDEF_UNFORMATTED = "ndef-unformatted";
 
     private NdefMessage p2pMessage = null;
     private Intent currentIntent = null;
@@ -43,7 +43,7 @@ public class NdefPlugin extends Plugin {
     @Override
     public PluginResult execute(String action, JSONArray data, String callbackId) {
         createPendingIntent();
-        
+
         if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
             try {
                 String mimeType = data.getString(0);
@@ -51,26 +51,26 @@ public class NdefPlugin extends Plugin {
             } catch (MalformedMimeTypeException e) {
                 return new PluginResult(Status.ERROR, "Invalid MIME Type");
             } catch (JSONException e) {
-                return  new PluginResult(Status.JSON_EXCEPTION, "Invalid MIME Type");
+                return new PluginResult(Status.JSON_EXCEPTION, "Invalid MIME Type");
             }
             startNfc();
-            
-            return new PluginResult(Status.OK);         
-        } else if (action.equalsIgnoreCase(REGISTER_NDEF)) {    
-            addTechList(new String[] { Ndef.class.getName() });
+
+            return new PluginResult(Status.OK);
+        } else if (action.equalsIgnoreCase(REGISTER_NDEF)) {
+            addTechList(new String[]{Ndef.class.getName()});
             startNfc();
-            
+
             return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATTABLE)) {
             addTechList(new String[]{NdefFormatable.class.getName()});
             startNfc();
-            
+
             return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(WRITE_TAG)) {
             if (currentIntent == null) {
                 return new PluginResult(Status.ERROR, "Failed to write tag, received null intent");
             }
-             
+
             try {
                 Tag tag = currentIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                 NdefRecord[] records = jsonToNdefRecords(data.getString(0));
@@ -83,17 +83,17 @@ public class NdefPlugin extends Plugin {
 
             return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(SHARE_TAG)) {
-            
+
             try {
                 NdefRecord[] records = jsonToNdefRecords(data.getString(0));
                 this.p2pMessage = new NdefMessage(records);
-                                
+
                 startNdefPush();
-                
+
             } catch (JSONException e) {
                 return new PluginResult(Status.JSON_EXCEPTION, "Error reading ndefMessage from JSON");
             }
-            
+
             return new PluginResult(Status.OK);
 
         } else if (action.equalsIgnoreCase(UNSHARE_TAG)) {
@@ -116,7 +116,7 @@ public class NdefPlugin extends Plugin {
     private NdefRecord[] jsonToNdefRecords(String ndefMessageAsJSON) throws JSONException {
         JSONArray jsonRecords = new JSONArray(ndefMessageAsJSON);
         NdefRecord[] records = new NdefRecord[jsonRecords.length()];
-        for (int i = 0; i < jsonRecords.length(); i++) {                
+        for (int i = 0; i < jsonRecords.length(); i++) {
             JSONObject record = jsonRecords.getJSONObject(i);
             byte tnf = (byte) record.getInt("tnf");
             byte[] type = jsonToByteArray(record.getJSONArray("type"));
@@ -129,7 +129,7 @@ public class NdefPlugin extends Plugin {
 
     private void addTechList(String[] list) {
         this.addTechFilter();
-        this.addToTechList(list);       
+        this.addToTechList(list);
     }
 
     private void addTechFilter() {
@@ -177,7 +177,7 @@ public class NdefPlugin extends Plugin {
         techLists.add(techs);
     }
 
-   private IntentFilter createIntentFilter(String mimeType) throws MalformedMimeTypeException {
+    private IntentFilter createIntentFilter(String mimeType) throws MalformedMimeTypeException {
         IntentFilter intentFilter = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
         intentFilter.addDataType(mimeType);
         return intentFilter;
@@ -202,13 +202,13 @@ public class NdefPlugin extends Plugin {
 
         if (action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
             Parcelable[] rawData = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-            for (Parcelable message : rawData) {                
+            for (Parcelable message : rawData) {
                 fireNdefEvent(NDEF_MIME, message);
             }
-            
+
         } else if (action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                        
+
             for (String tagTech : tag.getTechList()) {
                 if (tagTech.equalsIgnoreCase(NdefFormatable.class.getName())) {
                     fireNdefEvent(NDEF_UNFORMATTED);
@@ -223,26 +223,26 @@ public class NdefPlugin extends Plugin {
                     }
                 }
             }
-        } 
+        }
     }
-    
+
     private void fireNdefEvent(String type) {
-        JSONArray jsonData = new JSONArray();               
+        JSONArray jsonData = new JSONArray();
         fireNdefEvent(type, jsonData);
     }
-    
+
     private void fireNdefEvent(String type, Parcelable parcelable) {
-        JSONArray jsonData = messageToJSON((NdefMessage)parcelable);
+        JSONArray jsonData = messageToJSON((NdefMessage) parcelable);
         fireNdefEvent(type, jsonData);
     }
-    
+
     private void fireNdefEvent(String type, JSONArray ndefMessage) {
         String command = "navigator.nfc.fireEvent('" + type + "', " + ndefMessage + ")";
         this.sendJavascript(command);
     }
 
     private JSONArray messageToJSON(NdefMessage message) {
-        List<JSONObject> list = new ArrayList<JSONObject>(); 
+        List<JSONObject> list = new ArrayList<JSONObject>();
         List<NdefRecord> records = Arrays.asList(message.getRecords());
 
         for (NdefRecord r : records) {
@@ -250,21 +250,21 @@ public class NdefPlugin extends Plugin {
         }
         return new JSONArray(list);
     }
-    
+
     private JSONObject recordToJSON(NdefRecord record) {
         JSONObject json = new JSONObject();
-        try {                   
+        try {
             json.put("tnf", record.getTnf());
             json.put("type", byteArrayToJSON(record.getType()));
             json.put("id", byteArrayToJSON(record.getId()));
             json.put("payload", byteArrayToJSON(record.getPayload()));
         } catch (JSONException e) {
             //Not sure why this would happen, documentation is unclear.
-            Log.e(TAG,"Failed to convert ndef record into json: " + record.toString(), e);
+            Log.e(TAG, "Failed to convert ndef record into json: " + record.toString(), e);
         }
         return json;
     }
-    
+
     private JSONArray byteArrayToJSON(byte[] bytes) {
         JSONArray json = new JSONArray();
         for (byte aByte : bytes) {
@@ -272,11 +272,11 @@ public class NdefPlugin extends Plugin {
         }
         return json;
     }
-    
+
     private byte[] jsonToByteArray(JSONArray json) throws JSONException {
         byte[] b = new byte[json.length()];
         for (int i = 0; i < json.length(); i++) {
-            b[i] = (byte)json.getInt(i);
+            b[i] = (byte) json.getInt(i);
         }
         return b;
     }
@@ -307,25 +307,25 @@ public class NdefPlugin extends Plugin {
             }
         }
     }
-    
+
     @Override
     public void onPause(boolean multitasking) {
         super.onPause(multitasking);
         stopNfc();
     }
-    
+
     @Override
     public void onResume(boolean multitasking) {
         super.onResume(multitasking);
         startNfc();
 
         Intent resumedIntent = ctx.getIntent();
-        if(NfcAdapter.ACTION_NDEF_DISCOVERED.equalsIgnoreCase(resumedIntent.getAction())) {
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equalsIgnoreCase(resumedIntent.getAction())) {
             parseMessage(resumedIntent);
             ctx.setIntent(new Intent());
         }
     }
-    
+
     @Override
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
