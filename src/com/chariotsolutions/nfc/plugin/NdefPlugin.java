@@ -73,27 +73,27 @@ public class NdefPlugin extends Plugin {
              
             try {
                 Tag tag = currentIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-            	NdefRecord[] records = jsonToNdefRecords(data.getString(0));
+                NdefRecord[] records = jsonToNdefRecords(data.getString(0));
                 writeTag(new NdefMessage(records), tag);
             } catch (JSONException e) {
-            	return new PluginResult(Status.JSON_EXCEPTION, "Error reading ndefMessage from JSON");
+                return new PluginResult(Status.JSON_EXCEPTION, "Error reading ndefMessage from JSON");
             } catch (Exception e) {
                 return new PluginResult(Status.ERROR, e.getMessage());
             }
 
             return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(SHARE_TAG)) {
-        	
-			try {
-				NdefRecord[] records = jsonToNdefRecords(data.getString(0));
-	            this.p2pMessage = new NdefMessage(records);
-	            	            
+            
+            try {
+                NdefRecord[] records = jsonToNdefRecords(data.getString(0));
+                this.p2pMessage = new NdefMessage(records);
+                                
                 startNdefPush();
-	            
-			} catch (JSONException e) {
+                
+            } catch (JSONException e) {
                 return new PluginResult(Status.JSON_EXCEPTION, "Error reading ndefMessage from JSON");
-	        }
-			
+            }
+            
             return new PluginResult(Status.OK);
 
         } else if (action.equalsIgnoreCase(UNSHARE_TAG)) {
@@ -114,18 +114,18 @@ public class NdefPlugin extends Plugin {
     }
 
     private NdefRecord[] jsonToNdefRecords(String ndefMessageAsJSON) throws JSONException {
-		JSONArray jsonRecords = new JSONArray(ndefMessageAsJSON);
-		NdefRecord[] records = new NdefRecord[jsonRecords.length()];
-		for (int i = 0; i < jsonRecords.length(); i++) {                
-			JSONObject record = jsonRecords.getJSONObject(i);
-		    byte tnf = (byte) record.getInt("tnf");
-		    byte[] type = jsonToByteArray(record.getJSONArray("type"));
-		    byte[] id = jsonToByteArray(record.getJSONArray("id"));
-		    byte[] payload = jsonToByteArray(record.getJSONArray("payload"));
-		    records[i] = new NdefRecord(tnf, type, id, payload);
-		}
-		return records;
-	}
+        JSONArray jsonRecords = new JSONArray(ndefMessageAsJSON);
+        NdefRecord[] records = new NdefRecord[jsonRecords.length()];
+        for (int i = 0; i < jsonRecords.length(); i++) {                
+            JSONObject record = jsonRecords.getJSONObject(i);
+            byte tnf = (byte) record.getInt("tnf");
+            byte[] type = jsonToByteArray(record.getJSONArray("type"));
+            byte[] id = jsonToByteArray(record.getJSONArray("id"));
+            byte[] payload = jsonToByteArray(record.getJSONArray("payload"));
+            records[i] = new NdefRecord(tnf, type, id, payload);
+        }
+        return records;
+    }
 
     private void addTechList(String[] list) {
         this.addTechFilter();
