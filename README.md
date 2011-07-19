@@ -56,6 +56,7 @@ Methods
 - nfc.writeTag
 - nfc.shareTag
 - nfc.unshareTag
+- nfc.eraseTag
 
 nfc.addMimeTypeListener
 ==============================
@@ -196,6 +197,24 @@ Description
 -----------
 
 Function `nfc.unshareTag` stops sharing data via peer-to-peer.
+
+nfc.eraseTag
+==============================
+Erase a NDEF tag
+
+    navigator.nfc.eraseTag([onSuccess], [onFailure]);
+
+Parameters
+----------
+- __onSuccess__: (Optional) The callback that is called when sharing stops.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+Description
+-----------
+
+Function `nfc.eraseTag` erases a tag by writing an empty message.  Will format unformatted tags before writing.
+
+This method *must* be called from within an NDEF Event Handler.
 
 Supported Platforms
 -------------------
