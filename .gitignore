@@ -1,6 +1,7 @@
 bin/
 proguard.cfg
 target/
+dist/
 Makefile
 .DS_Store
 .idea

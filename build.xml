@@ -1,19 +1,26 @@
 <?xml version="1.0"?>
-<project name="PhoneGap NFC Plugin" default="jar" basedir=".">
+<project name="PhoneGap NFC Plugin" default="dist" basedir=".">
+
+  <loadfile property="version" srcFile="VERSION">
+    <filterchain>
+      <striplinebreaks/>
+    </filterchain>
+  </loadfile>
 
   <property name="src.dir" location="src"/>
   <property name="build.dir" location="target"/>
+  <property name="dist.dir" location="dist"/>
 
   <!-- use build.properties to override sdk.dir and phonegap.home if necessary -->
   <property file="build.properties"/>
-  
+
   <!-- android sdk -->
   <property name="sdk.dir" value="/usr/local/android"/>
   <property name="target" value="android-10"/>
 
-  <property name="phonegap.version" value="1.0.0rc1"/>  
-  <property name="phonegap.home" value="/usr/local/phonegap-${phonegap.version}"/>  
-  <property name="phonegap.jar" value="${phonegap.home}/Android/phonegap-${phonegap.version}.jar"/>  
+  <property name="phonegap.version" value="1.0.0rc1"/>
+  <property name="phonegap.home" value="/usr/local/phonegap-${phonegap.version}"/>
+  <property name="phonegap.jar" value="${phonegap.home}/Android/phonegap-${phonegap.version}.jar"/>
 
   <target name="compile" description="compile code">
     <mkdir dir="${build.dir}"/>
@@ -29,11 +36,21 @@
   </target>
 
   <target name="jar" depends="compile" description="build a new version of phonegap-nfc.jar">
-    <jar destfile="phonegap-nfc.jar" basedir="${build.dir}"/>
+    <jar destfile="${dist.dir}/phonegap-nfc-${version}.jar" basedir="${build.dir}"/>
+  </target>
+
+  <target name="build-javascript" description="rename javascript with the current version">
+    <concat destfile="${dist.dir}/phonegap-nfc-${version}.js">
+      <fileset dir="." includes="phonegap-nfc.js" />
+    </concat>
+  </target>
+
+  <target name="dist" depends="clean,jar,build-javascript" description="jar and js for distribution">
+    <echo>Built phonegap-nfc-${version} for distribution</echo>
   </target>
 
   <target name="clean" description="clean up">
     <delete dir="${build.dir}"/>
-    <delete file="phonegap-nfc.jar"/>
+    <delete dir="${dist.dir}"/>
   </target>
 </project>
