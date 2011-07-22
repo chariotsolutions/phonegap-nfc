@@ -16,7 +16,7 @@ Assuming you have an existing PhoneGap 1.0 Android project:
 
 ### Java
 
-Download phonegap-nfc.jar and add it to lib/
+[Download phonegap-nfc.jar](https://github.com/chariotsolutions/phonegap-nfc/archives/master) and add it to lib/
 
 Configure the NdefPlugin in res/xml/plugins.xml
 
@@ -24,7 +24,7 @@ Configure the NdefPlugin in res/xml/plugins.xml
 
 ### JavaScript 
 
-Download phonegap-nfc.js and add it to assets/www
+[Download phonegap-nfc.js](https://github.com/chariotsolutions/phonegap-nfc/archives/master) and add it to assets/www
     
 Include phonegap-nfc.js in index.html
 
