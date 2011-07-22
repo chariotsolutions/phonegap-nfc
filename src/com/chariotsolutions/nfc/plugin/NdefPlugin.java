@@ -7,20 +7,17 @@ import android.content.IntentFilter.MalformedMimeTypeException;
 import android.nfc.*;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
-import android.nfc.tech.NfcA;
 import android.os.Parcelable;
 import android.util.Log;
 import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
 import com.phonegap.api.PluginResult.Status;
-import com.sun.corba.se.spi.logging.LogWrapperBase;
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 public class NdefPlugin extends Plugin {
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
@@ -35,6 +32,7 @@ public class NdefPlugin extends Plugin {
     private static final String NDEF_UNFORMATTED = "ndef-unformatted";
 
     private NdefMessage p2pMessage = null;
+    private Intent currentIntent = null;
     private static String TAG = "NdefPlugin";
     private PendingIntent pendingIntent = null;
     private List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
@@ -54,28 +52,25 @@ public class NdefPlugin extends Plugin {
                 return new PluginResult(Status.JSON_EXCEPTION, "Invalid MIME Type");
             }
             startNfc();
-            parseMessage();
-            return new PluginResult(Status.OK);
 
+            return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(REGISTER_NDEF)) {
             addTechList(new String[]{Ndef.class.getName()});
             startNfc();
-            parseMessage();
-            return new PluginResult(Status.OK);
 
+            return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATTABLE)) {
             addTechList(new String[]{NdefFormatable.class.getName()});
             startNfc();
-            parseMessage();
-            return new PluginResult(Status.OK);
 
+            return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(WRITE_TAG)) {
-            if (ctx.getIntent() == null) {
+            if (currentIntent == null) {
                 return new PluginResult(Status.ERROR, "Failed to write tag, received null intent");
             }
 
             try {
-                Tag tag = ctx.getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                Tag tag = currentIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                 NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
                 writeTag(new NdefMessage(records), tag);
             } catch (JSONException e) {
@@ -104,9 +99,8 @@ public class NdefPlugin extends Plugin {
             stopNdefPush();
             return new PluginResult(Status.OK);
         }
-
-        Log.w(TAG, "No plugin action for " + action);
-        return new PluginResult(Status.ERROR, "No plugin action for " + action);
+        Log.d(TAG, "no result");
+        return new PluginResult(Status.NO_RESULT);
     }
 
     private void createPendingIntent() {
@@ -186,9 +180,9 @@ public class NdefPlugin extends Plugin {
         return techLists.toArray(new String[0][0]);
     }
 
-    private void parseMessage() {
-        Intent intent = ctx.getIntent();
+    public void parseMessage(Intent intent) {
         String action = intent.getAction();
+        this.currentIntent = intent;
 
         if (action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
             Parcelable[] rawData = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
@@ -269,8 +263,9 @@ public class NdefPlugin extends Plugin {
         super.onResume(multitasking);
         startNfc();
 
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equalsIgnoreCase(ctx.getIntent().getAction())) {
-            parseMessage();
+        Intent resumedIntent = ctx.getIntent();
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equalsIgnoreCase(resumedIntent.getAction())) {
+            parseMessage(resumedIntent);
             ctx.setIntent(new Intent());
         }
     }
@@ -278,7 +273,7 @@ public class NdefPlugin extends Plugin {
     @Override
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        ctx.setIntent(intent);
-//        parseMessage();
+        parseMessage(intent);
+        Log.d(TAG, "new intent");
     }
 }
