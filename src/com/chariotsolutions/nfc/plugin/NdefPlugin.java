@@ -38,9 +38,20 @@ public class NdefPlugin extends Plugin {
     private List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
     private ArrayList<String[]> techLists = new ArrayList<String[]>();
 
+    private boolean initialized = false;
+    private Intent savedIntent;
+
     @Override
     public PluginResult execute(String action, JSONArray data, String callbackId) {
+        Log.d(TAG, "execute " + action);
         createPendingIntent();
+
+        initialized = true;
+        if (savedIntent != null) {
+            Log.d(TAG, "Processing saved intent " + savedIntent);
+            parseMessage(savedIntent);
+            savedIntent = null;
+        }
 
         if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
             try {
@@ -121,6 +132,8 @@ public class NdefPlugin extends Plugin {
     }
 
     private void startNfc() {
+        createPendingIntent(); // KLUDGE
+
         this.ctx.runOnUiThread(new Runnable() {
             public void run() {
                 NfcAdapter.getDefaultAdapter(ctx).enableForegroundDispatch(
@@ -222,6 +235,7 @@ public class NdefPlugin extends Plugin {
 
     private void fireNdefEvent(String type, JSONArray ndefMessage) {
         String command = "navigator.nfc.fireEvent('" + type + "', " + ndefMessage + ")";
+        Log.d(TAG, command);
         this.sendJavascript(command);
     }
 
@@ -254,26 +268,36 @@ public class NdefPlugin extends Plugin {
 
     @Override
     public void onPause(boolean multitasking) {
+        Log.d(TAG, "onPause " + ctx.getIntent());
         super.onPause(multitasking);
         stopNfc();
     }
 
     @Override
     public void onResume(boolean multitasking) {
+        Log.d(TAG, "onResume " + ctx.getIntent());
+
         super.onResume(multitasking);
         startNfc();
 
-        Intent resumedIntent = ctx.getIntent();
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equalsIgnoreCase(resumedIntent.getAction())) {
-            parseMessage(resumedIntent);
+        if (!initialized) {
+            Log.d(TAG, "Saving Intent until we're initialized");
+            savedIntent = ctx.getIntent();
             ctx.setIntent(new Intent());
         }
     }
 
     @Override
     public void onNewIntent(Intent intent) {
+        Log.d(TAG, "onNewIntent " + intent);
         super.onNewIntent(intent);
         parseMessage(intent);
-        Log.d(TAG, "new intent");
+        ctx.setIntent(new Intent());
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy " + ctx.getIntent());
+        super.onDestroy();
     }
 }
