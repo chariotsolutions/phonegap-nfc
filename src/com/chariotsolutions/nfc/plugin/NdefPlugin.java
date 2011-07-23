@@ -38,7 +38,7 @@ public class NdefPlugin extends Plugin {
     private List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
     private ArrayList<String[]> techLists = new ArrayList<String[]>();
 
-    private boolean initialized = false;
+    private boolean executeHasBeenCalled = false;
     private Intent savedIntent;
 
     @Override
@@ -46,7 +46,7 @@ public class NdefPlugin extends Plugin {
         Log.d(TAG, "execute " + action);
         createPendingIntent();
 
-        initialized = true;
+        executeHasBeenCalled = true;
         if (savedIntent != null) {
             Log.d(TAG, "Processing saved intent " + savedIntent);
             parseMessage(savedIntent);
@@ -132,7 +132,7 @@ public class NdefPlugin extends Plugin {
     }
 
     private void startNfc() {
-        createPendingIntent(); // KLUDGE
+        createPendingIntent(); // onResume can call startNfc before execute
 
         this.ctx.runOnUiThread(new Runnable() {
             public void run() {
@@ -266,6 +266,21 @@ public class NdefPlugin extends Plugin {
         }
     }
 
+    private boolean shouldSaveIntent() {
+
+        if (executeHasBeenCalled) {
+            return false;
+        }
+
+        int flags = ctx.getIntent().getFlags();
+        if ((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) {
+            Log.d(TAG, "Launched from history, ignoring recycled intent");
+            return false;
+        }
+
+        return true;
+    }
+
     @Override
     public void onPause(boolean multitasking) {
         Log.d(TAG, "onPause " + ctx.getIntent());
@@ -280,11 +295,12 @@ public class NdefPlugin extends Plugin {
         super.onResume(multitasking);
         startNfc();
 
-        if (!initialized) {
+        if (shouldSaveIntent()) {
             Log.d(TAG, "Saving Intent until we're initialized");
             savedIntent = ctx.getIntent();
             ctx.setIntent(new Intent());
         }
+
     }
 
     @Override
