@@ -284,6 +284,8 @@ Intents
   
 Note: `data android:mimeType="text/pg"` should match the data type you specified in JavaScript
 
+  We have found it necessary to add `android:noHistory="true"` to the activity element so that scanning a tag launches the application after the user has pressed the home button.
+
 
 Sample Projects
 ================
