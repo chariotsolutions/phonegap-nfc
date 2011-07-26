@@ -103,7 +103,7 @@ public class NdefPlugin extends Plugin {
             return new PluginResult(Status.OK);
 
         } else if (action.equalsIgnoreCase(INIT)) {
-            Log.d(TAG, "Enabling plugin" + ctx.getIntent());
+            Log.d(TAG, "Enabling plugin " + ctx.getIntent());
             startNfc();
             if (!recycledIntent()) {
                 parseMessage();
@@ -195,7 +195,7 @@ public class NdefPlugin extends Plugin {
     }
 
     public void parseMessage() {
-
+        Log.d(TAG, "parseMessage " + ctx.getIntent());
         Intent intent = ctx.getIntent();
         String action = intent.getAction();
 
@@ -217,6 +217,8 @@ public class NdefPlugin extends Plugin {
                 }
             }
         }
+
+        ctx.setIntent(new Intent());
     }
 
     private void fireNdefEvent(String type, Ndef ndef) {
@@ -291,12 +293,6 @@ public class NdefPlugin extends Plugin {
         super.onNewIntent(intent);
         ctx.setIntent(intent);
         parseMessage();
-        ctx.setIntent(new Intent()); // TODO parseMessage should unset after parsing?
     }
 
-    @Override
-    public void onDestroy() {
-        Log.d(TAG, "onDestroy " + ctx.getIntent());
-        super.onDestroy();
-    }
 }
