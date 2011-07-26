@@ -1,5 +1,21 @@
 /*global PhoneGap*/
 
+PhoneGap.addConstructor(
+    function() {
+        PhoneGap.exec(
+            function() {
+                console.log("Initialized the NdefPlugin");
+            },
+            function() {
+                alert("Failed to initialize the NdefPlugin");
+            },
+            "NdefPlugin",
+            "init",
+            []
+        )
+    }
+);
+
 var Ndef = {
     // see android.nfc.NdefRecord for documentation about constants
     // http://developer.android.com/reference/android/nfc/NdefRecord.html
@@ -150,14 +166,6 @@ navigator.nfc = {
 
     eraseTag: function (win, fail) {
       PhoneGap.exec(win, fail, "NdefPlugin", "writeTag", [[]]);
-    },
+    }
 
-    // Java is responsible for calling this method
-    // Type is ndef-mime, ndef, or ndef-unformatted
-    fireEvent: function (type, tagData) {
-        var e = document.createEvent('Events');
-        e.initEvent(type);
-        e.tagData = tagData;
-        document.dispatchEvent(e);        
-    }     
 };

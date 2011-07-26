@@ -2,6 +2,7 @@ package com.chariotsolutions.nfc.plugin;
 
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
+import android.nfc.tech.Ndef;
 import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,6 +13,38 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Util {
+
+    static JSONObject ndefToJSON(Ndef ndef) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("type", translateType(ndef.getType()));
+            json.put("maxSize", ndef.getMaxSize());
+            json.put("isWritable", ndef.isWritable());
+            json.put("canMakeReadOnly", ndef.canMakeReadOnly());
+            json.put("ndefMessage", messageToJSON(ndef.getCachedNdefMessage()));
+        } catch (JSONException e) {
+            //Not sure why this would happen, documentation is unclear.
+            // TODO fix this message crap
+            Log.e("NdefPlugin", "Failed to convert ndef record into json: " + ndef.toString(), e);
+        }
+        return json;
+    }
+
+    static String translateType(String type) {
+        String translation = "";
+        if (type.equals(Ndef.NFC_FORUM_TYPE_1)) {
+            translation = "NFC Forum Type 1";
+        } else if (type.equals(Ndef.NFC_FORUM_TYPE_2)) {
+            translation = "NFC Forum Type 2";
+        } else if (type.equals(Ndef.NFC_FORUM_TYPE_3)) {
+            translation = "NFC Forum Type 3";
+        } else if (type.equals(Ndef.NFC_FORUM_TYPE_4)) {
+            translation = "NFC Forum Type 4";
+        } else {
+            translation = type;
+        }
+        return translation;
+    }
 
     static NdefRecord[] jsonToNdefRecords(String ndefMessageAsJSON) throws JSONException {
         JSONArray jsonRecords = new JSONArray(ndefMessageAsJSON);
