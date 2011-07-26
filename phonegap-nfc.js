@@ -6,8 +6,8 @@ PhoneGap.addConstructor(
             function() {
                 console.log("Initialized the NdefPlugin");
             },
-            function() {
-                alert("Failed to initialize the NdefPlugin");
+            function(reason) {
+                alert("Failed to initialize the NdefPlugin " + reason);
             },
             "NdefPlugin",
             "init",

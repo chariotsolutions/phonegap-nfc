@@ -39,8 +39,6 @@ public class NdefPlugin extends Plugin {
     private List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
     private ArrayList<String[]> techLists = new ArrayList<String[]>();
 
-    private boolean executeHasBeenCalled = false;
-
     @Override
     public PluginResult execute(String action, JSONArray data, String callbackId) {
         Log.d(TAG, "execute " + action);
@@ -84,6 +82,7 @@ public class NdefPlugin extends Plugin {
             }
 
             return new PluginResult(Status.OK);
+
         } else if (action.equalsIgnoreCase(SHARE_TAG)) {
 
             try {
@@ -104,11 +103,13 @@ public class NdefPlugin extends Plugin {
             return new PluginResult(Status.OK);
 
         } else if (action.equalsIgnoreCase(INIT)) {
-
             Log.d(TAG, "Enabling plugin" + ctx.getIntent());
             startNfc();
-            parseMessage(ctx.getIntent()); // TODO don't parse if from history
+            if (!recycledIntent()) {
+                parseMessage();
+            }
             return new PluginResult(Status.OK);
+
         }
         Log.d(TAG, "no result");
         return new PluginResult(Status.NO_RESULT);
@@ -193,9 +194,9 @@ public class NdefPlugin extends Plugin {
         return techLists.toArray(new String[0][0]);
     }
 
-    public void parseMessage(Intent intent) {
-        if (skipIntent()) { return; }
+    public void parseMessage() {
 
+        Intent intent = ctx.getIntent();
         String action = intent.getAction();
 
         if (action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
@@ -220,16 +221,14 @@ public class NdefPlugin extends Plugin {
 
     private void fireNdefEvent(String type, Ndef ndef) {
 
-        String commandTemplate =
+        String javascriptTemplate =
             "var e = document.createEvent(''Events'');\n" +
             "e.initEvent(''{0}'');\n" +
             "e.tag = {1};\n" +
             "document.dispatchEvent(e);";
 
         JSONObject tagAsJson = Util.ndefToJSON(ndef);
-        String command = MessageFormat.format(commandTemplate, type, tagAsJson);
-
-        Log.d(TAG, command);
+        String command = MessageFormat.format(javascriptTemplate, type, tagAsJson);
         this.sendJavascript(command);
 
     }
@@ -261,24 +260,7 @@ public class NdefPlugin extends Plugin {
         }
     }
 
-    // TODO handle properly in init
-    private boolean shouldSaveIntent() {
-
-        if (executeHasBeenCalled) {
-            return false;
-        }
-
-        int flags = ctx.getIntent().getFlags();
-        if ((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) {
-            Log.d(TAG, "Launched from history, ignoring recycled intent");
-            return false;
-        }
-
-        return true;
-    }
-
-    // maybe call this from execute, since we can't get to onCreate
-    private boolean skipIntent() {
+    private boolean recycledIntent() { // TODO this is a kludge call in onCreate
 
         int flags = ctx.getIntent().getFlags();
         if ((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) {
@@ -299,25 +281,17 @@ public class NdefPlugin extends Plugin {
     @Override
     public void onResume(boolean multitasking) {
         Log.d(TAG, "onResume " + ctx.getIntent());
-
         super.onResume(multitasking);
         startNfc();
-
-        // TODO we shouldn't be doing this here
-        if (shouldSaveIntent()) {
-            Log.d(TAG, "Saving Intent until we're initialized");
-            //savedIntent = ctx.getIntent();
-            ctx.setIntent(new Intent());
-        }
-
     }
 
     @Override
     public void onNewIntent(Intent intent) {
         Log.d(TAG, "onNewIntent " + intent);
         super.onNewIntent(intent);
-        parseMessage(intent);
-        ctx.setIntent(new Intent());
+        ctx.setIntent(intent);
+        parseMessage();
+        ctx.setIntent(new Intent()); // TODO parseMessage should unset after parsing?
     }
 
     @Override
