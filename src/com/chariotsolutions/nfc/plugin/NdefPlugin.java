@@ -209,8 +209,7 @@ public class NdefPlugin extends Plugin {
 
             for (String tagTech : tag.getTechList()) {
                 if (tagTech.equals(NdefFormatable.class.getName())) {
-                    Ndef ndef = Ndef.get(tag);
-                    fireNdefEvent(NDEF_UNFORMATTED, ndef);
+                    fireNdefEvent(NDEF_UNFORMATTED, null);
                 } else if (tagTech.equals(Ndef.class.getName())) {
                     Ndef ndef = Ndef.get(tag);
                     fireNdefEvent(NDEF, ndef);
@@ -229,8 +228,12 @@ public class NdefPlugin extends Plugin {
             "e.tag = {1};\n" +
             "document.dispatchEvent(e);";
 
-        JSONObject tagAsJson = Util.ndefToJSON(ndef);
-        String command = MessageFormat.format(javascriptTemplate, type, tagAsJson);
+        String tag = "undefined";
+        if (ndef != null) {
+            JSONObject jsonObject = Util.ndefToJSON(ndef);
+            tag = jsonObject.toString();
+        }
+        String command = MessageFormat.format(javascriptTemplate, type, tag);
         this.sendJavascript(command);
 
     }
