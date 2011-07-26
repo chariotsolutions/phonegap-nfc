@@ -148,7 +148,7 @@ navigator.nfc = {
     },
     
     addNdefFormatableListener: function (callback, win, fail) {
-        document.addEventListener("ndef-unformatted", callback, false);                
+        document.addEventListener("ndef-formatable", callback, false);
         PhoneGap.exec(win, fail, "NdefPlugin", "registerNdefFormatable", []);
     },
     

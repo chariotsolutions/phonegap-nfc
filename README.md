@@ -263,13 +263,31 @@ NDEF Events are fired when NFC tags are read.  Listeners are added by registerin
 Properties
 ----------
 - __type__: event type 
-- __tagData__: NdefMessage
+- __tag__: Ndef tag
  
 Types
 ---------
 - ndef-mime
 - ndef
 - ndef-formatable
+
+Sample Event
+---------
+        {
+            type: "ndef",
+            tag: {
+                "type": "NFC Forum Type 2",
+                "maxSize": 137,                
+                "isWritable": true,                
+                "canMakeReadOnly": true,
+                "ndefMessage": [{
+                    "id": [],
+                    "type": [116, 101, 120, 116, 47, 112, 103],
+                    "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112, 33],
+                    "tnf": 2
+                }]
+            }
+        }
 
 Intents
 ===========
