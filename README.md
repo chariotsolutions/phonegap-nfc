@@ -52,7 +52,7 @@ Methods
 
 - nfc.addMimeTypeListener
 - nfc.addNdefListener
-- nfc.addNdefFormattableListener
+- nfc.addNdefFormatableListener
 - nfc.writeTag
 - nfc.shareTag
 - nfc.unshareTag
@@ -112,24 +112,24 @@ Supported Platforms
 
 - Android
 
-nfc.addNdefFormattableListener
+nfc.addNdefFormatableListener
 ==============================
-Registers an event listener for formattable NDEF tags.
+Registers an event listener for formatable NDEF tags.
 
-    navigator.nfc.addNdefFormattableListener(callback, [onSuccess], [onFailure]);
+    navigator.nfc.addNdefFormatableListener(callback, [onSuccess], [onFailure]);
 
 Parameters
 ----------
-- __callback__: The callback that is called when NDEF formattable tag is read.
+- __callback__: The callback that is called when NDEF formatable tag is read.
 - __onSuccess__: (Optional) The callback that is called when the listener is added.
 - __onFailure__: (Optional) The callback that is called if there was an error.
 
 Description
 -----------
 
-Function `nfc.addNdefFormattableListener` registers the callback for ndef-formattable events.
+Function `nfc.addNdefFormatableListener` registers the callback for ndef-formatable events.
 
-A ndef-formattable event occurs when a tag is read that can be NDEF formatted.  This is not fired for tags that are already formatted as NDEF.  The ndef-formattable event will not contain an NdefMessage.
+A ndef-formatable event occurs when a tag is read that can be NDEF formatted.  This is not fired for tags that are already formatted as NDEF.  The ndef-formatable event will not contain an NdefMessage.
 
 Supported Platforms
 -------------------
@@ -269,7 +269,7 @@ Types
 ---------
 - ndef-mime
 - ndef
-- ndef-formattable
+- ndef-formatable
 
 Intents
 ===========

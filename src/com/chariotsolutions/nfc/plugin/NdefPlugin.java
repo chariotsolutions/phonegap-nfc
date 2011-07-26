@@ -23,7 +23,7 @@ import java.util.List;
 public class NdefPlugin extends Plugin {
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
     private static final String REGISTER_NDEF = "registerNdef";
-    private static final String REGISTER_NDEF_FORMATTABLE = "registerNdefFormattable";
+    private static final String REGISTER_NDEF_FORMATABLE = "registerNdefFormatable";
     private static final String WRITE_TAG = "writeTag";
     private static final String SHARE_TAG = "shareTag";
     private static final String UNSHARE_TAG = "unshareTag";
@@ -31,7 +31,7 @@ public class NdefPlugin extends Plugin {
 
     private static final String NDEF = "ndef";
     private static final String NDEF_MIME = "ndef-mime";
-    private static final String NDEF_UNFORMATTED = "ndef-unformatted";
+    private static final String NDEF_FORMATABLE = "ndef-unformated";
 
     private NdefMessage p2pMessage = null;
     private static String TAG = "NdefPlugin";
@@ -61,7 +61,7 @@ public class NdefPlugin extends Plugin {
             startNfc();
 
             return new PluginResult(Status.OK);
-        } else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATTABLE)) {
+        } else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATABLE)) {
             addTechList(new String[]{NdefFormatable.class.getName()});
             startNfc();
 
@@ -209,7 +209,7 @@ public class NdefPlugin extends Plugin {
 
             for (String tagTech : tag.getTechList()) {
                 if (tagTech.equals(NdefFormatable.class.getName())) {
-                    fireNdefEvent(NDEF_UNFORMATTED, null);
+                    fireNdefEvent(NDEF_FORMATABLE, null);
                 } else if (tagTech.equals(Ndef.class.getName())) {
                     Ndef ndef = Ndef.get(tag);
                     fireNdefEvent(NDEF, ndef);
