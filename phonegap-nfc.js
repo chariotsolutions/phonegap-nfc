@@ -1,17 +1,15 @@
 /*global PhoneGap*/
 
 PhoneGap.addConstructor(
-    function() {
+    function () {
         PhoneGap.exec(
-            function() {
+            function () {
                 console.log("Initialized the NdefPlugin");
             },
-            function(reason) {
+            function (reason) {
                 alert("Failed to initialize the NdefPlugin " + reason);
             },
-            "NdefPlugin",
-            "init",
-            []
+            "NdefPlugin", "init", []
         )
     }
 );
