@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Util {
@@ -77,12 +76,16 @@ public class Util {
     }
 
     static JSONArray messageToJSON(NdefMessage message) {
-        List<JSONObject> list = new ArrayList<JSONObject>();
-        List<NdefRecord> records = Arrays.asList(message.getRecords());
-
-        for (NdefRecord r : records) {
-            list.add(recordToJSON(r));
+        if (message == null) {
+            return null;
         }
+
+        List<JSONObject> list = new ArrayList<JSONObject>();
+
+        for (NdefRecord ndefRecord : message.getRecords()) {
+            list.add(recordToJSON(ndefRecord));
+        }
+
         return new JSONArray(list);
     }
 
