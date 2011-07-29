@@ -39,6 +39,8 @@ public class NdefPlugin extends Plugin {
     private List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
     private ArrayList<String[]> techLists = new ArrayList<String[]>();
 
+    private Intent savedIntent = null;
+
     @Override
     public PluginResult execute(String action, JSONArray data, String callbackId) {
         Log.d(TAG, "execute " + action);
@@ -72,12 +74,14 @@ public class NdefPlugin extends Plugin {
             }
 
             try {
-                Tag tag = ctx.getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                 NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
                 writeTag(new NdefMessage(records), tag);
             } catch (JSONException e) {
-                return new PluginResult(Status.JSON_EXCEPTION, "Error reading NDEF message from JSON");
+                e.printStackTrace();
+                return new PluginResult(Status.JSON_EXCEPTION, e.getMessage());
             } catch (Exception e) {
+                e.printStackTrace();
                 return new PluginResult(Status.ERROR, e.getMessage());
             }
 
@@ -265,7 +269,7 @@ public class NdefPlugin extends Plugin {
         }
     }
 
-    private boolean recycledIntent() { // TODO this is a kludge call in onCreate
+    private boolean recycledIntent() { // TODO this is a kludge, find real solution
 
         int flags = ctx.getIntent().getFlags();
         if ((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) {
@@ -295,6 +299,7 @@ public class NdefPlugin extends Plugin {
         Log.d(TAG, "onNewIntent " + intent);
         super.onNewIntent(intent);
         ctx.setIntent(intent);
+        savedIntent = intent;
         parseMessage();
     }
 
