@@ -7,6 +7,7 @@ import android.content.IntentFilter.MalformedMimeTypeException;
 import android.nfc.*;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
+import android.os.Parcelable;
 import android.util.Log;
 import com.phonegap.api.Plugin;
 import com.phonegap.api.PluginResult;
@@ -31,7 +32,7 @@ public class NdefPlugin extends Plugin {
 
     private static final String NDEF = "ndef";
     private static final String NDEF_MIME = "ndef-mime";
-    private static final String NDEF_FORMATABLE = "ndef-unformated";
+    private static final String NDEF_FORMATABLE = "ndef-formatable";
 
     private NdefMessage p2pMessage = null;
     private static String TAG = "NdefPlugin";
@@ -108,6 +109,7 @@ public class NdefPlugin extends Plugin {
 
         } else if (action.equalsIgnoreCase(INIT)) {
             Log.d(TAG, "Enabling plugin " + ctx.getIntent());
+
             startNfc();
             if (!recycledIntent()) {
                 parseMessage();
@@ -202,21 +204,24 @@ public class NdefPlugin extends Plugin {
         Log.d(TAG, "parseMessage " + ctx.getIntent());
         Intent intent = ctx.getIntent();
         String action = intent.getAction();
+        Log.d(TAG, "action " + action);
+        if (action == null) { return; }
+
+        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        Parcelable[] messages = intent.getParcelableArrayExtra((NfcAdapter.EXTRA_NDEF_MESSAGES));
 
         if (action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
-            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             Ndef ndef = Ndef.get(tag);
-            fireNdefEvent(NDEF_MIME, ndef);
+            fireNdefEvent(NDEF_MIME, ndef, messages);
 
         } else if (action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
-            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-
             for (String tagTech : tag.getTechList()) {
+                Log.d(TAG, tagTech);
                 if (tagTech.equals(NdefFormatable.class.getName())) {
-                    fireNdefEvent(NDEF_FORMATABLE, null);
-                } else if (tagTech.equals(Ndef.class.getName())) {
+                    fireNdefEvent(NDEF_FORMATABLE, null, null);
+                } else if (tagTech.equals(Ndef.class.getName())) { //
                     Ndef ndef = Ndef.get(tag);
-                    fireNdefEvent(NDEF, ndef);
+                    fireNdefEvent(NDEF, ndef, messages);
                 }
             }
         }
@@ -224,7 +229,7 @@ public class NdefPlugin extends Plugin {
         ctx.setIntent(new Intent());
     }
 
-    private void fireNdefEvent(String type, Ndef ndef) {
+    private void fireNdefEvent(String type, Ndef ndef, Parcelable[] messages) {
 
         String javascriptTemplate =
             "var e = document.createEvent(''Events'');\n" +
@@ -232,14 +237,42 @@ public class NdefPlugin extends Plugin {
             "e.tag = {1};\n" +
             "document.dispatchEvent(e);";
 
-        String tag = "undefined";
-        if (ndef != null) {
-            JSONObject jsonObject = Util.ndefToJSON(ndef);
-            tag = jsonObject.toString();
-        }
+        JSONObject jsonObject = buildTagJSON(ndef, messages);
+        String tag = jsonObject.toString();
+
         String command = MessageFormat.format(javascriptTemplate, type, tag);
+        Log.v(TAG, command);
         this.sendJavascript(command);
 
+    }
+
+    JSONObject buildTagJSON(Ndef ndef, Parcelable[] messages) {
+
+        JSONObject json = Util.ndefToJSON(ndef);
+
+        // ndef is null for peer-to-peer
+        // ndef and messages are null for ndef format-able
+        if (ndef == null && messages != null) {
+
+            try {
+
+                if (messages.length > 0) {
+                    NdefMessage message = (NdefMessage) messages[0];
+                    json.put("ndefMessage", Util.messageToJSON(message));
+                    // guessing type, would prefer a more definitive way to determine type
+                    json.put("type", "NDEF Push Protocol");
+                }
+
+                if (messages.length > 1) {
+                    Log.wtf(TAG, "Expected one ndefMessage but found " + messages.length);
+                }
+
+            } catch (JSONException e) {
+                // shouldn't happen
+                Log.e(Util.TAG, "Failed to convert ndefMessage into json", e);
+            }
+        }
+        return json;
     }
 
     private void writeTag(NdefMessage message, Tag tag) throws TagWriteException, IOException, FormatException {
@@ -273,7 +306,7 @@ public class NdefPlugin extends Plugin {
 
         int flags = ctx.getIntent().getFlags();
         if ((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) {
-            Log.d(TAG, "Launched from history, killing recycled intent");
+            Log.i(TAG, "Launched from history, killing recycled intent");
             ctx.setIntent(new Intent());
             return true;
         }
