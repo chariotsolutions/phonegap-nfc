@@ -25,6 +25,7 @@ public class NdefPlugin extends Plugin {
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
     private static final String REGISTER_NDEF = "registerNdef";
     private static final String REGISTER_NDEF_FORMATABLE = "registerNdefFormatable";
+    private static final String REGISTER_DEFAULT_TAG = "registerTag";
     private static final String WRITE_TAG = "writeTag";
     private static final String SHARE_TAG = "shareTag";
     private static final String UNSHARE_TAG = "unshareTag";
@@ -33,6 +34,7 @@ public class NdefPlugin extends Plugin {
     private static final String NDEF = "ndef";
     private static final String NDEF_MIME = "ndef-mime";
     private static final String NDEF_FORMATABLE = "ndef-formatable";
+    private static final String TAG_DEFAULT = "tag";
 
     private NdefMessage p2pMessage = null;
     private static String TAG = "NdefPlugin";
@@ -66,6 +68,11 @@ public class NdefPlugin extends Plugin {
             return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATABLE)) {
             addTechList(new String[]{NdefFormatable.class.getName()});
+            startNfc();
+
+            return new PluginResult(Status.OK);
+        }  else if (action.equals(REGISTER_DEFAULT_TAG)) {
+            addTagFilter();
             startNfc();
 
             return new PluginResult(Status.OK);
@@ -136,6 +143,10 @@ public class NdefPlugin extends Plugin {
 
     private void addTechFilter() {
         intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED));
+    }
+
+    private void addTagFilter() {
+        intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED));
     }
 
     private void startNfc() {
@@ -226,6 +237,10 @@ public class NdefPlugin extends Plugin {
             }
         }
 
+        if (action.equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
+            fireTagEvent(tag);
+        }
+
         ctx.setIntent(new Intent());
     }
 
@@ -237,7 +252,7 @@ public class NdefPlugin extends Plugin {
             "e.tag = {1};\n" +
             "document.dispatchEvent(e);";
 
-        JSONObject jsonObject = buildTagJSON(ndef, messages);
+        JSONObject jsonObject = buildNdefJSON(ndef, messages);
         String tag = jsonObject.toString();
 
         String command = MessageFormat.format(javascriptTemplate, type, tag);
@@ -246,7 +261,19 @@ public class NdefPlugin extends Plugin {
 
     }
 
-    JSONObject buildTagJSON(Ndef ndef, Parcelable[] messages) {
+    private void fireTagEvent (Tag tag) {
+        String javascriptTemplate =
+            "var e = document.createEvent(''Events'');\n" +
+            "e.initEvent(''{0}'');\n" +
+            "e.tag = {1};\n" +
+            "document.dispatchEvent(e);";
+
+        String command = MessageFormat.format(javascriptTemplate, TAG_DEFAULT, Util.tagToJSON(tag));
+        Log.v(TAG, command);
+        this.sendJavascript(command);
+    }
+
+    JSONObject buildNdefJSON(Ndef ndef, Parcelable[] messages) {
 
         JSONObject json = Util.ndefToJSON(ndef);
 

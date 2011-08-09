@@ -2,6 +2,7 @@ package com.chariotsolutions.nfc.plugin;
 
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
+import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.util.Log;
 import org.json.JSONArray;
@@ -9,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Util {
@@ -27,6 +29,20 @@ public class Util {
                 json.put("ndefMessage", messageToJSON(ndef.getCachedNdefMessage()));
             } catch (JSONException e) {
                 Log.e(TAG, "Failed to convert ndef into json: " + ndef.toString(), e);
+            }
+        }
+        return json;
+    }
+
+    static JSONObject tagToJSON(Tag tag) {
+        JSONObject json = new JSONObject();
+
+        if (tag != null) {
+            try {
+                json.put("id", byteArrayToJSON(tag.getId()));
+                json.put("techTypes", new JSONArray(Arrays.asList(tag.getTechList())));
+            } catch (JSONException e) {
+                Log.e(TAG, "Failed to convert tag into json: " + tag.toString(), e);
             }
         }
         return json;

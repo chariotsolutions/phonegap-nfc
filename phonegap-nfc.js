@@ -135,6 +135,11 @@ var Ndef = {
 
 navigator.nfc = {
 
+    addTagListener: function (callback, win, fail) {
+        document.addEventListener("tag", callback, false);
+        PhoneGap.exec(win, fail, "NdefPlugin", "registerTag", []);
+    },
+
     addMimeTypeListener: function (mimeType, callback, win, fail) {
         document.addEventListener("ndef-mime", callback, false);    
         PhoneGap.exec(win, fail, "NdefPlugin", "registerMimeType", [mimeType]);
