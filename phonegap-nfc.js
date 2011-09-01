@@ -4,17 +4,17 @@ PhoneGap.addConstructor(
     function () {
         PhoneGap.exec(
             function () {
-                console.log("Initialized the NdefPlugin");
+                console.log("Initialized the NFCPlugin");
             },
             function (reason) {
-                alert("Failed to initialize the NdefPlugin " + reason);
+                alert("Failed to initialize the NFCPlugin " + reason);
             },
-            "NdefPlugin", "init", []
+            "NFCPlugin", "init", []
         )
     }
 );
 
-var Ndef = {
+var NFC = {
     // see android.nfc.NdefRecord for documentation about constants
     // http://developer.android.com/reference/android/nfc/NdefRecord.html
     TNF_EMPTY: 0x0,
@@ -68,10 +68,10 @@ var Ndef = {
         if (!id) { id = []; }   
         
         payload.push(languageCode.length);        
-        Ndef.concatArray(payload, Ndef.stringToBytes(languageCode));
-        Ndef.concatArray(payload, Ndef.stringToBytes(text));
+        NFC.concatArray(payload, NFC.stringToBytes(languageCode));
+        NFC.concatArray(payload, NFC.stringToBytes(text));
 
-        return Ndef.record(Ndef.TNF_WELL_KNOWN, Ndef.RTD_TEXT, id, payload);
+        return NFC.record(NFC.TNF_WELL_KNOWN, NFC.RTD_TEXT, id, payload);
     },
 
     /**
@@ -82,7 +82,7 @@ var Ndef = {
      */
     uriRecord: function (text, id) {
         if (!id) { id = []; }   
-        return Ndef.record(Ndef.TNF_ABSOLUTE_URI, Ndef.RTD_URI, id, Ndef.stringToBytes(text));
+        return NFC.record(NFC.TNF_ABSOLUTE_URI, NFC.RTD_URI, id, NFC.stringToBytes(text));
     },
 
     /**
@@ -94,7 +94,7 @@ var Ndef = {
      */    
     mimeMediaRecord: function (mimeType, payload, id) {
         if (!id) { id = []; }   
-        return Ndef.record(Ndef.TNF_MIME_MEDIA, Ndef.stringToBytes(mimeType), id, payload);
+        return NFC.record(NFC.TNF_MIME_MEDIA, NFC.stringToBytes(mimeType), id, payload);
     },
     
     concatArray: function (a1, a2) { // this isn't built in?
@@ -137,38 +137,38 @@ navigator.nfc = {
 
     addTagListener: function (callback, win, fail) {
         document.addEventListener("tag", callback, false);
-        PhoneGap.exec(win, fail, "NdefPlugin", "registerTag", []);
+        PhoneGap.exec(win, fail, "NFCPlugin", "registerTag", []);
     },
 
     addMimeTypeListener: function (mimeType, callback, win, fail) {
         document.addEventListener("ndef-mime", callback, false);    
-        PhoneGap.exec(win, fail, "NdefPlugin", "registerMimeType", [mimeType]);
+        PhoneGap.exec(win, fail, "NFCPlugin", "registerMimeType", [mimeType]);
     },
     
     addNdefListener: function (callback, win, fail) {
         document.addEventListener("ndef", callback, false);                
-        PhoneGap.exec(win, fail, "NdefPlugin", "registerNdef", []);
+        PhoneGap.exec(win, fail, "NFCPlugin", "registerNdef", []);
     },
     
     addNdefFormatableListener: function (callback, win, fail) {
         document.addEventListener("ndef-formatable", callback, false);
-        PhoneGap.exec(win, fail, "NdefPlugin", "registerNdefFormatable", []);
+        PhoneGap.exec(win, fail, "NFCPlugin", "registerNdefFormatable", []);
     },
     
     writeTag: function (ndefMessage, win, fail) {
-      PhoneGap.exec(win, fail, "NdefPlugin", "writeTag", [ndefMessage]);
+      PhoneGap.exec(win, fail, "NFCPlugin", "writeTag", [ndefMessage]);
     },
 
     shareTag: function (ndefMessage, win, fail) {
-      PhoneGap.exec(win, fail, "NdefPlugin", "shareTag", [ndefMessage]);
+      PhoneGap.exec(win, fail, "NFCPlugin", "shareTag", [ndefMessage]);
     },
 
     unshareTag: function (win, fail) {
-      PhoneGap.exec(win, fail, "NdefPlugin", "unshareTag", []);
+      PhoneGap.exec(win, fail, "NFCPlugin", "unshareTag", []);
     },
 
     eraseTag: function (win, fail) {
-      PhoneGap.exec(win, fail, "NdefPlugin", "writeTag", [[]]);
+      PhoneGap.exec(win, fail, "NFCPlugin", "writeTag", [[]]);
     }
 
 };

@@ -21,7 +21,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NdefPlugin extends Plugin {
+public class NFCPlugin extends Plugin {
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
     private static final String REGISTER_NDEF = "registerNdef";
     private static final String REGISTER_NDEF_FORMATABLE = "registerNdefFormatable";
@@ -37,7 +37,7 @@ public class NdefPlugin extends Plugin {
     private static final String TAG_DEFAULT = "tag";
 
     private NdefMessage p2pMessage = null;
-    private static String TAG = "NdefPlugin";
+    private static String TAG = "NFCPlugin";
     private PendingIntent pendingIntent = null;
     private List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
     private ArrayList<String[]> techLists = new ArrayList<String[]>();
