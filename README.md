@@ -18,9 +18,9 @@ Assuming you have an existing PhoneGap 1.0 Android project:
 
 [Download phonegap-nfc.jar](https://github.com/chariotsolutions/phonegap-nfc/archives/master) and add it to lib/
 
-Configure the NdefPlugin in res/xml/plugins.xml
+Configure the NFCPlugin in res/xml/plugins.xml
 
-    <plugin name="NdefPlugin" value="com.chariotsolutions.nfc.plugin.NdefPlugin"/>
+    <plugin name="NFCPlugin" value="com.chariotsolutions.nfc.plugin.NFCPlugin"/>
 
 ### JavaScript 
 
@@ -50,6 +50,7 @@ NFC
 Methods
 -------
 
+- nfc.addTagListener
 - nfc.addMimeTypeListener
 - nfc.addNdefListener
 - nfc.addNdefFormatableListener
@@ -57,6 +58,31 @@ Methods
 - nfc.shareTag
 - nfc.unshareTag
 - nfc.eraseTag
+
+nfc.addTagListener
+==============================
+Registers an event listener for tags matching any tag type.
+
+    navigator.nfc.addTagListener(callback, [onSuccess], [onFailure]);
+
+Parameters
+----------
+- __callback__: The callback that is called when a tag is detected.
+- __onSuccess__: (Optional) The callback that is called when the listener is added.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+Description
+-----------
+
+Function `nfc.addTagListener` registers the callback for tag events.
+
+This event occurs when any tag is detected by the phone.
+
+Supported Platforms
+-------------------
+
+- Android
+
 
 nfc.addMimeTypeListener
 ==============================
