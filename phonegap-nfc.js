@@ -4,17 +4,17 @@ PhoneGap.addConstructor(
     function () {
         PhoneGap.exec(
             function () {
-                console.log("Initialized the NFCPlugin");
+                console.log("Initialized the NfcPlugin");
             },
             function (reason) {
-                alert("Failed to initialize the NFCPlugin " + reason);
+                alert("Failed to initialize the NfcPlugin " + reason);
             },
-            "NFCPlugin", "init", []
+            "NfcPlugin", "init", []
         )
     }
 );
 
-var Ndef = {
+var ndef = {
     // see android.nfc.NdefRecord for documentation about constants
     // http://developer.android.com/reference/android/nfc/NdefRecord.html
     TNF_EMPTY: 0x0,
@@ -98,83 +98,44 @@ var Ndef = {
     }
 };
 
-var Util = {
-    concatArray: function (a1, a2) { // this isn't built in?
-        for (var i = 0; i < a2.length; i++) {
-            a1.push(a2[i]);
-        }
-        return a1;
-    },
+var nfc = {
 
-    bytesToString: function (bytes) {
-      var bytesAsString = "";
-      for (var i = 0; i < bytes.length; i++) {
-        bytesAsString += String.fromCharCode(bytes[i]);
-      }
-      return bytesAsString;
-    },
-
-    // http://stackoverflow.com/questions/1240408/reading-bytes-from-a-javascript-string#1242596
-    stringToBytes: function ( str ) {
-        var ch, st, re = [];
-        for (var i = 0; i < str.length; i++ ) {
-          ch = str.charCodeAt(i);  // get char
-          st = [];                 // set up "stack"
-          do {
-            st.push( ch & 0xFF );  // push byte to stack
-            ch = ch >> 8;          // shift value down by 1 byte
-          }
-          while ( ch );
-          // add stack contents to result
-          // done because chars have "wrong" endianness
-          re = re.concat( st.reverse() );
-        }
-        // return an array of bytes
-        return re;
-    }
-};
-
-navigator.nfc = {
-
-    addTagListener: function (callback, win, fail) {
+    addTagDiscoveredListener: function (callback, win, fail) {
         document.addEventListener("tag", callback, false);
-        PhoneGap.exec(win, fail, "NFCPlugin", "registerTag", []);
+        PhoneGap.exec(win, fail, "NfcPlugin", "registerTag", []);
     },
 
     addMimeTypeListener: function (mimeType, callback, win, fail) {
         document.addEventListener("ndef-mime", callback, false);    
-        PhoneGap.exec(win, fail, "NFCPlugin", "registerMimeType", [mimeType]);
+        PhoneGap.exec(win, fail, "NfcPlugin", "registerMimeType", [mimeType]);
     },
     
     addNdefListener: function (callback, win, fail) {
         document.addEventListener("ndef", callback, false);                
-        PhoneGap.exec(win, fail, "NFCPlugin", "registerNdef", []);
+        PhoneGap.exec(win, fail, "NfcPlugin", "registerNdef", []);
     },
     
     addNdefFormatableListener: function (callback, win, fail) {
         document.addEventListener("ndef-formatable", callback, false);
-        PhoneGap.exec(win, fail, "NFCPlugin", "registerNdefFormatable", []);
+        PhoneGap.exec(win, fail, "NfcPlugin", "registerNdefFormatable", []);
     },
     
-    writeTag: function (ndefMessage, win, fail) {
-      PhoneGap.exec(win, fail, "NFCPlugin", "writeTag", [ndefMessage]);
+    write: function (ndefMessage, win, fail) {
+      PhoneGap.exec(win, fail, "NfcPlugin", "writeTag", [ndefMessage]);
     },
 
-    shareTag: function (ndefMessage, win, fail) {
-      PhoneGap.exec(win, fail, "NFCPlugin", "shareTag", [ndefMessage]);
+    share: function (ndefMessage, win, fail) {
+      PhoneGap.exec(win, fail, "NfcPlugin", "shareTag", [ndefMessage]);
     },
 
-    unshareTag: function (win, fail) {
-      PhoneGap.exec(win, fail, "NFCPlugin", "unshareTag", []);
+    unshare: function (win, fail) {
+      PhoneGap.exec(win, fail, "NfcPlugin", "unshareTag", []);
     },
 
-    eraseTag: function (win, fail) {
-      PhoneGap.exec(win, fail, "NFCPlugin", "writeTag", [[]]);
+    erase: function (win, fail) {
+      PhoneGap.exec(win, fail, "NfcPlugin", "writeTag", [[]]);
     }
 
-};
-
-navigator.nfc.util = {
     concatArray: function (a1, a2) { // this isn't built in?
         for (var i = 0; i < a2.length; i++) {
             a1.push(a2[i]);

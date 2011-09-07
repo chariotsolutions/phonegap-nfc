@@ -15,7 +15,7 @@ import java.util.List;
 
 public class Util {
 
-    static final String TAG = "NFCPlugin";
+    static final String TAG = "NfcPlugin";
 
     static JSONObject ndefToJSON(Ndef ndef) {
         JSONObject json = new JSONObject();

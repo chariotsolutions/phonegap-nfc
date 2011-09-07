@@ -20,7 +20,7 @@ Assuming you have an existing PhoneGap 1.0 Android project:
 
 Configure the NFCPlugin in res/xml/plugins.xml
 
-    <plugin name="NFCPlugin" value="com.chariotsolutions.nfc.plugin.NFCPlugin"/>
+    <plugin name="NFCPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
 
 ### JavaScript 
 
