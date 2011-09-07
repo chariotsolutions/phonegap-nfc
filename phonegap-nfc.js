@@ -134,7 +134,7 @@ var nfc = {
 
     erase: function (win, fail) {
       PhoneGap.exec(win, fail, "NfcPlugin", "writeTag", [[]]);
-    }
+    },
 
     concatArray: function (a1, a2) { // this isn't built in?
         for (var i = 0; i < a2.length; i++) {
