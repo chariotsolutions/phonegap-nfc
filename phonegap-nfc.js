@@ -68,10 +68,10 @@ var ndef = {
         if (!id) { id = []; }   
         
         payload.push(languageCode.length);        
-        navigator.nfc.util.concatArray(payload, navigator.nfc.util.stringToBytes(languageCode));
-        navigator.nfc.util.concatArray(payload, navigator.nfc.util.stringToBytes(text));
+        nfc.concatArray(payload, nfc.stringToBytes(languageCode));
+        nfc.concatArray(payload, nfc.stringToBytes(text));
 
-        return NFC.record(Ndef.TNF_WELL_KNOWN, Ndef.RTD_TEXT, id, payload);
+        return NFC.record(ndef.TNF_WELL_KNOWN, ndef.RTD_TEXT, id, payload);
     },
 
     /**
@@ -82,7 +82,7 @@ var ndef = {
      */
     uriRecord: function (text, id) {
         if (!id) { id = []; }   
-        return Ndef.record(Ndef.TNF_ABSOLUTE_URI, Ndef.RTD_URI, id, navigator.nfc.util.stringToBytes(text));
+        return ndef.record(ndef.TNF_ABSOLUTE_URI, ndef.RTD_URI, id, nfc.stringToBytes(text));
     },
 
     /**
@@ -94,7 +94,7 @@ var ndef = {
      */    
     mimeMediaRecord: function (mimeType, payload, id) {
         if (!id) { id = []; }   
-        return Ndef.record(Ndef.TNF_MIME_MEDIA, navigator.nfc.util.stringToBytes(mimeType), id, payload);
+        return ndef.record(ndef.TNF_MIME_MEDIA, nfc.stringToBytes(mimeType), id, payload);
     }
 };
 
