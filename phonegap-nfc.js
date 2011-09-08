@@ -129,6 +129,24 @@ var Ndef = {
         }
         // return an array of bytes
         return re;
+    },
+
+    bytesToHexString: function (bytes) {
+      var bytesAsHexString = "";
+      for (var i = 0; i < bytes.length; i++) {
+        if(bytes[i] >= 0) {
+          dec = bytes[i];
+        } else {
+          dec = 256 + bytes[i];
+        }
+        hexstring = dec.toString(16);
+        // zero padding
+        if(hexstring.length == 1) {
+          hexstring = "0" + hexstring;
+        }
+        bytesAsHexString += hexstring;
+      }
+      return bytesAsHexString;
     }
     
 };
