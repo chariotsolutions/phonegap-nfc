@@ -18,9 +18,9 @@ Assuming you have an existing PhoneGap 1.0 Android project:
 
 [Download phonegap-nfc.jar](https://github.com/chariotsolutions/phonegap-nfc/archives/master) and add it to lib/
 
-Configure the NFCPlugin in res/xml/plugins.xml
+Configure the NfcPlugin in res/xml/plugins.xml
 
-    <plugin name="NFCPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
+    <plugin name="NfcPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
 
 ### JavaScript 
 
@@ -50,20 +50,20 @@ NFC
 Methods
 -------
 
-- nfc.addTagListener
+- nfc.addTagDiscoveredListener
 - nfc.addMimeTypeListener
 - nfc.addNdefListener
 - nfc.addNdefFormatableListener
-- nfc.writeTag
-- nfc.shareTag
-- nfc.unshareTag
-- nfc.eraseTag
+- nfc.write
+- nfc.share
+- nfc.unshare
+- nfc.erase
 
-nfc.addTagListener
+nfc.addTagDiscoveredListener
 ==============================
 Registers an event listener for tags matching any tag type.
 
-    navigator.nfc.addTagListener(callback, [onSuccess], [onFailure]);
+    nfc.addTagDiscoveredListener(callback, [onSuccess], [onFailure]);
 
 Parameters
 ----------
@@ -74,7 +74,7 @@ Parameters
 Description
 -----------
 
-Function `nfc.addTagListener` registers the callback for tag events.
+Function `nfc.addTagDiscoveredListener` registers the callback for tag events.
 
 This event occurs when any tag is detected by the phone.
 
@@ -88,7 +88,7 @@ nfc.addMimeTypeListener
 ==============================
 Registers an event listener for NDEF tags matching a specified MIME type.
 
-    navigator.nfc.addMimeTypeListener(mimeType, callback, [onSuccess], [onFailure]);
+    nfc.addMimeTypeListener(mimeType, callback, [onSuccess], [onFailure]);
 
 Parameters
 ----------
@@ -115,7 +115,7 @@ nfc.addNdefListener
 ==============================
 Registers an event listener for any NDEF tag.
 
-    navigator.nfc.addNdefListener(callback, [onSuccess], [onFailure]);
+    nfc.addNdefListener(callback, [onSuccess], [onFailure]);
 
 Parameters
 ----------
@@ -142,7 +142,7 @@ nfc.addNdefFormatableListener
 ==============================
 Registers an event listener for formatable NDEF tags.
 
-    navigator.nfc.addNdefFormatableListener(callback, [onSuccess], [onFailure]);
+    nfc.addNdefFormatableListener(callback, [onSuccess], [onFailure]);
 
 Parameters
 ----------
@@ -162,11 +162,11 @@ Supported Platforms
 
 - Android
 
-nfc.writeTag
+nfc.write
 ==============================
 Writes data to an NDEF tag.
 
-    navigator.nfc.writeTag(ndefMessage, [onSuccess], [onFailure]);
+    nfc.write(ndefMessage, [onSuccess], [onFailure]);
 
 Parameters
 ----------
@@ -177,7 +177,7 @@ Parameters
 Description
 -----------
 
-Function `nfc.writeTag` writes an NdefMessage to a NFC tag.
+Function `nfc.write` writes an NdefMessage to a NFC tag.
 
 This method *must* be called from within an NDEF Event Handler. 
 
@@ -186,11 +186,11 @@ Supported Platforms
 
 - Android
 
-nfc.shareTag
+nfc.share
 ==============================
 Shares a NdefMessage via peer-to-peer.
 
-    navigator.nfc.shareTag(ndefMessage, [onSuccess], [onFailure]);
+    nfc.share(ndefMessage, [onSuccess], [onFailure]);
 
 Parameters
 ----------
@@ -201,18 +201,18 @@ Parameters
 Description
 -----------
 
-Function `nfc.shareTag` writes an NdefMessage via peer-to-peer.  This should appear as an NFC tag to another device.
+Function `nfc.share` writes an NdefMessage via peer-to-peer.  This should appear as an NFC tag to another device.
 
 Supported Platforms
 -------------------
 
 - Android
 
-nfc.unshareTag
+nfc.unshare
 ==============================
 Stop sharing NDEF data via peer-to-peer.
 
-    navigator.nfc.unshareTag([onSuccess], [onFailure]);
+    nfc.unshare([onSuccess], [onFailure]);
 
 Parameters
 ----------
@@ -222,13 +222,13 @@ Parameters
 Description
 -----------
 
-Function `nfc.unshareTag` stops sharing data via peer-to-peer.
+Function `nfc.unshare` stops sharing data via peer-to-peer.
 
-nfc.eraseTag
+nfc.erase
 ==============================
 Erase a NDEF tag
 
-    navigator.nfc.eraseTag([onSuccess], [onFailure]);
+    nfc.erase([onSuccess], [onFailure]);
 
 Parameters
 ----------
@@ -238,7 +238,7 @@ Parameters
 Description
 -----------
 
-Function `nfc.eraseTag` erases a tag by writing an empty message.  Will format unformatted tags before writing.
+Function `nfc.erase` erases a tag by writing an empty message.  Will format unformatted tags before writing.
 
 This method *must* be called from within an NDEF Event Handler.
 
