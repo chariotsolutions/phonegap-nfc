@@ -1,7 +1,7 @@
 package com.chariotsolutions.nfc.plugin;
 
-import com.phonegap.api.Plugin;
-import com.phonegap.api.PluginResult;
+import org.apache.cordova.api.Plugin;
+import org.apache.cordova.api.PluginResult;
 import org.json.JSONArray;
 
 public class NdefPlugin extends Plugin {
