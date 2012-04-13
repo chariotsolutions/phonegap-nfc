@@ -45,7 +45,7 @@ Ensure that the `minSdkVersion` is 10
 NFC
 ===========
 
-> The nfc object provides access to the devices's NFC sensor.
+> The nfc object provides access to the device's NFC sensor.
 
 Methods
 -------
