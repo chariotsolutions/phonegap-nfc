@@ -20,7 +20,7 @@
 
   <property name="phonegap.version" value="1.6.1"/>
   <property name="phonegap.home" value="/usr/local/phonegap-${phonegap.version}"/>
-  <property name="phonegap.jar" value="${phonegap.home}/lib/android/cordova-${phonegap.version}.jar"/>
+  <property name="cordova.jar" value="${phonegap.home}/lib/android/cordova-${phonegap.version}.jar"/>
 
   <target name="compile" description="compile code">
     <mkdir dir="${build.dir}"/>
@@ -30,7 +30,7 @@
     <javac srcdir="${src.dir}" destdir="${build.dir}" debug="on" source="1.6" includeantruntime="false">
       <classpath>
         <path location="${sdk.dir}/platforms/${target}/android.jar"/>
-        <path location="${phonegap.jar}"/>
+        <path location="${cordova.jar}"/>
       </classpath>
     </javac>
   </target>
