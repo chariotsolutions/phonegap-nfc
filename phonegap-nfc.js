@@ -121,19 +121,19 @@ var nfc = {
     },
     
     write: function (ndefMessage, win, fail) {
-      PhoneGap.exec(win, fail, "NfcPlugin", "writeTag", [ndefMessage]);
+      	PhoneGap.exec(win, fail, "NfcPlugin", "writeTag", [ndefMessage]);
     },
 
     share: function (ndefMessage, win, fail) {
-      PhoneGap.exec(win, fail, "NfcPlugin", "shareTag", [ndefMessage]);
+      	PhoneGap.exec(win, fail, "NfcPlugin", "shareTag", [ndefMessage]);
     },
 
     unshare: function (win, fail) {
-      PhoneGap.exec(win, fail, "NfcPlugin", "unshareTag", []);
+      	PhoneGap.exec(win, fail, "NfcPlugin", "unshareTag", []);
     },
 
     erase: function (win, fail) {
-      PhoneGap.exec(win, fail, "NfcPlugin", "writeTag", [[]]);
+      	PhoneGap.exec(win, fail, "NfcPlugin", "writeTag", [[]]);
     },
 
     concatArray: function (a1, a2) { // this isn't built in?
@@ -144,47 +144,46 @@ var nfc = {
     },
 
     bytesToString: function (bytes) {
-      var bytesAsString = "";
-      for (var i = 0; i < bytes.length; i++) {
-        bytesAsString += String.fromCharCode(bytes[i]);
-      }
-      return bytesAsString;
+		var bytesAsString = "";
+		for (var i = 0; i < bytes.length; i++) {
+			bytesAsString += String.fromCharCode(bytes[i]);
+		}
+		return bytesAsString;
     },
 
     // http://stackoverflow.com/questions/1240408/reading-bytes-from-a-javascript-string#1242596
     stringToBytes: function ( str ) {
         var ch, st, re = [];
         for (var i = 0; i < str.length; i++ ) {
-          ch = str.charCodeAt(i);  // get char
-          st = [];                 // set up "stack"
-          do {
-            st.push( ch & 0xFF );  // push byte to stack
-            ch = ch >> 8;          // shift value down by 1 byte
-          }
-          while ( ch );
-          // add stack contents to result
-          // done because chars have "wrong" endianness
-          re = re.concat( st.reverse() );
+	        ch = str.charCodeAt(i);  // get char
+	        st = [];                 // set up "stack"
+	        do {
+				st.push( ch & 0xFF );  // push byte to stack
+				ch = ch >> 8;          // shift value down by 1 byte
+	        } while ( ch );
+	        // add stack contents to result
+	        // done because chars have "wrong" endianness
+	        re = re.concat( st.reverse() );
         }
         // return an array of bytes
         return re;
     },
 
-    bytesToHexString: function (bytes) {
-      var bytesAsHexString = "";
-      for (var i = 0; i < bytes.length; i++) {
-        if(bytes[i] >= 0) {
-          dec = bytes[i];
-        } else {
-          dec = 256 + bytes[i];
-        }
-        hexstring = dec.toString(16);
-        // zero padding
-        if(hexstring.length == 1) {
-          hexstring = "0" + hexstring;
-        }
-        bytesAsHexString += hexstring;
-      }
-      return bytesAsHexString;
-    }
+	bytesToHexString: function(bytes) {
+	    var bytesAsHexString = "";
+	    for (var i = 0; i < bytes.length; i++) {
+	        if (bytes[i] >= 0) {
+	            dec = bytes[i];
+	        } else {
+	            dec = 256 + bytes[i];
+	        }
+	        hexstring = dec.toString(16);
+	        // zero padding
+	        if (hexstring.length == 1) {
+	            hexstring = "0" + hexstring;
+	        }
+	        bytesAsHexString += hexstring;
+	    }
+	    return bytesAsHexString;
+	}
 };
