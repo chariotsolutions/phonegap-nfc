@@ -78,7 +78,7 @@ public class NfcPlugin extends Plugin {
 
             return new PluginResult(Status.OK);
         } else if (action.equalsIgnoreCase(WRITE_TAG)) {
-            if (((Activity)ctx).getIntent() == null) {  // TODO remove this and handle LostTag
+            if (getIntent() == null) {  // TODO remove this and handle LostTag
                 return new PluginResult(Status.ERROR, "Failed to write tag, received null intent");
             }
 
@@ -116,7 +116,7 @@ public class NfcPlugin extends Plugin {
             return new PluginResult(Status.OK);
 
         } else if (action.equalsIgnoreCase(INIT)) {
-            Log.d(TAG, "Enabling plugin " + ((Activity)ctx).getIntent());
+            Log.d(TAG, "Enabling plugin " + getIntent());
 
             startNfc();
             if (!recycledIntent()) {
@@ -132,7 +132,7 @@ public class NfcPlugin extends Plugin {
     // TODO see if the new plugin stuff handles this bullshit
     private void createPendingIntent() {
         if (pendingIntent == null) {
-            Activity activity = ((Activity)ctx);
+            Activity activity = getActivity();
             Intent intent = new Intent(activity, activity.getClass());
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             pendingIntent = PendingIntent.getActivity(activity, 0, intent, 0);
@@ -157,11 +157,15 @@ public class NfcPlugin extends Plugin {
 
         this.ctx.runOnUiThread(new Runnable() {
             public void run() {
-                NfcAdapter.getDefaultAdapter(ctx.getContext()).enableForegroundDispatch(
-                        ((Activity)ctx), getPendingIntent(), getIntentFilters(), getTechLists());
-                if (p2pMessage != null) {
-                    // TODO setNdefPushMessage
-                    NfcAdapter.getDefaultAdapter(getActivity()).enableForegroundNdefPush(getActivity(), p2pMessage);
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(ctx.getContext());
+
+                if (nfcAdapter != null) {
+                    nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
+
+                    if (p2pMessage != null) {
+                        nfcAdapter.enableForegroundNdefPush(getActivity(), p2pMessage);
+                    }
+
                 }
             }
         });
@@ -170,8 +174,13 @@ public class NfcPlugin extends Plugin {
     private void stopNfc() {
         this.ctx.runOnUiThread(new Runnable() {
             public void run() {
-                NfcAdapter.getDefaultAdapter(getActivity()).disableForegroundDispatch(getActivity());
-                NfcAdapter.getDefaultAdapter(getActivity()).disableForegroundNdefPush(getActivity());
+
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(ctx.getContext());
+
+                if (nfcAdapter != null) {
+                    nfcAdapter.disableForegroundDispatch(getActivity());
+                    nfcAdapter.disableForegroundNdefPush(getActivity());
+                }
             }
         });
     }
@@ -179,7 +188,12 @@ public class NfcPlugin extends Plugin {
     private void startNdefPush() {
         this.ctx.runOnUiThread(new Runnable() {
             public void run() {
-                NfcAdapter.getDefaultAdapter(getActivity()).enableForegroundNdefPush(getActivity(), p2pMessage);
+
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(ctx.getContext());
+
+                if (nfcAdapter != null) {
+                    nfcAdapter.enableForegroundNdefPush(getActivity(), p2pMessage);
+                }
             }
         });
     }
@@ -187,7 +201,13 @@ public class NfcPlugin extends Plugin {
     private void stopNdefPush() {
         this.ctx.runOnUiThread(new Runnable() {
             public void run() {
-                NfcAdapter.getDefaultAdapter(getActivity()).disableForegroundNdefPush(getActivity());
+
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(ctx.getContext());
+
+                if (nfcAdapter != null) {
+                    nfcAdapter.disableForegroundNdefPush(getActivity());
+                }
+
             }
         });
     }
@@ -216,8 +236,8 @@ public class NfcPlugin extends Plugin {
     }
 
     public void parseMessage() {
-        Log.d(TAG, "parseMessage " + ((Activity)ctx).getIntent());
-        Intent intent = ((Activity)ctx).getIntent();
+        Log.d(TAG, "parseMessage " + getIntent());
+        Intent intent = getIntent();
         String action = intent.getAction();
         Log.d(TAG, "action " + action);
         if (action == null) { return; }
@@ -245,7 +265,7 @@ public class NfcPlugin extends Plugin {
             fireTagEvent(tag);
         }
 
-        ((Activity)ctx).setIntent(new Intent());
+        setIntent(new Intent());
     }
 
     private void fireNdefEvent(String type, Ndef ndef, Parcelable[] messages) {
@@ -335,10 +355,10 @@ public class NfcPlugin extends Plugin {
 
     private boolean recycledIntent() { // TODO this is a kludge, find real solution
 
-        int flags = ((Activity)ctx).getIntent().getFlags();
+        int flags = getIntent().getFlags();
         if ((flags & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) {
             Log.i(TAG, "Launched from history, killing recycled intent");
-            ((Activity)ctx).setIntent(new Intent());
+            setIntent(new Intent());
             return true;
         }
         return false;
@@ -346,14 +366,14 @@ public class NfcPlugin extends Plugin {
 
     @Override
     public void onPause(boolean multitasking) {
-        Log.d(TAG, "onPause " + ((Activity)ctx).getIntent());
+        Log.d(TAG, "onPause " + getIntent());
         super.onPause(multitasking);
         stopNfc();
     }
 
     @Override
     public void onResume(boolean multitasking) {
-        Log.d(TAG, "onResume " + ((Activity)ctx).getIntent());
+        Log.d(TAG, "onResume " + getIntent());
         super.onResume(multitasking);
         startNfc();
     }
@@ -362,14 +382,21 @@ public class NfcPlugin extends Plugin {
     public void onNewIntent(Intent intent) {
         Log.d(TAG, "onNewIntent " + intent);
         super.onNewIntent(intent);
-        ((Activity)ctx).setIntent(intent);
+        setIntent(intent);
         savedIntent = intent;
         parseMessage();
     }
 
-    // hack
     private Activity getActivity() {
         return (Activity)ctx;
+    }
+
+    private Intent getIntent() {
+        return ((Activity)ctx).getIntent();
+    }
+
+    private void setIntent(Intent intent) {
+        ((Activity)ctx).setIntent(intent);
     }
 
 }
