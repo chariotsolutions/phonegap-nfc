@@ -170,7 +170,7 @@ var nfc = {
     },
 
 	bytesToHexString: function (bytes) {
-	    var bytesAsHexString = "";
+        var dec, hexstring, bytesAsHexString = "";
 	    for (var i = 0; i < bytes.length; i++) {
 	        if (bytes[i] >= 0) {
 	            dec = bytes[i];
