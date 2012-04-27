@@ -37,11 +37,13 @@ public class NfcPlugin extends Plugin {
     private static final String NDEF_FORMATABLE = "ndef-formatable";
     private static final String TAG_DEFAULT = "tag";
 
+
+    private static final String TAG = "NfcPlugin";
+    private final List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
+    private final ArrayList<String[]> techLists = new ArrayList<String[]>();
+
     private NdefMessage p2pMessage = null;
-    private static String TAG = "NfcPlugin";
     private PendingIntent pendingIntent = null;
-    private List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
-    private ArrayList<String[]> techLists = new ArrayList<String[]>();
 
     private Intent savedIntent = null;
 
@@ -129,7 +131,6 @@ public class NfcPlugin extends Plugin {
         return new PluginResult(Status.NO_RESULT);
     }
 
-    // TODO see if the new plugin stuff handles this bullshit
     private void createPendingIntent() {
         if (pendingIntent == null) {
             Activity activity = getActivity();
@@ -235,7 +236,7 @@ public class NfcPlugin extends Plugin {
         return techLists.toArray(new String[0][0]);
     }
 
-    public void parseMessage() {
+    void parseMessage() {
         Log.d(TAG, "parseMessage " + getIntent());
         Intent intent = getIntent();
         String action = intent.getAction();
