@@ -71,7 +71,7 @@ var ndef = {
         nfc.concatArray(payload, nfc.stringToBytes(languageCode));
         nfc.concatArray(payload, nfc.stringToBytes(text));
 
-        return NFC.record(ndef.TNF_WELL_KNOWN, ndef.RTD_TEXT, id, payload);
+        return ndef.record(ndef.TNF_WELL_KNOWN, ndef.RTD_TEXT, id, payload);
     },
 
     /**
