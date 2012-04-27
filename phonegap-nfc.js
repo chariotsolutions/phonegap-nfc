@@ -1,8 +1,8 @@
-/*global PhoneGap*/
+/*global cordova*/
 
-PhoneGap.addConstructor(
+cordova.addConstructor(
     function () {
-        PhoneGap.exec(
+        cordova.exec(
             function () {
                 console.log("Initialized the NfcPlugin");
             },
@@ -71,7 +71,7 @@ var ndef = {
         nfc.concatArray(payload, nfc.stringToBytes(languageCode));
         nfc.concatArray(payload, nfc.stringToBytes(text));
 
-        return NFC.record(ndef.TNF_WELL_KNOWN, ndef.RTD_TEXT, id, payload);
+        return ndef.record(ndef.TNF_WELL_KNOWN, ndef.RTD_TEXT, id, payload);
     },
 
     /**
@@ -102,38 +102,38 @@ var nfc = {
 
     addTagDiscoveredListener: function (callback, win, fail) {
         document.addEventListener("tag", callback, false);
-        PhoneGap.exec(win, fail, "NfcPlugin", "registerTag", []);
+        cordova.exec(win, fail, "NfcPlugin", "registerTag", []);
     },
 
     addMimeTypeListener: function (mimeType, callback, win, fail) {
         document.addEventListener("ndef-mime", callback, false);    
-        PhoneGap.exec(win, fail, "NfcPlugin", "registerMimeType", [mimeType]);
+        cordova.exec(win, fail, "NfcPlugin", "registerMimeType", [mimeType]);
     },
     
     addNdefListener: function (callback, win, fail) {
         document.addEventListener("ndef", callback, false);                
-        PhoneGap.exec(win, fail, "NfcPlugin", "registerNdef", []);
+        cordova.exec(win, fail, "NfcPlugin", "registerNdef", []);
     },
     
     addNdefFormatableListener: function (callback, win, fail) {
         document.addEventListener("ndef-formatable", callback, false);
-        PhoneGap.exec(win, fail, "NfcPlugin", "registerNdefFormatable", []);
+        cordova.exec(win, fail, "NfcPlugin", "registerNdefFormatable", []);
     },
     
     write: function (ndefMessage, win, fail) {
-      PhoneGap.exec(win, fail, "NfcPlugin", "writeTag", [ndefMessage]);
+        cordova.exec(win, fail, "NfcPlugin", "writeTag", [ndefMessage]);
     },
 
     share: function (ndefMessage, win, fail) {
-      PhoneGap.exec(win, fail, "NfcPlugin", "shareTag", [ndefMessage]);
+        cordova.exec(win, fail, "NfcPlugin", "shareTag", [ndefMessage]);
     },
 
     unshare: function (win, fail) {
-      PhoneGap.exec(win, fail, "NfcPlugin", "unshareTag", []);
+        cordova.exec(win, fail, "NfcPlugin", "unshareTag", []);
     },
 
     erase: function (win, fail) {
-      PhoneGap.exec(win, fail, "NfcPlugin", "writeTag", [[]]);
+        cordova.exec(win, fail, "NfcPlugin", "writeTag", [[]]);
     },
 
     concatArray: function (a1, a2) { // this isn't built in?
@@ -144,47 +144,46 @@ var nfc = {
     },
 
     bytesToString: function (bytes) {
-      var bytesAsString = "";
-      for (var i = 0; i < bytes.length; i++) {
-        bytesAsString += String.fromCharCode(bytes[i]);
-      }
-      return bytesAsString;
+        var bytesAsString = "";
+        for (var i = 0; i < bytes.length; i++) {
+            bytesAsString += String.fromCharCode(bytes[i]);
+        }
+        return bytesAsString;
     },
 
     // http://stackoverflow.com/questions/1240408/reading-bytes-from-a-javascript-string#1242596
-    stringToBytes: function ( str ) {
+    stringToBytes: function (str) {
         var ch, st, re = [];
         for (var i = 0; i < str.length; i++ ) {
-          ch = str.charCodeAt(i);  // get char
-          st = [];                 // set up "stack"
-          do {
-            st.push( ch & 0xFF );  // push byte to stack
-            ch = ch >> 8;          // shift value down by 1 byte
-          }
-          while ( ch );
-          // add stack contents to result
-          // done because chars have "wrong" endianness
-          re = re.concat( st.reverse() );
+            ch = str.charCodeAt(i);  // get char
+            st = [];                 // set up "stack"
+            do {
+                st.push( ch & 0xFF );  // push byte to stack
+                ch = ch >> 8;          // shift value down by 1 byte
+            } while ( ch );
+            // add stack contents to result
+            // done because chars have "wrong" endianness
+            re = re.concat( st.reverse() );
         }
         // return an array of bytes
         return re;
     },
 
     bytesToHexString: function (bytes) {
-      var bytesAsHexString = "";
-      for (var i = 0; i < bytes.length; i++) {
-        if(bytes[i] >= 0) {
-          dec = bytes[i];
-        } else {
-          dec = 256 + bytes[i];
+        var dec, hexstring, bytesAsHexString = "";
+        for (var i = 0; i < bytes.length; i++) {
+            if (bytes[i] >= 0) {
+                dec = bytes[i];
+            } else {
+                dec = 256 + bytes[i];
+            }
+            hexstring = dec.toString(16);
+            // zero padding
+            if (hexstring.length == 1) {
+                hexstring = "0" + hexstring;
+            }
+            bytesAsHexString += hexstring;
         }
-        hexstring = dec.toString(16);
-        // zero padding
-        if(hexstring.length == 1) {
-          hexstring = "0" + hexstring;
-        }
-        bytesAsHexString += hexstring;
-      }
-      return bytesAsHexString;
+        return bytesAsHexString;
     }
 };

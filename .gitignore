@@ -7,4 +7,4 @@ Makefile
 .idea
 *.iml
 .project
-phonegap-1.0.0rc1-SNAPSHOT.jar
+out/
