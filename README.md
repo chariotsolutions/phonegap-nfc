@@ -7,12 +7,12 @@ Supported Platforms
 -------------------
 * Android
 
-**Requires PhoneGap 1.0**
+**Requires PhoneGap 1.6.1+**
 
 Configuration
 =============
 
-Assuming you have an existing PhoneGap 1.0 Android project:
+Assuming you have an existing PhoneGap 1.6.1 Android project:
 
 ### Java
 
@@ -35,17 +35,20 @@ Include phonegap-nfc.js in index.html
 Add NFC permissions
 
     <uses-permission android:name="android.permission.NFC" />
-    <uses-feature android:name="android.hardware.nfc" android:required="true" />
 
 Ensure that the `minSdkVersion` is 10
 
     <uses-sdk android:minSdkVersion="10" />
 
+If you want to restrict your application to only devices with NFC hardware, set uses-feature so Google Play will restrict the listing.  If NFC is optional in your application, omit the uses-feature element.
+
+    <uses-feature android:name="android.hardware.nfc" android:required="true" />
+
 
 NFC
 ===========
 
-> The nfc object provides access to the devices's NFC sensor.
+> The nfc object provides access to the device's NFC sensor.
 
 Methods
 -------
