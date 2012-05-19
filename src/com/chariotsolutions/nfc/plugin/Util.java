@@ -22,6 +22,14 @@ public class Util {
 
         if (ndef != null) {
             try {
+
+                Tag tag = ndef.getTag();
+                // tag is going to be null for NDEF_FORMATABLE until NfcUtil.parseMessage is refactored
+                if (tag != null) {
+                    json.put("id", byteArrayToJSON(tag.getId()));
+                    json.put("techTypes", new JSONArray(Arrays.asList(tag.getTechList())));
+                }
+
                 json.put("type", translateType(ndef.getType()));
                 json.put("maxSize", ndef.getMaxSize());
                 json.put("isWritable", ndef.isWritable());
