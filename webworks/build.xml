@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<project name="PhoneGap NFC Plugin Webworks" default="dist" basedir=".">
+
+  <loadfile property="version" srcFile="../VERSION">
+    <filterchain>
+      <striplinebreaks/>
+    </filterchain>
+  </loadfile>
+
+  <property name="platform" value="webworks"/>
+  <property name="src.dir" location="src"/>
+  <property name="dist.dir" location="../dist"/>
+
+  <target name="jar" description="build a new version of phonegap-nfc.jar">
+    <jar destfile="${dist.dir}/phonegap-nfc-${platform}-${version}.jar" basedir="${src.dir}"/>
+  </target>
+
+  <target name="build-javascript" description="rename javascript with the current version">
+    <concat destfile="${dist.dir}/phonegap-nfc-${version}.js">
+      <fileset dir="../www" includes="phonegap-nfc.js" />
+    </concat>
+  </target>
+
+  <target name="dist" depends="jar,build-javascript" description="jar and js for distribution">
+    <echo>Built phonegap-nfc-${platform}-${version} for distribution</echo>
+  </target>
+
+  <target name="clean" description="clean up">
+    <delete dir="${dist.dir}"/>
+  </target>
+</project>
