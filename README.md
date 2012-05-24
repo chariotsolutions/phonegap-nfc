@@ -6,17 +6,20 @@ The PhoneGap NFC Plugin provides access to Near Field Communication (NFC) functi
 Supported Platforms
 -------------------
 * Android
+* Blackberry Webworks (OS 7.0 and higher)
 
 **Requires PhoneGap 1.6.1+**
 
-Configuration
+Installing the Plugin (Android)
 =============
 
 Assuming you have an existing PhoneGap 1.6.1 Android project:
 
 ### Java
 
-[Download phonegap-nfc.jar](https://github.com/chariotsolutions/phonegap-nfc/archives/master) and add it to lib/
+[Download phonegap-nfc-android.jar](https://github.com/chariotsolutions/phonegap-nfc/downloads) and add it to libs/
+
+### plugins.xml 
 
 Configure the NfcPlugin in res/xml/plugins.xml
 
@@ -24,7 +27,7 @@ Configure the NfcPlugin in res/xml/plugins.xml
 
 ### JavaScript 
 
-[Download phonegap-nfc.js](https://github.com/chariotsolutions/phonegap-nfc/archives/master) and add it to assets/www
+[Download phonegap-nfc.js](https://github.com/chariotsolutions/phonegap-nfc/downloads) and add it to assets/www
     
 Include phonegap-nfc.js in index.html
 
@@ -43,6 +46,58 @@ Ensure that the `minSdkVersion` is 10
 If you want to restrict your application to only devices with NFC hardware, set uses-feature so Google Play will restrict the listing.  If NFC is optional in your application, omit the uses-feature element.
 
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
+
+Installing the Plugin (Blackberry Webworks)
+=============
+
+Assuming you have an existing PhoneGap 1.7.0 Blackberry Webworks project:
+
+### Java
+
+[Download phonegap-nfc-webworks.jar](https://github.com/chariotsolutions/phonegap-nfc/downloads)
+
+The webworks jar contains source code that must be included in the cordova jar file
+
+Put phonegap-nfc-webworks.jar in the root of your webworks project.
+
+	$ mkdir build/plugin
+	$ cd build/plugin/
+	$ jar xf ../../phonegap-nfc-webworks.jar
+	$ jar uf ../../www/ext/cordova.1.7.0.jar .
+	$ jar tf ../../www/ext/cordova.1.7.0.jar
+	
+Ensure that you see the NfcPlugin classes listed during the last step
+
+	$ jar tf ../..www/ext/cordova.1.7.0.jar
+	library.xml
+	org/
+	org/apache/
+	org/apache/cordova/
+	...
+	org/apache/cordova/util/StringUtils.java
+	com/
+	com/chariotsolutions/
+	com/chariotsolutions/nfc/
+	com/chariotsolutions/nfc/plugin/
+	com/chariotsolutions/nfc/plugin/NfcPlugin.java
+	com/chariotsolutions/nfc/plugin/Util.java
+	
+You can delete phonegap-nfc-webworks.jar
+
+### plugins.xml
+
+Configure the NfcPlugin in res/xml/plugins.xml
+
+    <plugin name="NfcPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
+
+### JavaScript 
+
+[Download phonegap-nfc.js](https://github.com/chariotsolutions/phonegap-nfc/downloads) and add it to the www folder
+    
+Include phonegap-nfc.js in index.html
+
+    <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>        
+
 
 
 NFC
@@ -85,6 +140,8 @@ Supported Platforms
 -------------------
 
 - Android
+- Blackberry Webworks (OS 7.0 and higher)
+
 
 
 nfc.addMimeTypeListener
@@ -113,6 +170,8 @@ Supported Platforms
 -------------------
 
 - Android
+- Blackberry Webworks (OS 7.0 and higher)
+
 
 nfc.addNdefListener
 ==============================
@@ -140,6 +199,8 @@ Supported Platforms
 -------------------
 
 - Android
+- Blackberry Webworks (OS 7.0 and higher)
+
 
 nfc.addNdefFormatableListener
 ==============================
@@ -188,6 +249,8 @@ Supported Platforms
 -------------------
 
 - Android
+- Blackberry Webworks (OS 7.0 and higher)
+
 
 nfc.share
 ==============================
@@ -210,6 +273,8 @@ Supported Platforms
 -------------------
 
 - Android
+- Blackberry Webworks (OS 7.0 and higher)
+
 
 nfc.unshare
 ==============================
@@ -249,6 +314,8 @@ Supported Platforms
 -------------------
 
 - Android
+- Blackberry Webworks (OS 7.0 and higher)
+
 
 Ndef
 ========
@@ -277,17 +344,29 @@ The Ndef object has a function for creating NdefRecords
     
 There are also helper functions for some types of records
 
+Create a URI record
+
     var record = Ndef.uriRecord("http://chariotsolutions.com");
+
+Create a plain text record
+
+    var record = Ndef.textRecord("Plain text message");
+
+Create a mime type record
+
+	var payload = "Hello Phongap";
+	var mimeType = "text/pg";
+    var record = ndef.mimeMediaRecord(mimeType, nfc.stringToBytes(payload));
 
 See `Ndef.record`, `Ndef.textRecord`, `Ndef.mimeMediaRecord`, and `Ndef.uriRecord`.
 
 The Ndef object has functions to convert some data types to and from byte arrays.  
 
-See the phonegap-nfc.js source for more documentation.
+See the [phonegap-nfc.js](https://github.com/chariotsolutions/phonegap-nfc/blob/master/www/phonegap-nfc.js) source for more documentation.
 
-NDEF Events
+Events
 ============
-NDEF Events are fired when NFC tags are read.  Listeners are added by registering callback with the `nfc` object. 
+Events are fired when NFC tags are read.  Listeners are added by registering callback functions with the `nfc` object.  For example ` nfc.addNdefListener(myNfcListener, win, fail);`
 
 Properties
 ----------
@@ -296,29 +375,109 @@ Properties
  
 Types
 ---------
+- tag
 - ndef-mime
 - ndef
 - ndef-formatable
 
-Sample Event
----------
-        {
-            type: "ndef",
-            tag: {
-                "type": "NFC Forum Type 2",
-                "maxSize": 137,                
-                "isWritable": true,                
-                "canMakeReadOnly": true,
-                "ndefMessage": [{
-                    "id": [],
-                    "type": [116, 101, 120, 116, 47, 112, 103],
-                    "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112, 33],
-                    "tnf": 2
-                }]
-            }
-        }
 
-Intents
+The tag contents are platform dependent.
+
+`id` and `techTypes` may be included when scanning a tag on Android.  `serialNumber` may be included on Blackberry.
+
+`id` and `serialNumber` are different names for the same value.  `id` is typically displayed as a hex string `ndef.bytesToHexString(tag.id)`.
+
+Generating the following tag and
+
+Writing this NDEF message to a tag and then scanning on Android and Blackberry will produced the following events.  
+
+	var ndefMessage = [
+		ndef.createMimeRecord('text/pg', 'Hello PhoneGap')		
+	];
+
+Sample Event (Android)
+-----------
+
+	{
+	    type: 'ndef',
+	    tag: {
+	        "isWritable": true,
+	        "id": [4, 96, 117, 74, -17, 34, -128],
+	        "techTypes": ["android.nfc.tech.IsoDep", "android.nfc.tech.NfcA", "android.nfc.tech.Ndef"],
+	        "type": "NFC Forum Type 4",
+	        "canMakeReadOnly": false,
+	        "maxSize": 2046,
+	        "ndefMessage": [{
+	            "id": [],
+	            "type": [116, 101, 120, 116, 47, 112, 103],
+	            "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112],
+	            "tnf": 2
+	        }]
+	    }
+	}
+
+Sample Event (Webworks)
+-----------
+
+	{
+	    type: 'ndef',
+	    tag: {
+	        "tagType": "4",
+	        "isLocked": false,
+	        "isLockable": false,
+	        "freeSpaceSize": "2022",
+	        "serialNumberLength": "7",
+	        "serialNumber": [4, 96, 117, 74, -17, 34, -128],
+	        "name": "Desfire EV1 2K",
+	        "ndefMessage": [{
+	            "tnf": 2,
+	            "type": [116, 101, 120, 116, 47, 112, 103],
+	            "id": [],
+	            "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112]
+	        }]
+	    }
+	}
+	
+
+## Platform Differences
+
+addTagDiscoveredListener behaves different on Android and Webworks.
+
+On Android addTagDiscoveredListener scans non-NDEF tags and NDEF tags.  The tag event does NOT contain an ndefMessage even if there are NDEF messages on the tag.
+
+On Webwork addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks returns the ndefMessage in the event.
+	
+### Non-NDEF tag scanned with addTagDiscoveredListener (Android)
+
+	{
+	    type: 'tag',
+	    tag: {
+	        "id": [ - 81, 105, -4, 64],
+	        "techTypes": ["android.nfc.tech.MifareClassic", "android.nfc.tech.NfcA", "android.nfc.tech.NdefFormatable"]
+	    }
+	}
+
+### NDEF tag scanned with addTagDiscoveredListener (Android)
+
+	{
+	    type: 'tag',
+	    tag: {
+	        "id": [4, 96, 117, 74, -17, 34, -128],
+	        "techTypes": ["android.nfc.tech.IsoDep", "android.nfc.tech.NfcA", "android.nfc.tech.Ndef"]
+	    }
+	}
+	
+
+
+Getting Details about Events
+---------------
+	
+The raw contents of the scanned tags are written to the log before the event is fired.  Use `adb logcat` on Android and Event Log (hold alt + lglg) on Blackberry. 
+
+You can also log the tag contents in your event handlers.  `console.log(JSON.stringify(nfcEvent.tag))`  Note that you want to stringify the tag not the event to avoid a circular reference.
+
+
+Launching your Application when Scanning a Tag (Android)
 ===========
 
   Intents can be used to launch your application when a NFC tag is read.  This is optional and configured in AndroidManifest.xml.
@@ -347,7 +506,7 @@ License
 
 The MIT License
 
-Copyright (c) 2011 Chariot Solutions
+Copyright (c) 2011-2012 Chariot Solutions
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
