@@ -10,7 +10,7 @@ cordova.addConstructor(
                 alert("Failed to initialize the NfcPlugin " + reason);
             },
             "NfcPlugin", "init", []
-        )
+        );
     }
 );
 
