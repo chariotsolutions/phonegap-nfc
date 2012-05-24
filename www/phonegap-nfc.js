@@ -10,7 +10,7 @@ cordova.addConstructor(
                 alert("Failed to initialize the NfcPlugin " + reason);
             },
             "NfcPlugin", "init", []
-        )
+        );
     }
 );
 
@@ -114,7 +114,7 @@ var nfc = {
         document.addEventListener("ndef", callback, false);                
         cordova.exec(win, fail, "NfcPlugin", "registerNdef", []);
     },
-    
+
     addNdefFormatableListener: function (callback, win, fail) {
         document.addEventListener("ndef-formatable", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "registerNdefFormatable", []);
@@ -133,7 +133,22 @@ var nfc = {
     },
 
     erase: function (win, fail) {
-        cordova.exec(win, fail, "NfcPlugin", "writeTag", [[]]);
+        cordova.exec(win, fail, "NfcPlugin", "eraseTag", []);
+    },
+
+    removeTagDiscoveredListener: function (callback, win, fail) {
+        document.removeEventListener("tag", callback, false);
+        cordova.exec(win, fail, "NfcPlugin", "removeTag", []);
+    },
+
+    removeMimeTypeListener: function(mimeType, callback, win, fail) {
+        document.removeEventListener("ndef-mime", callback, false);
+        cordova.exec(win, fail, "NfcPlugin", "removeMimeType", [mimeType]);
+    },
+
+    removeNdefListener: function (callback, win, fail) {
+        document.removeEventListener("ndef", callback, false);
+        cordova.exec(win, fail, "NfcPlugin", "removeNdef", []);
     },
 
     concatArray: function (a1, a2) { // this isn't built in?
