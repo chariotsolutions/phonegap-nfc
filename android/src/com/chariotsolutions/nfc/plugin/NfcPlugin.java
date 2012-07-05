@@ -156,9 +156,9 @@ public class NfcPlugin extends Plugin {
     private void startNfc() {
         createPendingIntent(); // onResume can call startNfc before execute
 
-        this.ctx.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             public void run() {
-                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(ctx.getContext());
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
                 if (nfcAdapter != null) {
                     nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
@@ -173,10 +173,10 @@ public class NfcPlugin extends Plugin {
     }
 
     private void stopNfc() {
-        this.ctx.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             public void run() {
 
-                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(ctx.getContext());
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
                 if (nfcAdapter != null) {
                     nfcAdapter.disableForegroundDispatch(getActivity());
@@ -187,10 +187,10 @@ public class NfcPlugin extends Plugin {
     }
 
     private void startNdefPush() {
-        this.ctx.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             public void run() {
 
-                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(ctx.getContext());
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
                 if (nfcAdapter != null) {
                     nfcAdapter.enableForegroundNdefPush(getActivity(), p2pMessage);
@@ -200,10 +200,10 @@ public class NfcPlugin extends Plugin {
     }
 
     private void stopNdefPush() {
-        this.ctx.runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             public void run() {
 
-                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(ctx.getContext());
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
                 if (nfcAdapter != null) {
                     nfcAdapter.disableForegroundNdefPush(getActivity());
@@ -389,15 +389,15 @@ public class NfcPlugin extends Plugin {
     }
 
     private Activity getActivity() {
-        return (Activity)ctx;
+        return this.cordova.getActivity();
     }
 
     private Intent getIntent() {
-        return ((Activity)ctx).getIntent();
+        return getActivity().getIntent();
     }
 
     private void setIntent(Intent intent) {
-        ((Activity)ctx).setIntent(intent);
+        getActivity().setIntent(intent);
     }
 
 }
