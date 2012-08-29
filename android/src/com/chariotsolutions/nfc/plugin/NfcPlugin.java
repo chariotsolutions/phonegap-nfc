@@ -119,6 +119,10 @@ public class NfcPlugin extends Plugin {
 
         } else if (action.equalsIgnoreCase(INIT)) {
             Log.d(TAG, "Enabling plugin " + getIntent());
+            
+            if(!checkNfcSupport()){
+                return new PluginResult(Status.ERROR);
+            }
 
             startNfc();
             if (!recycledIntent()) {
@@ -151,6 +155,17 @@ public class NfcPlugin extends Plugin {
 
     private void addTagFilter() {
         intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED));
+    }
+    
+    private boolean checkNfcSupport(){
+        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
+
+        if (nfcAdapter != null && nfcAdapter.isEnabled()) {
+            // adapter exists and is enabled.
+            return true;
+        }
+
+        return false;
     }
 
     private void startNfc() {

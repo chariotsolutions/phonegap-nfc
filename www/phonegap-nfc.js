@@ -4,10 +4,12 @@ cordova.addConstructor(
     function () {
         cordova.exec(
             function () {
+                device.nfc = true;
                 console.log("Initialized the NfcPlugin");
             },
             function (reason) {
-                alert("Failed to initialize the NfcPlugin " + reason);
+                device.nfc = false;
+                console.log("Failed to initialize the NfcPlugin " + reason);
             },
             "NfcPlugin", "init", []
         );
