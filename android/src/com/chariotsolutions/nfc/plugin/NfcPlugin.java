@@ -37,7 +37,9 @@ public class NfcPlugin extends Plugin {
     private static final String NDEF_FORMATABLE = "ndef-formatable";
     private static final String TAG_DEFAULT = "tag";
 
-
+    private static final String ERROR_NO_NFC = "NO_NFC";
+    private static final String ERROR_NFC_DISABLED = "NFC_DISABLED";
+    
     private static final String TAG = "NfcPlugin";
     private final List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
     private final ArrayList<String[]> techLists = new ArrayList<String[]>();
@@ -120,10 +122,14 @@ public class NfcPlugin extends Plugin {
         } else if (action.equalsIgnoreCase(INIT)) {
             Log.d(TAG, "Enabling plugin " + getIntent());
             
-            if(!checkNfcSupport()){
-                return new PluginResult(Status.ERROR);
-            }
+            NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
+            if (nfcAdapter == null) {
+                return new PluginResult(Status.ERROR, ERROR_NO_NFC);
+            } else if (!nfcAdapter.isEnabled()) {
+                return new PluginResult(Status.ERROR, ERROR_NFC_DISABLED);
+            } // Note: a non-error could be NDEF_PUSH_DISABLED
+            
             startNfc();
             if (!recycledIntent()) {
                 parseMessage();
@@ -157,17 +163,6 @@ public class NfcPlugin extends Plugin {
         intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED));
     }
     
-    private boolean checkNfcSupport(){
-        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
-
-        if (nfcAdapter != null && nfcAdapter.isEnabled()) {
-            // adapter exists and is enabled.
-            return true;
-        }
-
-        return false;
-    }
-
     private void startNfc() {
         createPendingIntent(); // onResume can call startNfc before execute
 
