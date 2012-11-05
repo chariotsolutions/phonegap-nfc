@@ -19,7 +19,7 @@
   <property name="sdk.dir" value="/usr/local/android"/>
   <property name="target" value="android-10"/>
 
-  <property name="phonegap.version" value="2.0.0"/>
+  <property name="phonegap.version" value="2.2.0"/>
   <property name="phonegap.home" value="/usr/local/phonegap-${phonegap.version}"/>
   <property name="cordova.jar" value="${phonegap.home}/lib/android/cordova-${phonegap.version}.jar"/>
 
@@ -33,6 +33,7 @@
         <path location="${sdk.dir}/platforms/${target}/android.jar"/>
         <path location="${cordova.jar}"/>
       </classpath>
+      <compilerarg value="-Xlint:deprecation"/>
     </javac>
   </target>
 
