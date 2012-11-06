@@ -30,8 +30,9 @@ public class NfcPlugin extends CordovaPlugin {
     private static final String REGISTER_NDEF_FORMATABLE = "registerNdefFormatable";
     private static final String REGISTER_DEFAULT_TAG = "registerTag";
     private static final String CONNECT = "connect";
-    private static final String WRITE_NDEF = "writeNdef";
     private static final String CLOSE = "close";
+    private static final String READ_NDEF = "readNdef";
+    private static final String WRITE_NDEF = "writeNdef";
     private static final String WRITE_TAG = "writeTag";
     private static final String SHARE_TAG = "shareTag";
     private static final String UNSHARE_TAG = "unshareTag";
@@ -94,6 +95,24 @@ public class NfcPlugin extends CordovaPlugin {
                         Log.e(TAG, "Failed to close NFC tag connection", e);
                     }
                     asyncHandler.getLooper().quit();
+                }
+            });
+        }
+
+        void readNdef(final CallbackContext ctx) {
+            asyncHandler.post(new Runnable() {
+                public void run() {
+                    if (!(tech instanceof Ndef)) {
+                        ctx.error("Tag does not have a NDEF message");
+                        return;
+                    }
+                    try {
+                        Ndef ndef = (Ndef)tech;
+                        NdefMessage msg = ndef.getNdefMessage();  // blocking I/O
+                        ctx.success(Util.messageToJSON(msg));
+                    } catch (Exception e) {
+                        ctx.error("NDEF read error: " + e.getMessage());
+                    }
                 }
             });
         }
@@ -204,6 +223,14 @@ public class NfcPlugin extends CordovaPlugin {
             }
             tagWorker.close(callbackContext);
             tagWorker = null;
+            return true;
+
+        } else if (action.equalsIgnoreCase(READ_NDEF)) {
+            if (tagWorker == null) {
+                callbackContext.error("Tag is not connected");
+                return true;
+            }
+            tagWorker.readNdef(callbackContext);
             return true;
 
         } else if (action.equalsIgnoreCase(WRITE_NDEF)) {
