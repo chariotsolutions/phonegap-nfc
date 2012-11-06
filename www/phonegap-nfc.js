@@ -132,7 +132,23 @@ var nfc = {
         document.addEventListener("ndef-formatable", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "registerNdefFormatable", []);
     },
-    
+
+    connect: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "connect", []);
+    },
+
+    close: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "close", []);
+    },
+
+    readNdef: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "readNdef", []);
+    },
+
+    writeNdef: function (ndefMessage, win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "writeNdef", [ndefMessage]);
+    },
+
     write: function (ndefMessage, win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "writeTag", [ndefMessage]);
     },
