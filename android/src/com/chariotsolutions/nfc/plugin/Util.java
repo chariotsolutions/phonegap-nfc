@@ -3,7 +3,7 @@ package com.chariotsolutions.nfc.plugin;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.Tag;
-import android.nfc.tech.Ndef;
+import android.nfc.tech.*;
 import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,6 +61,18 @@ public class Util {
             }
         }
         return json;
+    }
+
+    static TagTechnology ndefTechForTag(Tag tag) {
+        for (String techName : tag.getTechList()) {
+            if (Ndef.class.getName().equals(techName)) {
+                return Ndef.get(tag);
+            }
+            if (NdefFormatable.class.getName().equals(techName)) {
+                return NdefFormatable.get(tag);
+            }
+        }
+        return null;
     }
 
     static String translateType(String type) {

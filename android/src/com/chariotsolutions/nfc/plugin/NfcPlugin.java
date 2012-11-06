@@ -8,6 +8,9 @@ import android.content.IntentFilter.MalformedMimeTypeException;
 import android.nfc.*;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
+import android.nfc.tech.TagTechnology;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Parcelable;
 import android.util.Log;
 import org.apache.cordova.api.CallbackContext;
@@ -26,6 +29,9 @@ public class NfcPlugin extends CordovaPlugin {
     private static final String REGISTER_NDEF = "registerNdef";
     private static final String REGISTER_NDEF_FORMATABLE = "registerNdefFormatable";
     private static final String REGISTER_DEFAULT_TAG = "registerTag";
+    private static final String CONNECT = "connect";
+    private static final String WRITE_NDEF = "writeNdef";
+    private static final String CLOSE = "close";
     private static final String WRITE_TAG = "writeTag";
     private static final String SHARE_TAG = "shareTag";
     private static final String UNSHARE_TAG = "unshareTag";
@@ -38,6 +44,93 @@ public class NfcPlugin extends CordovaPlugin {
 
 
     private static final String TAG = "NfcPlugin";
+
+    private static class TagWorker {
+        private TagTechnology tech;
+        private Handler asyncHandler;
+
+        TagWorker(TagTechnology tech) {
+            this.tech = tech;
+            HandlerThread asyncThread = new HandlerThread("PhoneGap NFC worker");
+            asyncThread.start();
+            this.asyncHandler = new Handler(asyncThread.getLooper());
+        }
+
+        public void close(CallbackContext ctx) {
+            try {
+                tech.close();
+                ctx.success();
+            } catch (IOException e) {
+                ctx.error("Failed to close NFC tag connection: " + e.getMessage());
+            }
+            asyncHandler.getLooper().quit();
+        }
+
+        void connect(final CallbackContext ctx) {
+            asyncHandler.post(new Runnable() {
+                public void run() {
+                    try {
+                        tech.connect();  // blocking I/O
+                        ctx.success();
+                    } catch (IOException e) {
+                        ctx.error("NFC tag connect failed: " + e.getMessage());
+                    }
+                }
+            });
+        }
+
+        // Support for deprecated stateless usage of writeTag
+        void connectSync() throws IOException {
+            Log.d(TAG, "Blocking on NFC tag connect; consider using nfc.connect");
+            tech.connect();
+        }
+        void closeWhenDone() {
+            asyncHandler.post(new Runnable() {
+                public void run() {
+                    Log.d(TAG, "Closing the one-shot NFC tag connection; consider using nfc.connect");
+                    try {
+                        tech.close();
+                    } catch (IOException e) {
+                        Log.e(TAG, "Failed to close NFC tag connection", e);
+                    }
+                    asyncHandler.getLooper().quit();
+                }
+            });
+        }
+
+        void writeNdef(final NdefMessage message, final CallbackContext ctx) {
+            asyncHandler.post(new Runnable() {
+                public void run() {
+                    try {
+                        if (tech instanceof Ndef) {
+                            Ndef ndef = (Ndef)tech;
+                            if (!ndef.isWritable()) {
+                                throw new TagWriteException("Tag is read only");
+                            }
+
+                            int size = message.toByteArray().length;  // Could use NdefMessage.getByteArrayLength() with API level 16
+                            if (ndef.getMaxSize() < size) {
+                                String errorMessage = "Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size + " bytes.";
+                                throw new TagWriteException(errorMessage);
+                            }
+
+                            ndef.writeNdefMessage(message);  // blocking I/O
+                        } else if (tech instanceof NdefFormatable) {
+                            NdefFormatable formatable = (NdefFormatable)tech;
+                            formatable.format(message);  // blocking I/O
+                        } else {
+                            Log.wtf(TAG, "Unexpected tag technology " + tech.getClass().getName());
+                            throw new TagWriteException("Internal error");
+                        }
+                        ctx.success();
+                    } catch (Exception e) {
+                        ctx.error("NDEF write error: " + e.getMessage());
+                    }
+                }
+            });
+        }
+    }
+
     private final List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
     private final ArrayList<String[]> techLists = new ArrayList<String[]>();
 
@@ -45,6 +138,8 @@ public class NfcPlugin extends CordovaPlugin {
     private PendingIntent pendingIntent = null;
 
     private Intent savedIntent = null;
+
+    private TagWorker tagWorker = null;
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
@@ -82,22 +177,52 @@ public class NfcPlugin extends CordovaPlugin {
             callbackContext.success();
             return true;
 
+        } else if (action.equalsIgnoreCase(CONNECT)) {
+            if (tagWorker != null) {
+                callbackContext.error("Already connected");
+                return true;
+            }
+            if (savedIntent == null) {
+                callbackContext.error("No tag is detected");
+                return true;
+            }
+            Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            TagTechnology tech = Util.ndefTechForTag(tag);
+            if (tech == null) {
+                callbackContext.error("Tag doesn't support NDEF");
+                return true;
+            }
+
+            tagWorker = new TagWorker(tech);
+            tagWorker.connect(callbackContext);
+            return true;
+
+        } else if (action.equalsIgnoreCase(CLOSE)) {
+            if (tagWorker == null) {
+                callbackContext.error("Tag is not connected");
+                return true;
+            }
+            tagWorker.close(callbackContext);
+            tagWorker = null;
+            return true;
+
+        } else if (action.equalsIgnoreCase(WRITE_NDEF)) {
+            if (tagWorker == null) {
+                callbackContext.error("Tag is not connected");
+                return true;
+            }
+            NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
+            tagWorker.writeNdef(new NdefMessage(records), callbackContext);
+            return true;
+
         } else if (action.equalsIgnoreCase(WRITE_TAG)) {
             if (getIntent() == null) {  // TODO remove this and handle LostTag
                 callbackContext.error("Failed to write tag, received null intent");
             }
 
-            try {
-                Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
-                writeTag(new NdefMessage(records), tag);
-            } catch (JSONException e) {
-                throw e;
-            } catch (Exception e) {
-                e.printStackTrace();
-                callbackContext.error(e.getMessage());
-            }
-
+            final Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
+            writeTag(new NdefMessage(records), tag, callbackContext);
             return true;
 
         } else if (action.equalsIgnoreCase(SHARE_TAG)) {
@@ -238,8 +363,8 @@ public class NfcPlugin extends CordovaPlugin {
     }
 
     void parseMessage() {
-        Log.d(TAG, "parseMessage " + getIntent());
         Intent intent = getIntent();
+        Log.d(TAG, "parseMessage " + intent);
         String action = intent.getAction();
         Log.d(TAG, "action " + action);
         if (action == null) { return; }
@@ -328,30 +453,33 @@ public class NfcPlugin extends CordovaPlugin {
         return json;
     }
 
-    private void writeTag(NdefMessage message, Tag tag) throws TagWriteException, IOException, FormatException {
+    private void writeTag(NdefMessage message, Tag tag, CallbackContext ctx) {
+        boolean oneShotWorker = false;
+        if (tagWorker == null) {
+            // Deprecated stateless usage without prior connect()
 
-        Ndef ndef = Ndef.get(tag);
-        if (ndef != null) {
-            ndef.connect();
-
-            if (!ndef.isWritable()) {
-                throw new TagWriteException("Tag is read only");
+            TagTechnology tech = Util.ndefTechForTag(tag);
+            if (tech == null) {
+                ctx.error("Tag doesn't support NDEF");
+                return;
             }
 
-            int size = message.toByteArray().length;
-            if (ndef.getMaxSize() < size) {
-                String errorMessage = "Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size + " bytes.";
-                throw new TagWriteException(errorMessage);
+            tagWorker = new TagWorker(tech);
+            try {
+                tagWorker.connectSync();
+            } catch (IOException e) {
+                ctx.error("NFC tag connect failed: " + e.getMessage());
+                tagWorker = null;
+                return;
             }
-            ndef.writeNdefMessage(message);
-        } else {
-            NdefFormatable formatable = NdefFormatable.get(tag);
-            if (formatable != null) {
-                formatable.connect();
-                formatable.format(message);
-            } else {
-                throw new TagWriteException("Tag doesn't support NDEF");
-            }
+            oneShotWorker = true;
+        }
+
+        tagWorker.writeNdef(message, ctx);
+
+        if (oneShotWorker) {
+            tagWorker.closeWhenDone();
+            tagWorker = null;
         }
     }
 
