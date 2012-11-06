@@ -8,12 +8,12 @@ Supported Platforms
 * Android
 * Blackberry Webworks (OS 7.0 and higher)
 
-**Requires PhoneGap 1.6.1+**
+**Requires PhoneGap 2.2.0+**
 
 Installing the Plugin (Android)
 =============
 
-Assuming you have an existing PhoneGap 1.6.1 Android project:
+Assuming you have an existing PhoneGap 2.2.0 Android project:
 
 ### Java
 
@@ -71,11 +71,9 @@ Make sure the following is in your config.xml:
     
 Include phonegap-nfc.js in index.html
 
-    <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>        
+    <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>
 
-
-## Java
-Assuming you have an existing PhoneGap 1.7.0 Blackberry Webworks project:
+### Java
 
 [Download phonegap-nfc-webworks.jar](https://github.com/chariotsolutions/phonegap-nfc/downloads)
 
@@ -86,12 +84,12 @@ Put phonegap-nfc-webworks.jar in the root of your webworks project.
 	$ mkdir build/plugin
 	$ cd build/plugin/
 	$ jar xf ../../phonegap-nfc-webworks.jar
-	$ jar uf ../../www/ext/cordova.1.7.0.jar .
-	$ jar tf ../../www/ext/cordova.1.7.0.jar
+	$ jar uf ../../www/ext/cordova.2.3.0.jar .
+	$ jar tf ../../www/ext/cordova.2.3.0.jar
 	
 Ensure that you see the NfcPlugin classes listed during the last step
 
-	$ jar tf ../..www/ext/cordova.1.7.0.jar
+	$ jar tf ../..www/ext/cordova.2.3.0.jar
 	library.xml
 	org/
 	org/apache/
