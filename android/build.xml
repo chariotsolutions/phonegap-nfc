@@ -28,7 +28,7 @@
     <delete includeemptydirs="true">
       <fileset dir="${build.dir}" includes="**/*"/>
     </delete>
-    <javac srcdir="${src.dir}" destdir="${build.dir}" debug="on" source="1.6" includeantruntime="false">
+    <javac srcdir="${src.dir}" destdir="${build.dir}" debug="on" source="1.6" target="1.6" includeantruntime="false">
       <classpath>
         <path location="${sdk.dir}/platforms/${target}/android.jar"/>
         <path location="${cordova.jar}"/>
