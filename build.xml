@@ -11,7 +11,7 @@
 
   <target name="build-javascript" description="rename javascript with the current version">
     <concat destfile="${dist.dir}/phonegap-nfc-${version}.js">
-      <fileset dir="www" includes="phonegap-nfc.js" />
+      <fileset dir="www" includes="phonegap-nfc*.js" />
     </concat>
     <echo>${dist.dir}/phonegap-nfc-${version}.js</echo>
   </target>
