@@ -21,15 +21,11 @@
   </target>
 
   <target name="android" description="android">
-	<exec dir="android" executable="ant">
-		<arg value="jar"/>
-	</exec>
+	<ant dir="android" target="jar"/>
   </target>
 
   <target name="webworks" description="webworks">
-	<exec dir="webworks" executable="ant">
-		<arg value="jar"/>
-	</exec>
+	<ant dir="webworks" target="jar"/>
   </target>
 
   <target name="clean" description="clean up">
