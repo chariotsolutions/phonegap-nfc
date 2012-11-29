@@ -50,9 +50,32 @@ If you want to restrict your application to only devices with NFC hardware, set 
 Installing the Plugin (Blackberry Webworks)
 =============
 
-Assuming you have an existing PhoneGap 1.7.0 Blackberry Webworks project:
+## BlackBerry 10
+Assuming you have an existing PhoneGap 2.3 BlackBerry Project:
 
-### Java
+### config.xml
+Make sure the following is in your config.xml:
+
+    <rim:invoke-target id="<A unique ID for your project>">
+        <type>APPLICATION</type>
+        <filter>
+            <action>bb.action.OPEN</action>
+            <mime-type>application/vnd.rim.nfc.ndef</mime-type>
+            <property var="uris" value="ndef://1,ndef://2,ndef://4" /> 
+        </filter>
+    </rim:invoke-target>
+
+### JavaScript 
+
+[Download phonegap-nfc.js](https://github.com/chariotsolutions/phonegap-nfc/downloads) and add it to the www folder
+    
+Include phonegap-nfc.js in index.html
+
+    <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>        
+
+
+## Java
+Assuming you have an existing PhoneGap 1.7.0 Blackberry Webworks project:
 
 [Download phonegap-nfc-webworks.jar](https://github.com/chariotsolutions/phonegap-nfc/downloads)
 
