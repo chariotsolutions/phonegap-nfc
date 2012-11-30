@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<plugin 
+    xmlns="http://www.phonegap.com/ns/plugins/1.0" 
+    xmlns:android="http://schemas.android.com/apk/res/android" 
+    id="com.chariotsolutions.nfc.plugin" 
+    version="0.4.1">
+    
+    <name>NFC</name>
+    
+    <asset src="www/phonegap-nfc.js" target="phonegap-nfc.js"/>
+
+    <!-- 
+        TODO requires a symlink until the project is re-organized 
+        mkdir src
+        cd src
+        ln -s ../android .
+    -->
+    <platform name="android">
+                
+        <!-- Cordova 1.5 - 1.9 -->
+        <config-file target="res/xml/plugins.xml" parent="/plugins">
+            <plugin name="NfcPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
+        </config-file>
+        
+        <!-- Cordova 2.0.0 -->
+        <config-file target="res/xml/config.xml" parent="/cordova/plugins">
+            <plugin name="NfcPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
+        </config-file>
+        
+        <!-- TODO prefer the jar file -->
+        <source-file src="src/com/chariotsolutions/nfc/plugin/NfcPlugin.java"
+            target-dir="src/com/chariotsolutions/nfc/plugin"/>
+        <source-file src="src/com/chariotsolutions/nfc/plugin/TagWriteException.java"
+            target-dir="src/com/chariotsolutions/nfc/plugin"/>
+        <source-file src="src/com/chariotsolutions/nfc/plugin/Util.java" 
+            target-dir="src/com/chariotsolutions/nfc/plugin"/>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.NFC"/>
+            <uses-feature android:name="android.hardware.nfc" android:required="false"/>
+            <!-- TODO want to ensure minimum sdk version is 10 without adding a duplicate row
+            <uses-sdk android:minSdkVersion="10" />
+            -->
+        </config-file>
+        
+        <!-- TODO prefer library over the source
+        <source-file src="../../dist/phonegap-nfc-android-${version}.jar" target-dir="libs"/>
+        -->
+        
+    </platform>
+</plugin>
