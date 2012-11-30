@@ -3,11 +3,13 @@
 cordova.addConstructor(
     function () {
         cordova.exec(
-            function () {
+            function (result) {
                 console.log("Initialized the NfcPlugin");
+                nfc.status = result;
             },
             function (reason) {
-                alert("Failed to initialize the NfcPlugin " + reason);
+                console.log("Failed to initialize the NfcPlugin " + reason);
+                nfc.status = reason;
             },
             "NfcPlugin", "init", []
         );
@@ -99,6 +101,12 @@ var ndef = {
 };
 
 var nfc = {
+    
+    status: "UNKNOWN",
+    
+    available: function () {
+        return this.status === "OK";
+    },
 
     addTagDiscoveredListener: function (callback, win, fail) {
         document.addEventListener("tag", callback, false);
