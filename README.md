@@ -8,12 +8,28 @@ Supported Platforms
 * Android
 * Blackberry Webworks (OS 7.0 and higher)
 
-**Requires PhoneGap 1.6.1+**
+**Requires PhoneGap 2.2.0**
 
 Installing the Plugin (Android)
 =============
 
-Assuming you have an existing PhoneGap 1.6.1 Android project:
+Assuming you have an existing PhoneGap 2.2.0 Android project:
+
+### Installing with Pluginstall
+
+There is experimental support for installing phonegap-nfc on Android with [pluginstall](https://github.com/alunny/pluginstall).  Pluginstall requires [node.js](http://nodejs.org) and is installed through npm.
+
+Install pluginstall
+
+    $ npm install -g pluginstall
+
+Install the plugin
+
+    $ pluginstall android /path/to/your/project /path/to/phonegap-nfc
+
+Skip to the [JavaScript](#javascript) step
+
+### Manually Installing the Plugin (Android)
 
 ### Java
 
@@ -47,6 +63,7 @@ If you want to restrict your application to only devices with NFC hardware, set 
 
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
 
+
 Installing the Plugin (Blackberry Webworks)
 =============
 
@@ -74,8 +91,11 @@ Include phonegap-nfc.js in index.html
     <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>        
 
 
-## Java
+## BlackBerry 7
+
 Assuming you have an existing PhoneGap 1.7.0 Blackberry Webworks project:
+
+### Java
 
 [Download phonegap-nfc-webworks.jar](https://github.com/chariotsolutions/phonegap-nfc/downloads)
 
