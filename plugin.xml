@@ -17,17 +17,10 @@
     -->
     <platform name="android">
                 
-        <!-- Cordova 1.5 - 1.9 -->
-        <config-file target="res/xml/plugins.xml" parent="/plugins">
-            <plugin name="NfcPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
-        </config-file>
-        
-        <!-- Cordova 2.0.0 -->
         <config-file target="res/xml/config.xml" parent="/cordova/plugins">
             <plugin name="NfcPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
         </config-file>
         
-        <!-- TODO prefer the jar file -->
         <source-file src="src/com/chariotsolutions/nfc/plugin/NfcPlugin.java"
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
         <source-file src="src/com/chariotsolutions/nfc/plugin/TagWriteException.java"
