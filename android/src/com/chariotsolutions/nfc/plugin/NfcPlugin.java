@@ -172,7 +172,7 @@ public class NfcPlugin extends CordovaPlugin {
                 intentFilters.add(createIntentFilter(mimeType));
             } catch (MalformedMimeTypeException e) {
                 callbackContext.error("Invalid MIME Type " + mimeType);
-                return false;
+                return true;
             }
             startNfc();
             callbackContext.success();
