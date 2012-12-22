@@ -155,6 +155,10 @@ Methods
 - nfc.addMimeTypeListener
 - nfc.addNdefListener
 - nfc.addNdefFormatableListener
+- nfc.connect
+- nfc.close
+- nfc.writeNdef
+- nfc.readNdef
 - nfc.write
 - nfc.share
 - nfc.unshare
@@ -269,6 +273,107 @@ Supported Platforms
 
 - Android
 
+nfc.connect
+==============================
+Enables I/O operations to the discovered tag.
+
+    nfc.connect([onSuccess], [onFailure])
+
+Parameters
+----------
+- __onSuccess__: (Optional) The callback that is called when the tag is enabled for I/O.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+Description
+-----------
+Function `nfc.connect` enables I/O operations to the currently
+discovered NFC tag. Only tags supporting NDEF, or tags formatable
+to NDEF, can be succesfully connected to in the current implementation.
+
+Calling this function may cause RF activity to access the NFC tag.
+This function is non-blocking, it returns before the connection is complete.
+Subsequent non-blocking I/O operation functions can be called just after
+`nfc.connect` returns and their effects will be queued, but if the
+connection eventually fails, all queued operations will fail too.
+
+Applications must call `nfc.close` when I/O operations are complete.
+
+Supported Platforms
+-------------------
+- Android
+
+nfc.close
+==============================
+Disables I/O operations to the tag and releases resources.
+
+    nfc.close([onSuccess], [onFailure])
+
+Parameters
+----------
+- __onSuccess__: (Optional) The callback that is called on success. 
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+Description
+-----------
+Function `nfc.close` disables I/O operations with the currently connected tag
+and releases resources. Additionally, it cancels any ongoing I/O operations
+to the tag.
+
+Supported Platforms
+-------------------
+- Android
+
+nfc.readNdef
+==============================
+Reads the current NDEF message stored on the currently connected tag.
+
+    nfc.readNdef([onSuccess], [onFailure])
+
+Parameters
+----------
+- __onSuccess__: (Optional) The callback that receives the NDEF message data. 
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+Description
+-----------
+Function `nfc.readNdef` reads the current NDEF message stored on the currently
+connected tag. If the tag is formatted for NDEF, but does not contain a message,
+a null is passed to the __onSuccess__ callback.
+
+Calling this function causes RF activity to access the NFC tag.
+This function is non-blocking, it returns before reading is performed.
+The tag must be connected with `nfc.connect` prior to calling this function.
+
+Supported Platforms
+-------------------
+- Android
+
+nfc.writeNdef
+==============================
+Writes an NDEF message to the currently connected tag.
+
+    nfc.writeNdef(ndefMessage, [onSuccess], [onFailure]);
+
+Parameters
+----------
+- __ndefMessage__: The NdefMessage that is written to the tag.
+- __onSuccess__: (Optional) The callback that is called when the tag is written.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+Description
+-----------
+Function `nfc.writeNdef` writes an NDEF message to the currently connected
+NFC tag. If the tag does not contain an existing NDEF message,
+but is NDEF formatable, it is formatted with the provided message.
+
+Calling this function causes RF activity to access the NFC tag.
+This function is non-blocking, it returns before writing is complete.
+The tag must be connected with `nfc.connect` prior to calling this function.
+
+Supported Platforms
+-------------------
+- Android
+
 nfc.write
 ==============================
 Writes data to an NDEF tag.
@@ -283,8 +388,14 @@ Parameters
 
 Description
 -----------
-
 Function `nfc.write` writes an NdefMessage to a NFC tag.
+
+For backward compatibility, this function may be called without calling
+`nfc.connect` first. In this case, the call will block until the connection
+is established. The connection is then closed after the message
+is written. If `nfc.connect` has been called for the currently discovered
+tag prior to calling `nfc.write`, the behavior is that of `nfc.writeNdef`.
+Consider using the latter function instead.
 
 This method *must* be called from within an NDEF Event Handler. 
 
@@ -293,7 +404,6 @@ Supported Platforms
 
 - Android
 - Blackberry Webworks (OS 7.0 and higher)
-
 
 nfc.share
 ==============================
