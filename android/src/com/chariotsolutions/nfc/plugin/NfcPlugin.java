@@ -61,21 +61,25 @@ public class NfcPlugin extends CordovaPlugin {
                 return false;
             }
             startNfc();
+            callbackContext.success();
             return true;
 
         } else if (action.equalsIgnoreCase(REGISTER_NDEF)) {
             addTechList(new String[]{Ndef.class.getName()});
             startNfc();
+            callbackContext.success();
             return true;
 
         } else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATABLE)) {
             addTechList(new String[]{NdefFormatable.class.getName()});
             startNfc();
+            callbackContext.success();
             return true;
 
         }  else if (action.equals(REGISTER_DEFAULT_TAG)) {
             addTagFilter();
             startNfc();
+            callbackContext.success();
             return true;
 
         } else if (action.equalsIgnoreCase(WRITE_TAG)) {
@@ -103,11 +107,13 @@ public class NfcPlugin extends CordovaPlugin {
 
             startNdefPush();
 
+            callbackContext.success();
             return true;
 
         } else if (action.equalsIgnoreCase(UNSHARE_TAG)) {
             p2pMessage = null;
             stopNdefPush();
+            callbackContext.success();
             return true;
 
         } else if (action.equalsIgnoreCase(INIT)) {
@@ -117,6 +123,7 @@ public class NfcPlugin extends CordovaPlugin {
             if (!recycledIntent()) {
                 parseMessage();
             }
+            callbackContext.success();
             return true;
 
         }
