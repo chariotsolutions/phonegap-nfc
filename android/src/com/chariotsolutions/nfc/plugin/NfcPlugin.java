@@ -86,12 +86,9 @@ public class NfcPlugin extends CordovaPlugin {
             try {
                 Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                 NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
-                writeTag(new NdefMessage(records), tag);
+                writeTag(new NdefMessage(records), tag, callbackContext);
             } catch (JSONException e) {
                 throw e;
-            } catch (Exception e) {
-                e.printStackTrace();
-                callbackContext.error(e.getMessage());
             }
 
             return true;
@@ -321,31 +318,41 @@ public class NfcPlugin extends CordovaPlugin {
         return json;
     }
 
-    private void writeTag(NdefMessage message, Tag tag) throws TagWriteException, IOException, FormatException {
+    private void writeTag(final NdefMessage message, final Tag tag, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Ndef ndef = Ndef.get(tag);
+                    if (ndef != null) {
+                        ndef.connect();
 
-        Ndef ndef = Ndef.get(tag);
-        if (ndef != null) {
-            ndef.connect();
+                        if (!ndef.isWritable()) {
+                            throw new TagWriteException("Tag is read only");
+                        }
 
-            if (!ndef.isWritable()) {
-                throw new TagWriteException("Tag is read only");
+                        int size = message.toByteArray().length;
+                        if (ndef.getMaxSize() < size) {
+                            String errorMessage = "Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size + " bytes.";
+                            throw new TagWriteException(errorMessage);
+                        }
+                        ndef.writeNdefMessage(message);
+                        ndef.close();
+                    } else {
+                        NdefFormatable formatable = NdefFormatable.get(tag);
+                        if (formatable != null) {
+                            formatable.connect();
+                            formatable.format(message);
+                        } else {
+                            throw new TagWriteException("Tag doesn't support NDEF");
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
             }
-
-            int size = message.toByteArray().length;
-            if (ndef.getMaxSize() < size) {
-                String errorMessage = "Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size + " bytes.";
-                throw new TagWriteException(errorMessage);
-            }
-            ndef.writeNdefMessage(message);
-        } else {
-            NdefFormatable formatable = NdefFormatable.get(tag);
-            if (formatable != null) {
-                formatable.connect();
-                formatable.format(message);
-            } else {
-                throw new TagWriteException("Tag doesn't support NDEF");
-            }
-        }
+        });
     }
 
     private boolean recycledIntent() { // TODO this is a kludge, find real solution
