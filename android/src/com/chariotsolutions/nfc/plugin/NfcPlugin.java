@@ -26,7 +26,7 @@ public class NfcPlugin extends CordovaPlugin {
     private static final String REGISTER_NDEF = "registerNdef";
     private static final String REGISTER_NDEF_FORMATABLE = "registerNdefFormatable";
     private static final String REGISTER_DEFAULT_TAG = "registerTag";
-    private static final String WRITE_TAG = "writeNdefMessage";
+    private static final String WRITE_TAG = "writeTag";
     private static final String SHARE_TAG = "shareTag";
     private static final String UNSHARE_TAG = "unshareTag";
     private static final String INIT = "init";
@@ -136,11 +136,9 @@ public class NfcPlugin extends CordovaPlugin {
     }
 
     private void writeNdefMessage(final NdefMessage message, final Tag tag, final CallbackContext callbackContext) {
-        Log.d(TAG, "Current Thread" + Thread.currentThread());
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "Current Thread" + Thread.currentThread());
                 try {
                     Ndef ndef = Ndef.get(tag);
                     if (ndef != null) {
@@ -297,11 +295,9 @@ public class NfcPlugin extends CordovaPlugin {
     }
 
     void parseMessage() {
-        Log.d(TAG, "Current Thread" + Thread.currentThread());
         cordova.getThreadPool().execute(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "Current Thread" + Thread.currentThread());
                 Log.d(TAG, "parseMessage " + getIntent());
                 Intent intent = getIntent();
                 String action = intent.getAction();
