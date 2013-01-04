@@ -108,6 +108,14 @@ var ndef = {
     mimeMediaRecord: function (mimeType, payload, id) {
         if (!id) { id = []; }   
         return ndef.record(ndef.TNF_MIME_MEDIA, nfc.stringToBytes(mimeType), id, payload);
+    },
+    
+    /**
+     * Helper that creates an empty NDEF record.
+     *
+     */
+    emptyRecord: function() {
+        return ndef.record(ndef.TNF_EMPTY, [], [], []);        
     }
 };
 
