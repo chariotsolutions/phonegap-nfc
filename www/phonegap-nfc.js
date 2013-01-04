@@ -17,7 +17,7 @@ function handleNfcFromIntentFilter() {
                     console.log("Initialized the NfcPlugin");
                 },
                 function (reason) {
-                    window.alert("Failed to initialize the NfcPlugin " + reason);
+                    console.log("Failed to initialize the NfcPlugin " + reason);
                 },
                 "NfcPlugin", "init", []
             );
@@ -146,7 +146,7 @@ var nfc = {
     },
 
     erase: function (win, fail) {
-        cordova.exec(win, fail, "NfcPlugin", "eraseTag", []);
+        cordova.exec(win, fail, "NfcPlugin", "eraseTag", [[]]);
     },
 
     removeTagDiscoveredListener: function (callback, win, fail) {
