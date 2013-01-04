@@ -37,6 +37,10 @@ public class NfcPlugin extends CordovaPlugin {
     private static final String TAG_DEFAULT = "tag";
 
 
+    private static final String STATUS_NFC_OK = "NFC_OK";
+    private static final String STATUS_NO_NFC = "NO_NFC";
+    private static final String STATUS_NFC_DISABLED = "NFC_DISABLED";
+
     private static final String TAG = "NfcPlugin";
     private final List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
     private final ArrayList<String[]> techLists = new ArrayList<String[]>();
@@ -48,80 +52,105 @@ public class NfcPlugin extends CordovaPlugin {
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
+
         Log.d(TAG, "execute " + action);
+
+        if (!getNfcStatus().equals(STATUS_NFC_OK)) {
+            callbackContext.error(getNfcStatus());
+            return true; // short circuit
+        }
+
         createPendingIntent();
 
         if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
-            String mimeType = "";
-            try {
-                mimeType = data.getString(0);
-                intentFilters.add(createIntentFilter(mimeType));
-            } catch (MalformedMimeTypeException e) {
-                callbackContext.error("Invalid MIME Type " + mimeType);
-                return false;
-            }
-            startNfc();
-            return true;
+            registerMimeType(data, callbackContext);
 
         } else if (action.equalsIgnoreCase(REGISTER_NDEF)) {
             addTechList(new String[]{Ndef.class.getName()});
-            startNfc();
-            return true;
 
         } else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATABLE)) {
             addTechList(new String[]{NdefFormatable.class.getName()});
-            startNfc();
-            return true;
 
         }  else if (action.equals(REGISTER_DEFAULT_TAG)) {
             addTagFilter();
-            startNfc();
-            return true;
 
         } else if (action.equalsIgnoreCase(WRITE_TAG)) {
-            if (getIntent() == null) {  // TODO remove this and handle LostTag
-                callbackContext.error("Failed to write tag, received null intent");
-            }
-
-            try {
-                Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
-                writeTag(new NdefMessage(records), tag);
-            } catch (JSONException e) {
-                throw e;
-            } catch (Exception e) {
-                e.printStackTrace();
-                callbackContext.error(e.getMessage());
-            }
-
-            return true;
+            writeTag(data, callbackContext);
 
         } else if (action.equalsIgnoreCase(SHARE_TAG)) {
-
-            NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
-            this.p2pMessage = new NdefMessage(records);
-
-            startNdefPush();
-
-            return true;
+            shareTag(data);
 
         } else if (action.equalsIgnoreCase(UNSHARE_TAG)) {
             p2pMessage = null;
             stopNdefPush();
-            return true;
 
         } else if (action.equalsIgnoreCase(INIT)) {
-            Log.d(TAG, "Enabling plugin " + getIntent());
+            init();
 
-            startNfc();
-            if (!recycledIntent()) {
-                parseMessage();
-            }
-            return true;
-
+        } else {
+            // invalid action
+            return false;
         }
-        Log.d(TAG, "no result");
-        return false;
+
+        return true;
+    }
+
+    private String getNfcStatus() {
+        NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
+        if (nfcAdapter == null) {
+            return STATUS_NO_NFC;
+        } else if (!nfcAdapter.isEnabled()) {
+            return STATUS_NFC_DISABLED;
+        } else {
+            return STATUS_NFC_OK;
+        }
+    }
+
+    private void init() {
+        Log.d(TAG, "Enabling plugin " + getIntent());
+
+        startNfc();
+        if (!recycledIntent()) {
+            parseMessage();
+        }
+    }
+
+    private void registerMimeType(JSONArray data, CallbackContext callbackContext) throws JSONException {
+        String mimeType = "";
+        try {
+            mimeType = data.getString(0);
+            intentFilters.add(createIntentFilter(mimeType));
+        } catch (MalformedMimeTypeException e) {
+            callbackContext.error("Invalid MIME Type " + mimeType);
+        }
+    }
+
+    private void writeTag(JSONArray data, CallbackContext callbackContext) throws JSONException {
+        if (getIntent() == null) {  // TODO remove this and handle LostTag
+            callbackContext.error("Failed to write tag, received null intent");
+        }
+
+        try {
+            Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+            NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
+            writeTag(new NdefMessage(records), tag);
+        } catch (JSONException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            callbackContext.error(e.getMessage());
+        }
+    }
+
+    private void shareTag(JSONArray data) throws JSONException {
+        NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
+        this.p2pMessage = new NdefMessage(records);
+
+        // TODO error if push is disabled
+        // http://developer.android.com/reference/android/nfc/NfcAdapter.html#isNdefPushEnabled()
+        // if (nfcAdapter != null && NfcAdapter.isNdefPushEnabled())
+
+        startNdefPush();
     }
 
     private void createPendingIntent() {
