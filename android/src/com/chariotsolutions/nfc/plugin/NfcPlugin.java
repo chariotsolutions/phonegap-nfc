@@ -78,7 +78,7 @@ public class NfcPlugin extends CordovaPlugin {
             writeTag(data, callbackContext);
 
         } else if (action.equalsIgnoreCase(ERASE_TAG)) {
-            writeTag(data, callbackContext);
+            eraseTag(callbackContext);
 
         } else if (action.equalsIgnoreCase(SHARE_TAG)) {
             shareTag(data);
@@ -128,6 +128,25 @@ public class NfcPlugin extends CordovaPlugin {
         }
     }
 
+    private void eraseTag(CallbackContext callbackContext) throws JSONException {
+        if (getIntent() == null) {  // TODO remove this and handle LostTag
+            callbackContext.error("Failed to erase tag, received null intent");
+        }
+
+        try {
+            Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+
+            // Cheating and writing an empty record. We should actually be able to erase some tag types.
+            NdefRecord[] records = {
+                new NdefRecord(NdefRecord.TNF_EMPTY, new byte[0], new byte[0], new byte[0])
+            };            
+            writeTag(new NdefMessage(records), tag);
+        } catch (Exception e) {
+            e.printStackTrace();
+            callbackContext.error(e.getMessage());
+        }
+    }
+    
     private void writeTag(JSONArray data, CallbackContext callbackContext) throws JSONException {
         if (getIntent() == null) {  // TODO remove this and handle LostTag
             callbackContext.error("Failed to write tag, received null intent");
@@ -138,6 +157,7 @@ public class NfcPlugin extends CordovaPlugin {
             NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
             writeTag(new NdefMessage(records), tag);
         } catch (JSONException e) {
+            e.printStackTrace();
             throw e;
         } catch (Exception e) {
             e.printStackTrace();
