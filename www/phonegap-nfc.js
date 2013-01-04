@@ -17,7 +17,7 @@ function handleNfcFromIntentFilter() {
                     console.log("Initialized the NfcPlugin");
                 },
                 function (reason) {
-                    window.alert("Failed to initialize the NfcPlugin " + reason);
+                    console.log("Failed to initialize the NfcPlugin " + reason);
                 },
                 "NfcPlugin", "init", []
             );
@@ -108,6 +108,14 @@ var ndef = {
     mimeMediaRecord: function (mimeType, payload, id) {
         if (!id) { id = []; }   
         return ndef.record(ndef.TNF_MIME_MEDIA, nfc.stringToBytes(mimeType), id, payload);
+    },
+    
+    /**
+     * Helper that creates an empty NDEF record.
+     *
+     */
+    emptyRecord: function() {
+        return ndef.record(ndef.TNF_EMPTY, [], [], []);        
     }
 };
 
@@ -146,7 +154,7 @@ var nfc = {
     },
 
     erase: function (win, fail) {
-        cordova.exec(win, fail, "NfcPlugin", "eraseTag", []);
+        cordova.exec(win, fail, "NfcPlugin", "eraseTag", [[]]);
     },
 
     removeTagDiscoveredListener: function (callback, win, fail) {
