@@ -130,16 +130,51 @@ public class NfcPlugin extends CordovaPlugin {
             callbackContext.error("Failed to write tag, received null intent");
         }
 
-        try {
-            Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-            NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
-            writeTag(new NdefMessage(records), tag);
-        } catch (JSONException e) {
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-            callbackContext.error(e.getMessage());
-        }
+        Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
+        writeNdefMessage(new NdefMessage(records), tag, callbackContext);
+    }
+
+    private void writeNdefMessage(final NdefMessage message, final Tag tag, final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Ndef ndef = Ndef.get(tag);
+                    if (ndef != null) {
+                        ndef.connect();
+
+                        if (ndef.isWritable()) {
+                            int size = message.toByteArray().length;
+                            if (ndef.getMaxSize() < size) {
+                                callbackContext.error("Tag capacity is " + ndef.getMaxSize() +
+                                        " bytes, message is " + size + " bytes.");
+                            } else {
+                                ndef.writeNdefMessage(message);
+                            }
+                        } else {
+                            callbackContext.error("Tag is read only");
+                        }
+                        ndef.close();
+                    } else {
+                        NdefFormatable formatable = NdefFormatable.get(tag);
+                        if (formatable != null) {
+                            formatable.connect();
+                            formatable.format(message);
+                            formatable.close();
+                        } else {
+                            callbackContext.error("Tag doesn't support NDEF");
+                        }
+                    }
+                } catch (FormatException e) {
+                    callbackContext.error(e.getMessage());
+                } catch (TagLostException e) {
+                    callbackContext.error(e.getMessage());
+                } catch (IOException e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
     }
 
     private void shareTag(JSONArray data) throws JSONException {
@@ -260,36 +295,41 @@ public class NfcPlugin extends CordovaPlugin {
     }
 
     void parseMessage() {
-        Log.d(TAG, "parseMessage " + getIntent());
-        Intent intent = getIntent();
-        String action = intent.getAction();
-        Log.d(TAG, "action " + action);
-        if (action == null) { return; }
+        cordova.getThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "parseMessage " + getIntent());
+                Intent intent = getIntent();
+                String action = intent.getAction();
+                Log.d(TAG, "action " + action);
+                if (action == null) { return; }
 
-        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-        Parcelable[] messages = intent.getParcelableArrayExtra((NfcAdapter.EXTRA_NDEF_MESSAGES));
+                Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                Parcelable[] messages = intent.getParcelableArrayExtra((NfcAdapter.EXTRA_NDEF_MESSAGES));
 
-        if (action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
-            Ndef ndef = Ndef.get(tag);
-            fireNdefEvent(NDEF_MIME, ndef, messages);
-
-        } else if (action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
-            for (String tagTech : tag.getTechList()) {
-                Log.d(TAG, tagTech);
-                if (tagTech.equals(NdefFormatable.class.getName())) {
-                    fireNdefEvent(NDEF_FORMATABLE, null, null);
-                } else if (tagTech.equals(Ndef.class.getName())) { //
+                if (action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
                     Ndef ndef = Ndef.get(tag);
-                    fireNdefEvent(NDEF, ndef, messages);
+                    fireNdefEvent(NDEF_MIME, ndef, messages);
+
+                } else if (action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
+                    for (String tagTech : tag.getTechList()) {
+                        Log.d(TAG, tagTech);
+                        if (tagTech.equals(NdefFormatable.class.getName())) {
+                            fireNdefEvent(NDEF_FORMATABLE, null, null);
+                        } else if (tagTech.equals(Ndef.class.getName())) { //
+                            Ndef ndef = Ndef.get(tag);
+                            fireNdefEvent(NDEF, ndef, messages);
+                        }
+                    }
                 }
+
+                if (action.equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
+                    fireTagEvent(tag);
+                }
+
+                setIntent(new Intent());
             }
-        }
-
-        if (action.equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
-            fireTagEvent(tag);
-        }
-
-        setIntent(new Intent());
+        });
     }
 
     private void fireNdefEvent(String type, Ndef ndef, Parcelable[] messages) {
@@ -348,33 +388,6 @@ public class NfcPlugin extends CordovaPlugin {
             }
         }
         return json;
-    }
-
-    private void writeTag(NdefMessage message, Tag tag) throws TagWriteException, IOException, FormatException {
-
-        Ndef ndef = Ndef.get(tag);
-        if (ndef != null) {
-            ndef.connect();
-
-            if (!ndef.isWritable()) {
-                throw new TagWriteException("Tag is read only");
-            }
-
-            int size = message.toByteArray().length;
-            if (ndef.getMaxSize() < size) {
-                String errorMessage = "Tag capacity is " + ndef.getMaxSize() + " bytes, message is " + size + " bytes.";
-                throw new TagWriteException(errorMessage);
-            }
-            ndef.writeNdefMessage(message);
-        } else {
-            NdefFormatable formatable = NdefFormatable.get(tag);
-            if (formatable != null) {
-                formatable.connect();
-                formatable.format(message);
-            } else {
-                throw new TagWriteException("Tag doesn't support NDEF");
-            }
-        }
     }
 
     private boolean recycledIntent() { // TODO this is a kludge, find real solution
