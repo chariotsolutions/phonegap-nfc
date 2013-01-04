@@ -27,6 +27,7 @@ public class NfcPlugin extends CordovaPlugin {
     private static final String REGISTER_NDEF_FORMATABLE = "registerNdefFormatable";
     private static final String REGISTER_DEFAULT_TAG = "registerTag";
     private static final String WRITE_TAG = "writeTag";
+    private static final String ERASE_TAG = "eraseTag";
     private static final String SHARE_TAG = "shareTag";
     private static final String UNSHARE_TAG = "unshareTag";
     private static final String INIT = "init";
@@ -35,7 +36,6 @@ public class NfcPlugin extends CordovaPlugin {
     private static final String NDEF_MIME = "ndef-mime";
     private static final String NDEF_FORMATABLE = "ndef-formatable";
     private static final String TAG_DEFAULT = "tag";
-
 
     private static final String STATUS_NFC_OK = "NFC_OK";
     private static final String STATUS_NO_NFC = "NO_NFC";
@@ -76,6 +76,9 @@ public class NfcPlugin extends CordovaPlugin {
 
         } else if (action.equalsIgnoreCase(WRITE_TAG)) {
             writeTag(data, callbackContext);
+
+        } else if (action.equalsIgnoreCase(ERASE_TAG)) {
+            eraseTag(callbackContext);
 
         } else if (action.equalsIgnoreCase(SHARE_TAG)) {
             shareTag(data, callbackContext);
@@ -147,6 +150,15 @@ public class NfcPlugin extends CordovaPlugin {
         }
     }
 
+    // Cheating and writing an empty record. We may actually be able to erase some tag types.
+    private void eraseTag(CallbackContext callbackContext) throws JSONException {
+        Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        NdefRecord[] records = {
+            new NdefRecord(NdefRecord.TNF_EMPTY, new byte[0], new byte[0], new byte[0])
+        };
+        writeNdefMessage(new NdefMessage(records), tag, callbackContext);
+    }
+    
     private void writeTag(JSONArray data, CallbackContext callbackContext) throws JSONException {
         if (getIntent() == null) {  // TODO remove this and handle LostTag
             callbackContext.error("Failed to write tag, received null intent");
