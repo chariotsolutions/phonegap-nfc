@@ -68,7 +68,7 @@ Installing the Plugin (Blackberry Webworks)
 =============
 
 ## BlackBerry 10
-Assuming you have an existing PhoneGap 2.3 BlackBerry Project:
+Assuming you have an existing PhoneGap 2.3.0 BlackBerry Project:
 
 ### config.xml
 Make sure the following is in your config.xml:
@@ -84,16 +84,33 @@ Make sure the following is in your config.xml:
 
 ### JavaScript 
 
+The BB10 implementation is 100% JavaScript.  You must build the code from source.
+
+	ant build-javascript
+
+Copy dist/phonegap-nfc-VERSION.js and add it to your www folder
+    
+Include phonegap-nfc-VERSION.js in index.html
+
+    <script type="text/javascript" charset="utf-8" src="phonegap-nfc-0.4.2.js"></script>        
+
+## BlackBerry 7
+
+Assuming you have an existing PhoneGap 2.3.0 Blackberry Webworks project:
+
+### Build
+
+Note: it's probably better to build from source code, rather than relying on downloads of the js and jar
+
+    ant dist
+
+### JavaScript 
+
 [Download phonegap-nfc.js](https://github.com/chariotsolutions/phonegap-nfc/downloads) and add it to the www folder
     
 Include phonegap-nfc.js in index.html
 
     <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>        
-
-
-## BlackBerry 7
-
-Assuming you have an existing PhoneGap 1.7.0 Blackberry Webworks project:
 
 ### Java
 
@@ -106,12 +123,12 @@ Put phonegap-nfc-webworks.jar in the root of your webworks project.
 	$ mkdir build/plugin
 	$ cd build/plugin/
 	$ jar xf ../../phonegap-nfc-webworks.jar
-	$ jar uf ../../www/ext/cordova.1.7.0.jar .
-	$ jar tf ../../www/ext/cordova.1.7.0.jar
+	$ jar uf ../../www/ext/cordova.2.3.0.jar .
+	$ jar tf ../../www/ext/cordova.2.3.0.jar
 	
 Ensure that you see the NfcPlugin classes listed during the last step
 
-	$ jar tf ../..www/ext/cordova.1.7.0.jar
+	$ jar tf ../..www/ext/cordova.2.3.0.jar
 	library.xml
 	org/
 	org/apache/
