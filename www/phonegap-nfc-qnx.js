@@ -77,6 +77,41 @@ if (navigator.userAgent.indexOf("BB10") > -1) {
             return encoded.slice(offset, offset + payloadLength);
         }
 
+        function decodeNdefRecord(encoded) {
+
+            var ndefRecord = { 
+                    tnf: encoded[0] & 7
+                },
+                flags = encoded[0],
+                sr = (flags & 16) !== 0, //  short record
+                il = (flags & 8) !== 0, // identification length
+                offset = 1,
+                typeLength = encoded[offset++],
+                idLength = payloadLength = 0;
+
+            if (sr) {
+                payloadLength = encoded[offset++];
+            } else {
+                for ( var i = 0; i < 4; ++i) {
+                    payloadLength *= 256;
+                    payloadLength |= encoded[offset++];
+                }
+            }
+            if (il) {
+                idLength = encoded[offset++];
+            }
+
+            ndefRecord.type = encoded.slice(offset, offset + typeLength);
+
+            offset += typeLength;
+            ndefRecord.id = encoded.slice(offset, offset + idLength);            
+
+            offset += idLength;
+            ndefRecord.payload = encoded.slice(offset, offset + payloadLength);
+
+            return ndefRecord;
+        }
+
         function decode(encoding) {
             var decoded = [];
             var offset = 0;
@@ -106,12 +141,15 @@ if (navigator.userAgent.indexOf("BB10") > -1) {
                     var totalLength = minLength + typeLength + payloadLength + idLength;
                     if (totalLength <= remaining) {
                         var encoded = encoding.slice(start, start + totalLength);
+
                         decoded.push({
                             tnf: encoded[0] & 7,
                             type: getType(encoded, offset),
                             id: [],
                             payload: getPayload(encoded)
                         });
+
+                        decoded.push(decodeNdefRecord(encoded));
 
                         offset = start + totalLength;
                     }
