@@ -52,13 +52,13 @@ if (navigator.userAgent.indexOf("BB10") > -1) {
                     tnf: encoded[0] & 7
                 },
                 flags = encoded[0],
-                sr = (flags & 16) !== 0, //  short record
-                il = (flags & 8) !== 0, // identification length
+                isShortRecord = (flags & 16) !== 0, //  short record
+                hasIdLength = (flags & 8) !== 0, // identification length
                 offset = 1,
                 typeLength = encoded[offset++],
                 idLength = payloadLength = 0;
 
-            if (sr) {
+            if (isShortRecord) {
                 payloadLength = encoded[offset++];
             } else {
                 for ( var i = 0; i < 4; ++i) {
@@ -66,7 +66,8 @@ if (navigator.userAgent.indexOf("BB10") > -1) {
                     payloadLength |= encoded[offset++];
                 }
             }
-            if (il) {
+            
+            if (hasIdLength) {
                 idLength = encoded[offset++];
             }
 
