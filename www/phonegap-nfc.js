@@ -94,8 +94,8 @@ var ndef = {
      * @id byte[] (optional)
      */
     uriRecord: function (text, id) {
-        if (!id) { id = []; }   
-        return ndef.record(ndef.TNF_ABSOLUTE_URI, ndef.RTD_URI, id, nfc.stringToBytes(text));
+        if (!id) { id = []; }
+        return ndef.record(ndef.TNF_ABSOLUTE_URI, nfc.stringToBytes(text), id, []);
     },
 
     /**
