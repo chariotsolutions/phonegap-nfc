@@ -71,16 +71,23 @@ Installing the Plugin (Blackberry Webworks)
 Assuming you have an existing PhoneGap 2.3.0 BlackBerry Project:
 
 ### config.xml
-Make sure the following is in your config.xml:
+
+Create a filter in config.xml to read NDEF tags via the BlackBerry 10 Invocation Framework.
 
     <rim:invoke-target id="<A unique ID for your project>">
         <type>APPLICATION</type>
         <filter>
             <action>bb.action.OPEN</action>
             <mime-type>application/vnd.rim.nfc.ndef</mime-type>
-            <property var="uris" value="ndef://1,ndef://2,ndef://4" /> 
+            <property var="uris" value="ndef://0,ndef://1,ndef://2,def://3,ndef://4" /> 
         </filter>
     </rim:invoke-target>
+
+The example filter above filters for all NDEF tags with TNF_EMPTY (0), TNF_WELL_KNOWN (1), TNF_MIME_MEDIA (2), TNF_ABSOLUTE_URI (3), TNF_EXTERNAL_TYPE (4).
+
+The filter can also be more restrictive.  For example we could only handle TNF_MIME_MEDIA tags with a mime type of 'text/pg'
+
+	 <property var="uris" value="ndef://2/text/pg" /> 
 
 ### JavaScript 
 
