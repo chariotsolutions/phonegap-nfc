@@ -40,7 +40,7 @@ public class NfcPlugin extends CordovaPlugin {
     private static final String STATUS_NFC_OK = "NFC_OK";
     private static final String STATUS_NO_NFC = "NO_NFC";
     private static final String STATUS_NFC_DISABLED = "NFC_DISABLED";
-    private static final String STATUS_NFC_PUSH_DISABLED = "NDEF_PUSH_DISABLED";
+    private static final String STATUS_NDEF_PUSH_DISABLED = "NDEF_PUSH_DISABLED";
 
     private static final String TAG = "NfcPlugin";
     private final List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
@@ -285,7 +285,7 @@ public class NfcPlugin extends CordovaPlugin {
                 if (nfcAdapter == null) {
                     callbackContext.error(STATUS_NO_NFC);
                 } else if (!nfcAdapter.isNdefPushEnabled()) {
-                    callbackContext.error(STATUS_NFC_PUSH_DISABLED);
+                    callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
                 } else {
                     nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
                     callbackContext.success();
