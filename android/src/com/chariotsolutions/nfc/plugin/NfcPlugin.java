@@ -40,6 +40,7 @@ public class NfcPlugin extends CordovaPlugin {
     private static final String STATUS_NFC_OK = "NFC_OK";
     private static final String STATUS_NO_NFC = "NO_NFC";
     private static final String STATUS_NFC_DISABLED = "NFC_DISABLED";
+    private static final String STATUS_NDEF_PUSH_DISABLED = "NDEF_PUSH_DISABLED";
 
     private static final String TAG = "NfcPlugin";
     private final List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
@@ -217,12 +218,7 @@ public class NfcPlugin extends CordovaPlugin {
         NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
         this.p2pMessage = new NdefMessage(records);
 
-        // TODO error if push is disabled
-        // http://developer.android.com/reference/android/nfc/NfcAdapter.html#isNdefPushEnabled()
-        // if (nfcAdapter != null && NfcAdapter.isNdefPushEnabled())
-
-        startNdefPush();
-        callbackContext.success();
+        startNdefPush(callbackContext);
     }
 
     private void createPendingIntent() {
@@ -258,7 +254,7 @@ public class NfcPlugin extends CordovaPlugin {
                     nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
 
                     if (p2pMessage != null) {
-                        nfcAdapter.enableForegroundNdefPush(getActivity(), p2pMessage);
+                        nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
                     }
 
                 }
@@ -275,20 +271,24 @@ public class NfcPlugin extends CordovaPlugin {
 
                 if (nfcAdapter != null) {
                     nfcAdapter.disableForegroundDispatch(getActivity());
-                    nfcAdapter.disableForegroundNdefPush(getActivity());
                 }
             }
         });
     }
 
-    private void startNdefPush() {
+    private void startNdefPush(final CallbackContext callbackContext) {
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
 
                 NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
-                if (nfcAdapter != null) {
-                    nfcAdapter.enableForegroundNdefPush(getActivity(), p2pMessage);
+                if (nfcAdapter == null) {
+                    callbackContext.error(STATUS_NO_NFC);
+                } else if (!nfcAdapter.isNdefPushEnabled()) {
+                    callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
+                } else {
+                    nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
+                    callbackContext.success();
                 }
             }
         });
@@ -301,7 +301,7 @@ public class NfcPlugin extends CordovaPlugin {
                 NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
                 if (nfcAdapter != null) {
-                    nfcAdapter.disableForegroundNdefPush(getActivity());
+                    nfcAdapter.setNdefPushMessage(null, getActivity());
                 }
 
             }
