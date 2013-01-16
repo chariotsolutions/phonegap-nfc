@@ -284,8 +284,9 @@ public class NfcPlugin extends CordovaPlugin {
 
                 if (nfcAdapter == null) {
                     callbackContext.error(STATUS_NO_NFC);
-                } else if (!nfcAdapter.isNdefPushEnabled()) {
-                    callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
+                // isNdefPushEnabled would be nice, but requires android-17
+                //} else if (!nfcAdapter.isNdefPushEnabled()) {
+                //    callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
                 } else {
                     nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
                     callbackContext.success();

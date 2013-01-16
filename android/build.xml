@@ -17,7 +17,7 @@
 
   <!-- android sdk -->
   <property name="sdk.dir" value="/usr/local/android"/>
-  <property name="target" value="android-10"/>
+  <property name="target" value="android-14"/>
 
   <property name="phonegap.version" value="2.3.0"/>
   <property name="phonegap.home" value="/usr/local/phonegap-${phonegap.version}"/>
