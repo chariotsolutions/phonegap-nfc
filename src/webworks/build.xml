@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="PhoneGap NFC Plugin Webworks" default="dist" basedir=".">
 
-  <loadfile property="version" srcFile="../VERSION">
+  <loadfile property="version" srcFile="../../VERSION">
     <filterchain>
       <striplinebreaks/>
     </filterchain>
