@@ -3,7 +3,7 @@
     xmlns="http://www.phonegap.com/ns/plugins/1.0" 
     xmlns:android="http://schemas.android.com/apk/res/android" 
     id="com.chariotsolutions.nfc.plugin" 
-    version="0.4.1">
+    version="0.4.2-SNAPSHOT">
     
     <name>NFC</name>
     
@@ -22,8 +22,6 @@
         </config-file>
         
         <source-file src="src/com/chariotsolutions/nfc/plugin/NfcPlugin.java"
-            target-dir="src/com/chariotsolutions/nfc/plugin"/>
-        <source-file src="src/com/chariotsolutions/nfc/plugin/TagWriteException.java"
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
         <source-file src="src/com/chariotsolutions/nfc/plugin/Util.java" 
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
