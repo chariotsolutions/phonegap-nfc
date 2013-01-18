@@ -8,28 +8,32 @@ Supported Platforms
 * Android
 * Blackberry Webworks (OS 7.0 and higher)
 
-**Requires PhoneGap 2.2.0**
+**Requires PhoneGap 2.2.0+**
 
 Installing the Plugin (Android)
 =============
 
-Assuming you have an existing PhoneGap 2.2.0 Android project:
+Assuming you have an existing PhoneGap 2.3.0 Android project:
 
-### Installing with Pluginstall
+### Installing with Plugman (recommended)
 
-There is experimental support for installing phonegap-nfc on Android with [pluginstall](https://github.com/alunny/pluginstall).  Pluginstall requires [node.js](http://nodejs.org) and is installed through npm.
+Use [plugman](https://github.com/imhotep/plugman) to add phonegap-nfc to your Android project.  Plugman requires [node.js](http://nodejs.org) and is installed through npm.
 
-Install pluginstall
+Install plugman
 
-    $ npm install -g pluginstall
+    $ npm install -g plugman
 
 Install the plugin
 
-    $ pluginstall android /path/to/your/project /path/to/phonegap-nfc
+	$ plugman --platform android --project /path/to/your/project --plugin NFC
 
-Skip to the [JavaScript](#javascript) step
+Modify your HTML to include phonegap-nfc.js
+
+	<script type="text/javascript" src="js/phonegap-nfc.js"></script>  
 
 ### Manually Installing the Plugin (Android)
+
+Note: GitHub downloads are going away soon. These instructions install an older version of the plugin. Installing with plugman is recommended.
 
 ### Java
 
