@@ -277,6 +277,9 @@ namespace Cordova.Extension.Commands
                 int idLength = 0;
                 int payloadLength = 0;
 
+                index++;
+                payloadLength = bytes[index];
+
                 if (il)
                 {
                     index++;
@@ -284,8 +287,6 @@ namespace Cordova.Extension.Commands
                 }
 
                 index++;
-                payloadLength = bytes[index];
-
                 IBuffer type = bytes.AsBuffer(index, typeLength);
                 index += typeLength;
 
