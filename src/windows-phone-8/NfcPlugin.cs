@@ -314,7 +314,7 @@ namespace Cordova.Extension.Commands
 
             // TODO add tag meta data here 
             // id, type, tech, capacity, isReadOnly, isLockable
-            string tag = "{ \"tag\": { \"ndefMessage\": " + json + " } }"; // TODO use JsonHelper
+            string tag = "{ \"ndefMessage\": " + json + " }"; // TODO use JsonHelper
 
             string[] argsForJavaScriptEvent = new string[] {
                 "ndef",
