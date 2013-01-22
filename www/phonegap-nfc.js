@@ -1,4 +1,4 @@
-/*global cordova, nfc */
+/*global cordova, console */
 /*jslint sloppy: false, browser: true */
 "use strict";
 
@@ -225,7 +225,7 @@ var nfc = {
     
     // added since WP8 must call a named function
     // TODO consider switching NFC events from JS events to using the PG callbacks
-    function fireTagEvent(eventType, tagAsJson) {
+    fireTagEvent: function (eventType, tagAsJson) {
         setTimeout(function () {
             var e = document.createEvent('Events');
             e.initEvent(eventType, true, false);
