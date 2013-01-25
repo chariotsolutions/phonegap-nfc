@@ -355,7 +355,7 @@ public class NfcPlugin extends CordovaPlugin {
                     for (String tagTech : tag.getTechList()) {
                         Log.d(TAG, tagTech);
                         if (tagTech.equals(NdefFormatable.class.getName())) {
-                            fireNdefEvent(NDEF_FORMATABLE, null, null);
+                            fireNdefFormatableEvent(tag);
                         } else if (tagTech.equals(Ndef.class.getName())) { //
                             Ndef ndef = Ndef.get(tag);
                             fireNdefEvent(NDEF, ndef, messages);
@@ -374,29 +374,25 @@ public class NfcPlugin extends CordovaPlugin {
 
     private void fireNdefEvent(String type, Ndef ndef, Parcelable[] messages) {
 
-        String javascriptTemplate =
-            "var e = document.createEvent(''Events'');\n" +
-            "e.initEvent(''{0}'');\n" +
-            "e.tag = {1};\n" +
-            "document.dispatchEvent(e);";
-
         JSONObject jsonObject = buildNdefJSON(ndef, messages);
         String tag = jsonObject.toString();
 
-        String command = MessageFormat.format(javascriptTemplate, type, tag);
+        String command = MessageFormat.format(javaScriptEventTemplate, type, tag);
         Log.v(TAG, command);
         this.webView.sendJavascript(command);
 
     }
 
-    private void fireTagEvent (Tag tag) {
-        String javascriptTemplate =
-            "var e = document.createEvent(''Events'');\n" +
-            "e.initEvent(''{0}'');\n" +
-            "e.tag = {1};\n" +
-            "document.dispatchEvent(e);";
+    private void fireNdefFormatableEvent (Tag tag) {
 
-        String command = MessageFormat.format(javascriptTemplate, TAG_DEFAULT, Util.tagToJSON(tag));
+        String command = MessageFormat.format(javaScriptEventTemplate, NDEF_FORMATABLE, Util.tagToJSON(tag));
+        Log.v(TAG, command);
+        this.webView.sendJavascript(command);
+    }
+
+    private void fireTagEvent (Tag tag) {
+
+        String command = MessageFormat.format(javaScriptEventTemplate, TAG_DEFAULT, Util.tagToJSON(tag));
         Log.v(TAG, command);
         this.webView.sendJavascript(command);
     }
@@ -475,5 +471,11 @@ public class NfcPlugin extends CordovaPlugin {
     private void setIntent(Intent intent) {
         getActivity().setIntent(intent);
     }
+
+    String javaScriptEventTemplate =
+        "var e = document.createEvent(''Events'');\n" +
+        "e.initEvent(''{0}'');\n" +
+        "e.tag = {1};\n" +
+        "document.dispatchEvent(e);";
 
 }
