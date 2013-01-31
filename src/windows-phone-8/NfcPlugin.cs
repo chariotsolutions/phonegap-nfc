@@ -118,9 +118,6 @@ namespace Cordova.Extension.Commands
         }
 
         // TODO move to Ndef Class 
-        // note if c, mb and mb must be false
-        // il must be false
-        // tnf must be 0x6
         private byte encodeTnf(bool mb, bool me, bool cf, bool sr, bool il, byte tnf)
         {
             byte value = tnf;
@@ -150,6 +147,14 @@ namespace Cordova.Extension.Commands
                 value = (byte)(value | 0x8);
             }
 
+            if (cf)  // check
+            {
+                if (!(tnf == 0x06 && !mb && !me && !il ))
+                {
+                    throw new IOException("When cf is true, mb, me and il must be false and tnf must be 0x6");
+                }
+            }
+
             return value;
         }
 
@@ -164,7 +169,7 @@ namespace Cordova.Extension.Commands
                 bool mb = (i == 0);
                 bool me = (i == (records.Length - 1));
                 bool cf = false; // TODO
-                bool sr = true; // TODO
+                bool sr = (records[i].payload.Length < 0xFF);
                 bool il = (records[i].id.Length > 0);
 
                 byte tnf_byte = encodeTnf(mb, me, cf, sr, il, records[i].tnf);
@@ -173,15 +178,18 @@ namespace Cordova.Extension.Commands
                 int type_length = records[i].type.Length;
                 encoded.WriteByte((byte)type_length);
 
-                int payload_length;
+                int payload_length = records[i].payload.Length;
                 if (sr)
                 {
-                    payload_length = records[i].payload.Length;
                     encoded.WriteByte((byte)payload_length);
                 }
                 else
                 {
-                    throw new IOException("SR is not implemented");
+                    // 4 bytes
+                    encoded.WriteByte((byte)(payload_length >> 24));
+                    encoded.WriteByte((byte)(payload_length >> 16));
+                    encoded.WriteByte((byte)(payload_length >> 8));
+                    encoded.WriteByte((byte)(payload_length & 0xFF));
                 }
 
                 int id_length = 0;
@@ -202,55 +210,6 @@ namespace Cordova.Extension.Commands
             return encoded.ToArray();
         }
 
-        // todo move to NdefClass
-        private MemoryStream toMemoryStream(NdefRecord[] records)
-        {
-            MemoryStream encoded = new MemoryStream();
-
-            for (int i = 0; i < records.Length; i++)
-            {
-
-                bool mb = (i == 0);
-                bool me = (i == (records.Length - 1));
-                bool cf = false; // TODO
-                bool sr = true; // TODO
-                bool il = (records[i].id.Length > 0);
-
-                byte tnf_byte = encodeTnf(mb, me, cf, sr, il, records[i].tnf);
-                encoded.WriteByte(tnf_byte);
-
-                int type_length = records[i].type.Length;
-                encoded.WriteByte((byte)type_length);
-
-                int payload_length;
-                if (sr)
-                {
-                    payload_length = records[i].payload.Length;
-                    encoded.WriteByte((byte)payload_length);
-                }
-                else
-                {
-                    throw new IOException("SR is not implemented");
-                }
-
-                int id_length = 0;
-                if (il)
-                {
-                    id_length = records[i].id.Length;
-                    encoded.WriteByte((byte)id_length);
-                }
-
-                encoded.Write(records[i].type, 0, type_length);
-                if (il)
-                {
-                    encoded.Write(records[i].id, 0, id_length);
-                }
-
-                encoded.Write(records[i].payload, 0, payload_length);
-            }
-            return encoded;
-        }
-
         private void MessageReceivedHandler(ProximityDevice sender, ProximityMessage message)
         {
    
@@ -269,16 +228,29 @@ namespace Cordova.Extension.Commands
                 bool il = (tnf_byte & 0x8) != 0;
                 int tnf = tnf_byte & 0x7;
 
-                // WARNING does not handle sr = false
-                // cf = true or il = true
+                if (cf)
+                {
+                    // TODO implement me
+                    throw new IOException("Chunked records are not supported.");
+                }
 
                 index++;
                 int typeLength = bytes[index];
                 int idLength = 0;
                 int payloadLength = 0;
 
-                index++;
-                payloadLength = bytes[index];
+                if (sr)
+                {
+                    index++;
+                    payloadLength = bytes[index];
+                }
+                else
+                {
+                    payloadLength = ((0xFF & bytes[++index]) << 24) |
+                                    ((0xFF & bytes[++index]) << 26) |
+                                    ((0xFF & bytes[++index]) << 8) |
+                                    (0xFF & bytes[++index]);
+                }
 
                 if (il)
                 {
@@ -290,17 +262,17 @@ namespace Cordova.Extension.Commands
                 IBuffer type = bytes.AsBuffer(index, typeLength);
                 index += typeLength;
 
-                //IBuffer id = bytes.AsBuffer(index, idLength);
-                //index += idLength;
+                IBuffer id = bytes.AsBuffer(index, idLength);
+                index += idLength;
 
                 IBuffer payload = bytes.AsBuffer(index, payloadLength);
                 index += payloadLength;
 
                 NdefRecord record = new NdefRecord();
                 record.tnf = (byte)tnf;
-                record.type = type.ToArray(); // TODO fix TNF_EMPTY fails here
-                record.id = new byte[0];
-                record.payload = payload.ToArray();
+                record.type = typeLength > 0 ? type.ToArray() : new byte[0];
+                record.id = idLength > 0 ? id.ToArray() : new byte[0];
+                record.payload = payloadLength > 0 ? payload.ToArray() : new byte[0];
 
                 records.Add(record);
 
