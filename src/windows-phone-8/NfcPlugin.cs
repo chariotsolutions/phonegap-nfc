@@ -83,7 +83,7 @@ namespace Cordova.Extension.Commands
         {
             string ndefMessage = JsonHelper.Deserialize<string[]>(args)[0];
             NdefRecord[] records = JsonHelper.Deserialize<NdefRecord[]>(ndefMessage);
-            byte[] data = NdefMessage.toBytes(records);
+            byte[] data = Ndef.toBytes(records);
             stopPublishing();
             publishedMessageId = proximityDevice.PublishBinaryMessage(type, data.AsBuffer());
         }
@@ -101,18 +101,29 @@ namespace Cordova.Extension.Commands
         {
 
             var bytes = message.Data.ToArray();
-            NdefMessage ndefMessage = NdefMessage.parse(bytes);            
+            List<NdefRecord> records = Ndef.parse(bytes);
 
-            string tag = JsonHelper.Serialize(ndefMessage);
+            NfcTag tag = new NfcTag(records);
 
-            string[] argsForJavaScriptEvent = new string[] {
-                "ndef",
-                tag
-           };
+           // calling a global js method to fire an nfc event
+           ScriptCallback script = new ScriptCallback("fireNfcTagEvent", new string[] { "ndef", JsonHelper.Serialize(tag) });
+           this.InvokeCustomScript(script, false);
+        }
 
-            // calling a global js method to fire an nfc event
-            ScriptCallback script = new ScriptCallback("fireNfcTagEvent", argsForJavaScriptEvent);
-            this.InvokeCustomScript(script, false);
+        [DataContract]
+        public class NfcTag
+        {
+            public NfcTag()
+            {
+            }
+
+            public NfcTag(List<NdefRecord> records)
+            {
+                ndefMessage = records;
+            }
+
+            [DataMember]
+            public List<NdefRecord> ndefMessage { get; set; }
         }
 
     }

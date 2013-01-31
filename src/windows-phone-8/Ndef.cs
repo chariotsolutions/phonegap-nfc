@@ -12,108 +12,11 @@ using Windows.Storage.Streams;
 
 namespace ChariotSolutions.NFC.NDEF
 {
-    [DataContract]
-    public class NdefMessage
+    public class Ndef
     {
-        [DataMember (Name="ndefMessage") ]
-        public List<NdefRecord> records { get; set; }
-
-        static byte encodeTnf(bool mb, bool me, bool cf, bool sr, bool il, byte tnf)
+        public static List<NdefRecord> parse(byte[] bytes)
         {
-            byte value = tnf;
-
-            if (mb)
-            {
-                value = (byte)(value | 0x80);
-            }
-
-            if (me)
-            {
-                value = (byte)(value | 0x40);
-            }
-
-            if (cf)
-            {
-                value = (byte)(value | 0x20);
-            }
-
-            if (sr)
-            {
-                value = (byte)(value | 0x10);
-            }
-
-            if (il)
-            {
-                value = (byte)(value | 0x8);
-            }
-
-            if (cf)  // check
-            {
-                if (!(tnf == 0x06 && !mb && !me && !il))
-                {
-                    throw new IOException("When cf is true, mb, me and il must be false and tnf must be 0x6");
-                }
-            }
-
-            return value;
-        }
-
-        public static byte[] toBytes(NdefRecord[] records)
-        {
-            MemoryStream encoded = new MemoryStream();
-
-            for (int i = 0; i < records.Length; i++)
-            {
-
-                bool mb = (i == 0);
-                bool me = (i == (records.Length - 1));
-                bool cf = false; // TODO
-                bool sr = (records[i].payload.Length < 0xFF);
-                bool il = (records[i].id.Length > 0);
-
-                byte tnf_byte = encodeTnf(mb, me, cf, sr, il, records[i].tnf);
-                encoded.WriteByte(tnf_byte);
-
-                int type_length = records[i].type.Length;
-                encoded.WriteByte((byte)type_length);
-
-                int payload_length = records[i].payload.Length;
-                if (sr)
-                {
-                    encoded.WriteByte((byte)payload_length);
-                }
-                else
-                {
-                    // 4 bytes
-                    encoded.WriteByte((byte)(payload_length >> 24));
-                    encoded.WriteByte((byte)(payload_length >> 16));
-                    encoded.WriteByte((byte)(payload_length >> 8));
-                    encoded.WriteByte((byte)(payload_length & 0xFF));
-                }
-
-                int id_length = 0;
-                if (il)
-                {
-                    id_length = records[i].id.Length;
-                    encoded.WriteByte((byte)id_length);
-                }
-
-                encoded.Write(records[i].type, 0, type_length);
-                if (il)
-                {
-                    encoded.Write(records[i].id, 0, id_length);
-                }
-
-                encoded.Write(records[i].payload, 0, payload_length);
-            }
-            return encoded.ToArray();
-        }
-
-        public static NdefMessage parse(byte[] bytes)
-        {
-            
             List<NdefRecord> records = new List<NdefRecord>();
-
             int index = 0;
 
             while (index <= bytes.Length)
@@ -177,10 +80,98 @@ namespace ChariotSolutions.NFC.NDEF
                 if (me) break;  // last message
             }
 
-            NdefMessage message = new NdefMessage();
-            message.records = records;
+            return records;
+        }
 
-            return message;
+        public static byte[] toBytes(NdefRecord[] records)
+        {
+            MemoryStream encoded = new MemoryStream();
+
+            for (int i = 0; i < records.Length; i++)
+            {
+
+                bool mb = (i == 0);
+                bool me = (i == (records.Length - 1));
+                bool cf = false; // TODO
+                bool sr = (records[i].payload.Length < 0xFF);
+                bool il = (records[i].id.Length > 0);
+
+                byte tnf_byte = encodeTnf(mb, me, cf, sr, il, records[i].tnf);
+                encoded.WriteByte(tnf_byte);
+
+                int type_length = records[i].type.Length;
+                encoded.WriteByte((byte)type_length);
+
+                int payload_length = records[i].payload.Length;
+                if (sr)
+                {
+                    encoded.WriteByte((byte)payload_length);
+                }
+                else
+                {
+                    // 4 bytes
+                    encoded.WriteByte((byte)(payload_length >> 24));
+                    encoded.WriteByte((byte)(payload_length >> 16));
+                    encoded.WriteByte((byte)(payload_length >> 8));
+                    encoded.WriteByte((byte)(payload_length & 0xFF));
+                }
+
+                int id_length = 0;
+                if (il)
+                {
+                    id_length = records[i].id.Length;
+                    encoded.WriteByte((byte)id_length);
+                }
+
+                encoded.Write(records[i].type, 0, type_length);
+                if (il)
+                {
+                    encoded.Write(records[i].id, 0, id_length);
+                }
+
+                encoded.Write(records[i].payload, 0, payload_length);
+            }
+            return encoded.ToArray();
+        }
+
+        static byte encodeTnf(bool mb, bool me, bool cf, bool sr, bool il, byte tnf)
+        {
+            byte value = tnf;
+
+            if (mb)
+            {
+                value = (byte)(value | 0x80);
+            }
+
+            if (me)
+            {
+                value = (byte)(value | 0x40);
+            }
+
+            if (cf)
+            {
+                value = (byte)(value | 0x20);
+            }
+
+            if (sr)
+            {
+                value = (byte)(value | 0x10);
+            }
+
+            if (il)
+            {
+                value = (byte)(value | 0x8);
+            }
+
+            if (cf)  // check
+            {
+                if (!(tnf == 0x06 && !mb && !me && !il))
+                {
+                    throw new IOException("When cf is true, mb, me and il must be false and tnf must be 0x6");
+                }
+            }
+
+            return value;
         }
     }
 
