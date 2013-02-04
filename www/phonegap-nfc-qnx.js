@@ -124,7 +124,7 @@ if (navigator.userAgent.indexOf("BB10") > -1) {
         module.exports = {
             init: function (args, win, fail) {
                 blackberry.event.addEventListener("invoked", function (payload) {
-                    cordova.fireDocumentEvent("tag", {
+                    cordova.fireDocumentEvent("ndef", {
                         type: 'ndef',
                         tag: {
                             ndefMessage: decode(b64toArray(payload.data))
@@ -135,6 +135,13 @@ if (navigator.userAgent.indexOf("BB10") > -1) {
                 return { "status" : cordova.callbackStatus.OK, "message" : "" };
             },
             registerTag: function (args, win, fail) {
+                return { "status" : cordova.callbackStatus.ERROR, 
+                    "message" : "addTagDiscoveredListener is no longer supported. Use addNdefListener." };
+            },
+            registerNdef: function (args, win, fail) {
+                // do nothing 
+                // init() handles the blackberry event and creates a phonegap-nfc event
+                // and nfc.addNdefListener adds the listener for the client code
                 return { "status" : cordova.callbackStatus.OK, "message" : "" };
             }
         };
