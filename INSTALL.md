@@ -28,7 +28,9 @@ Modify your HTML to include phonegap-nfc.js
 
 ## Manually Installing on Android
 
-Get the latest source code from http://github.com/chariotsolutions/phonegap-nfc
+Get the latest source code
+
+	$ git clone https://github.com/chariotsolutions/phonegap-nfc.git
 
 ### Java
 
@@ -40,13 +42,15 @@ Build the code
 
     $ ant android
     
-Copy phonegap-nfc-$VERSION.js from `dist/` to the `libs/` directory in your project.
+Copy phonegap-nfc-$VERSION.jar from `dist/` to the `libs/` directory in your project.
+
+    $ cp dist/phonegap-nfc-0.4.2.jar $YOUR_PROJECT/libs/
 
 #### Install source files (alternate method)
 
 Copy the Java source files from src/android/src/ of phonegap-nfc project into the source directory of your Android project.
 
-[Download phonegap-nfc-android.jar](https://github.com/chariotsolutions/phonegap-nfc/downloads) and add it to libs/
+    $ cp -R src/android/src/ $YOUR_PROJECT/src
 
 ### config.xml 
 
@@ -56,7 +60,7 @@ Add the NfcPlugin in res/xml/config.xml
 
 ### JavaScript 
 
-Copy www/phonegap.nfc into assets/www
+Copy www/phonegap-nfc/js into assets/www
     
 Include phonegap-nfc.js in index.html
 
@@ -68,9 +72,11 @@ Add NFC permissions
 
     <uses-permission android:name="android.permission.NFC" />
 
-Ensure that the `minSdkVersion` is 10
+Ensure that the `minSdkVersion` is 14
 
-    <uses-sdk android:minSdkVersion="10" />
+    <uses-sdk android:minSdkVersion="14" />
+    
+## Requiring NFC
 
 If you want to restrict your application to only devices with NFC hardware, set uses-feature so Google Play will restrict the listing.  If NFC is optional in your application, omit the uses-feature element.
 
