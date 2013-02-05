@@ -278,22 +278,23 @@ The Ndef object has functions to convert some data types to and from byte arrays
 
 See the [phonegap-nfc.js](https://github.com/chariotsolutions/phonegap-nfc/blob/master/www/phonegap-nfc.js) source for more documentation.
 
-Events
-============
+# Events
+
 Events are fired when NFC tags are read.  Listeners are added by registering callback functions with the `nfc` object.  For example ` nfc.addNdefListener(myNfcListener, win, fail);`
 
-Properties
-----------
+## NfcEvent
+
+### Properties
+
 - __type__: event type 
 - __tag__: Ndef tag
  
-Types
----------
+### Types
+
 - tag
 - ndef-mime
 - ndef
 - ndef-formatable
-
 
 The tag contents are platform dependent.
 
@@ -301,16 +302,15 @@ The tag contents are platform dependent.
 
 `id` and `serialNumber` are different names for the same value.  `id` is typically displayed as a hex string `ndef.bytesToHexString(tag.id)`.
 
-Generating the following tag and
+Windows Phone 8 and BlackBerry 10 read the NDEF information from a tag, but do not have access to the tag id or other meta data like capacity, read-only status or tag technologies.
 
-Writing this NDEF message to a tag and then scanning on Android and BlackBerry will produced the following events.  
+Assuming the following NDEF message is written to a tag, it will produce the following events when read.
 
 	var ndefMessage = [
 		ndef.createMimeRecord('text/pg', 'Hello PhoneGap')		
 	];
 
-Sample Event (Android)
------------
+#### Sample Event on Android
 
 	{
 	    type: 'ndef',
@@ -330,8 +330,7 @@ Sample Event (Android)
 	    }
 	}
 
-Sample Event (Webworks)
------------
+#### Sample Event on BlackBerry 7
 
 	{
 	    type: 'ndef',
@@ -352,8 +351,31 @@ Sample Event (Webworks)
 	    }
 	}
 	
+#### Sample Event on BlackBerry 10 or Windows Phone 8
 
-## Platform Differences
+	{
+	    type: 'ndef',
+	    tag: {
+	        "ndefMessage": [{
+	            "tnf": 2,
+	            "type": [116, 101, 120, 116, 47, 112, 103],
+	            "id": [],
+	            "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112]
+	        }]
+	    }
+	}
+	
+## Getting Details about Events
+	
+The raw contents of the scanned tags are written to the log before the event is fired.  Use `adb logcat` on Android and Event Log (hold alt + lglg) on BlackBerry. 
+
+You can also log the tag contents in your event handlers.  `console.log(JSON.stringify(nfcEvent.tag))`  Note that you want to stringify the tag not the event to avoid a circular reference.
+
+# Platform Differences
+
+## Non-NDEF Tags
+
+Only Android and BlackBerry 7 can read Non-NDEF NFC tags.
 
 ### Mifare Classic 
 
@@ -363,7 +385,7 @@ BlackBerry 7 and BlackBerry 10 will not read Mifare Classic tags.  Mifare Ultral
 
 Windows Phone 8 and BlackBerry 10 read the NDEF information from a tag, but do not have access to the tag id or other meta data like capacity, read-only status or tag technologies.
 
-### addTagDiscoveredListener behaves different on Android and BlackBerry 7.
+### addTagDiscoveredListener on Android and BlackBerry 7.
 
 On Android, addTagDiscoveredListener scans non-NDEF tags and NDEF tags. The tag event does NOT contain an ndefMessage even if there are NDEF messages on the tag.  Use addNdefListener or addMimeTypeListener to get the NDEF information.
 
@@ -389,14 +411,6 @@ On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks
 	    }
 	}
 	
-
-
-## Getting Details about Events
-	
-The raw contents of the scanned tags are written to the log before the event is fired.  Use `adb logcat` on Android and Event Log (hold alt + lglg) on BlackBerry. 
-
-You can also log the tag contents in your event handlers.  `console.log(JSON.stringify(nfcEvent.tag))`  Note that you want to stringify the tag not the event to avoid a circular reference.
-
 
 # Launching your Application when Scanning a Tag
 
