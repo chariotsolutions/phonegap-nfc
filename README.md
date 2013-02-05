@@ -80,7 +80,6 @@ This function can be called multiple times to register different MIME types.
 - Android
 - BlackBerry 7
 
-
 ## nfc.addNdefListener
 
 Registers an event listener for any NDEF tag.
@@ -262,7 +261,7 @@ Create a mime type record
         
 Create an Empty record
 
-    var recrod = ndef.emptyRecord();
+    var record = ndef.emptyRecord();
 
 See `ndef.record`, `ndef.textRecord`, `ndef.mimeMediaRecord`, and `ndef.uriRecord`.
 
