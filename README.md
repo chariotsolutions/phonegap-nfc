@@ -22,14 +22,14 @@ NFC
 Methods
 -------
 
-- [nfc.addTagDiscoveredListener](nfcaddtagdiscoveredlistener)
-- [nfc.addMimeTypeListener](nfcaddmimetypelistener)
-- [nfc.addNdefListener](nfcaddndeflistener)
-- [nfc.addNdefFormatableListener](nfcaddndefformatablelistener)
-- [nfc.write](nfcwrite)
-- [nfc.share](nfcshare)
-- [nfc.unshare](nfcshare)
-- [nfc.erase](nfcerase)
+- [nfc.addTagDiscoveredListener](#nfcaddtagdiscoveredlistener)
+- [nfc.addMimeTypeListener](#nfcaddmimetypelistener)
+- [nfc.addNdefListener](#nfcaddndeflistener)
+- [nfc.addNdefFormatableListener](#nfcaddndefformatablelistener)
+- [nfc.write](#nfcwrite)
+- [nfc.share](#nfcshare)
+- [nfc.unshare](#nfcshare)
+- [nfc.erase](#nfcerase)
 
 ## nfc.addTagDiscoveredListener
 
