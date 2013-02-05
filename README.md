@@ -10,26 +10,30 @@ Supported Platforms
 * BlackBerry 10
 * Windows Phone 8
 
-See [INSTALL.md](INSTALL.md) for details on how to install the plugin.
+## Contents
 
-**Requires PhoneGap 2.2.0+**
-
+* [Installing](#installing)
 * [NFC](#nfc)
 * [NDEF](#ndef)
   - [NdefMessage](#ndefmessage)
   - [NdefRecord](#ndefrecord)
 * [Events](#events)
+* [Platform Differences](#platform-differences)
 * [Launching Application when Scanning a Tag](#launching-your-application-when-scanning-a-tag)
 * [Sample Projects](#sample-projects)
 * [License](#license)
+ 
+# Installing
 
-NFC
-===========
+See [INSTALL.md](INSTALL.md) for details on how to install the nfc-plugin into your PhoneGap project.
+
+PhoneGap 2.2.0 or greater is required. PhoneGap 2.4.0 is recommended.
+
+# NFC
 
 > The nfc object provides access to the device's NFC sensor.
 
-Methods
--------
+## Methods
 
 - [nfc.addTagDiscoveredListener](#nfcaddtagdiscoveredlistener)
 - [nfc.addMimeTypeListener](#nfcaddmimetypelistener)
