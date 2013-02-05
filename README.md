@@ -216,48 +216,48 @@ This method *must* be called from within an NDEF Event Handler.
 - Android
 - BlackBerry 7
 
-Ndef
-========
-> The Ndef object provides NDEF constants, functions for creating NdefRecords, and functions for converting data.
+# NDEF
+
+> The `ndef` object provides NDEF constants, functions for creating NdefRecords, and functions for converting data.
 > See [android.nfc.NdefRecord](http://developer.android.com/reference/android/nfc/NdefRecord.html) for documentation about constants
 
-NdefMessage
-============
+## NdefMessage
+
 Represents an NDEF (NFC Data Exchange Format) data message that contains one or more NdefRecords.
 This plugin uses an array of NdefRecords to represent an NdefMessage.
 
-NdefRecord
-============
+## NdefRecord
+
 Represents a logical (unchunked) NDEF (NFC Data Exchange Format) record.
 
-Properties
-----------
+### Properties
+
 - __tnf__: 3-bit TNF (Type Name Format) - use one of the TNF_* constants
 - __type__: byte array, containing zero to 255 bytes, must not be null
 - __id__: byte array, containing zero to 255 bytes, must not be null
 - __payload__: byte array, containing zero to (2 ** 32 - 1) bytes, must not be null
 
-The Ndef object has a function for creating NdefRecords
+The `ndef` object has a function for creating NdefRecords
 
-    var record = Ndef.record(Ndef.TNF_ABSOLUTE_URI, Ndef.RTD_URI, [], Ndef.stringToBytes("http://chariotsolutions.com"));
+    var record = ndef.record(ndef.TNF_ABSOLUTE_URI, ndef.RTD_URI, [], ndef.stringToBytes("http://chariotsolutions.com"));
     
 There are also helper functions for some types of records
 
 Create a URI record
 
-    var record = Ndef.uriRecord("http://chariotsolutions.com");
+    var record = ndef.uriRecord("http://chariotsolutions.com");
 
 Create a plain text record
 
-    var record = Ndef.textRecord("Plain text message");
+    var record = ndef.textRecord("Plain text message");
 
 Create a mime type record
 
-	var payload = "Hello Phongap";
-	var mimeType = "text/pg";
-    var record = ndef.mimeMediaRecord(mimeType, nfc.stringToBytes(payload));
+    var mimeType = "text/pg",
+        payload = "Hello Phongap",
+        record = ndef.mimeMediaRecord(mimeType, nfc.stringToBytes(payload));
 
-See `Ndef.record`, `Ndef.textRecord`, `Ndef.mimeMediaRecord`, and `Ndef.uriRecord`.
+See `ndef.record`, `ndef.textRecord`, `ndef.mimeMediaRecord`, and `ndef.uriRecord`.
 
 The Ndef object has functions to convert some data types to and from byte arrays.  
 
