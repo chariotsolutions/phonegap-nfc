@@ -1,12 +1,11 @@
 # Installing PhoneGap NFC
 
 * [Android](#android)
-* [BlackBerry 7](#blackberry-7)
 * [BlackBerry 10](#blackberry-10)
+* [BlackBerry 7](#blackberry-7)
 * [Windows Phone 8](#windows-phone-8)
 
-Assuming you have an existing PhoneGap 2.3.0 Android project:
-
+These instructions assume you have an Assuming you have an existing PhoneGap 2.3.0 Android project.
 
 ## Android
 
@@ -20,17 +19,17 @@ Install plugman
 
 Install the plugin
 
-	$ plugman --platform android --project /path/to/your/project --plugin NFC
+    $ plugman --platform android --project /path/to/your/project --plugin NFC
 
 Modify your HTML to include phonegap-nfc.js
 
-	<script type="text/javascript" src="js/phonegap-nfc.js"></script>  
+    <script type="text/javascript" src="js/phonegap-nfc.js"></script>  
 
 ### Manually Installing on Android
 
 Get the latest source code
 
-	$ git clone https://github.com/chariotsolutions/phonegap-nfc.git
+    $ git clone https://github.com/chariotsolutions/phonegap-nfc.git
 
 #### Java
 
@@ -84,11 +83,15 @@ If you want to restrict your application to only devices with NFC hardware, set 
 
 ## BlackBerry 10
 
+Get the latest source code
+
+    $ git clone https://github.com/chariotsolutions/phonegap-nfc.git
+
 ### JavaScript 
 
 The BB10 implementation is 100% JavaScript.  You must build the code from source.
 
-	ant build-javascript
+    ant build-javascript
 
 Copy dist/phonegap-nfc-VERSION.js and add it to your www folder
 
@@ -115,9 +118,13 @@ The example filter above filters for all NDEF tags with TNF_EMPTY (0), TNF_WELL_
 
 The filter can also be more restrictive.  For example we could only handle TNF_MIME_MEDIA tags with a mime type of 'text/pg'
 
-	 <property var="uris" value="ndef://2/text/pg" /> 
+    <property var="uris" value="ndef://2/text/pg" /> 
 
 ## BlackBerry 7
+
+Get the latest source code
+
+    $ git clone https://github.com/chariotsolutions/phonegap-nfc.git
 
 ### Build
 
@@ -139,27 +146,27 @@ The webworks jar contains source code that must be included in the Cordova jar f
 
 Put phonegap-nfc-webworks-VERSION.jar in the root of your webworks project.
 
-	$ mkdir build/plugin
-	$ cd build/plugin/
-	$ jar xf ../../phonegap-nfc-webworks-0.4.2.jar
-	$ jar uf ../../www/ext/cordova.2.3.0.jar .
-	$ jar tf ../../www/ext/cordova.2.3.0.jar
+    $ mkdir build/plugin
+    $ cd build/plugin/
+    $ jar xf ../../phonegap-nfc-webworks-0.4.2.jar
+    $ jar uf ../../www/ext/cordova.2.3.0.jar .
+    $ jar tf ../../www/ext/cordova.2.3.0.jar
 	
 Ensure that you see the NfcPlugin classes listed during the last step
 
-	$ jar tf ../..www/ext/cordova.2.3.0.jar
-	library.xml
-	org/
-	org/apache/
-	org/apache/cordova/
-	...
-	org/apache/cordova/util/StringUtils.java
-	com/
-	com/chariotsolutions/
-	com/chariotsolutions/nfc/
-	com/chariotsolutions/nfc/plugin/
-	com/chariotsolutions/nfc/plugin/NfcPlugin.java
-	com/chariotsolutions/nfc/plugin/Util.java
+    $ jar tf ../..www/ext/cordova.2.3.0.jar
+    library.xml
+    org/
+    org/apache/
+    org/apache/cordova/
+    ...
+    org/apache/cordova/util/StringUtils.java
+    com/
+    com/chariotsolutions/
+    com/chariotsolutions/nfc/
+    com/chariotsolutions/nfc/plugin/
+    com/chariotsolutions/nfc/plugin/NfcPlugin.java
+    com/chariotsolutions/nfc/plugin/Util.java
 	
 You can delete phonegap-nfc-webworks-VERSION.jar
 
@@ -170,6 +177,10 @@ Configure the NfcPlugin in www/plugins.xml
     <plugin name="NfcPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
     
 ## Windows Phone 8
+
+Get the latest source code
+
+    c:\> git clone https://github.com/chariotsolutions/phonegap-nfc.git
 
 Copy the plugin files from phonegap-nfc\src\windows-phone-8 to the Plugins directory of your project
 
