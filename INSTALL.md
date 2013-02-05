@@ -8,9 +8,9 @@
 Assuming you have an existing PhoneGap 2.3.0 Android project:
 
 
-# Android
+## Android
 
-## Installing with Plugman (recommended)
+### Installing with Plugman (recommended)
 
 Use [plugman](https://github.com/imhotep/plugman) to add phonegap-nfc to your Android project.  Plugman requires [node.js](http://nodejs.org) and is installed through npm.
 
@@ -26,17 +26,17 @@ Modify your HTML to include phonegap-nfc.js
 
 	<script type="text/javascript" src="js/phonegap-nfc.js"></script>  
 
-## Manually Installing on Android
+### Manually Installing on Android
 
 Get the latest source code
 
 	$ git clone https://github.com/chariotsolutions/phonegap-nfc.git
 
-### Java
+#### Java
 
 The java code can be installed into your project as a jar file or by copying the source files.
 
-#### Install the jar file
+##### Install the jar file
 
 Build the code
 
@@ -46,19 +46,19 @@ Copy phonegap-nfc-$VERSION.jar from `dist/` to the `libs/` directory in your pro
 
     $ cp dist/phonegap-nfc-0.4.2.jar $YOUR_PROJECT/libs/
 
-#### Install source files (alternate method)
+##### Install source files (alternate method)
 
 Copy the Java source files from src/android/src/ of phonegap-nfc project into the source directory of your Android project.
 
     $ cp -R src/android/src/ $YOUR_PROJECT/src
 
-### config.xml 
+#### config.xml 
 
 Add the NfcPlugin in res/xml/config.xml
 
     <plugin name="NfcPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
 
-### JavaScript 
+#### JavaScript 
 
 Copy www/phonegap-nfc/js into assets/www
     
@@ -66,7 +66,7 @@ Include phonegap-nfc.js in index.html
 
     <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>        
 
-### AndroidManifest.xml
+#### AndroidManifest.xml
 
 Add NFC permissions
 
@@ -76,18 +76,14 @@ Ensure that the `minSdkVersion` is 14
 
     <uses-sdk android:minSdkVersion="14" />
     
-## Requiring NFC
+### Requiring NFC
 
 If you want to restrict your application to only devices with NFC hardware, set uses-feature so Google Play will restrict the listing.  If NFC is optional in your application, omit the uses-feature element.
 
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
 
 
-Installing the Plugin (Blackberry Webworks)
-=============
-
 ## BlackBerry 10
-Assuming you have an existing PhoneGap 2.3.0 BlackBerry Project:
 
 ### config.xml
 
@@ -118,37 +114,33 @@ Copy dist/phonegap-nfc-VERSION.js and add it to your www folder
     
 Include phonegap-nfc-VERSION.js in index.html
 
-    <script type="text/javascript" charset="utf-8" src="phonegap-nfc-0.4.2.js"></script>        
+    <script type="text/javascript" src="phonegap-nfc-0.4.2.js"></script>        
 
 ## BlackBerry 7
 
-Assuming you have an existing PhoneGap 2.3.0 Blackberry Webworks project:
-
 ### Build
 
-Note: it's probably better to build from source code, rather than relying on downloads of the js and jar
+Build the code
 
-    ant dist
+    $ ant webworks
 
 ### JavaScript 
 
-[Download phonegap-nfc.js](https://github.com/chariotsolutions/phonegap-nfc/downloads) and add it to the www folder
+Copy dist/phonegap-nfc-VERSION.js and add it to your www folder
     
-Include phonegap-nfc.js in index.html
+Include phonegap-nfc-VERSION.js in index.html
 
-    <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>        
+    <script type="text/javascript" src="phonegap-nfc-0.4.2.js"></script>       
 
 ### Java
 
-[Download phonegap-nfc-webworks.jar](https://github.com/chariotsolutions/phonegap-nfc/downloads)
+The webworks jar contains source code that must be included in the Cordova jar file
 
-The webworks jar contains source code that must be included in the cordova jar file
-
-Put phonegap-nfc-webworks.jar in the root of your webworks project.
+Put phonegap-nfc-webworks-VERSION.jar in the root of your webworks project.
 
 	$ mkdir build/plugin
 	$ cd build/plugin/
-	$ jar xf ../../phonegap-nfc-webworks.jar
+	$ jar xf ../../phonegap-nfc-webworks-0.4.2.jar
 	$ jar uf ../../www/ext/cordova.2.3.0.jar .
 	$ jar tf ../../www/ext/cordova.2.3.0.jar
 	
@@ -168,7 +160,7 @@ Ensure that you see the NfcPlugin classes listed during the last step
 	com/chariotsolutions/nfc/plugin/NfcPlugin.java
 	com/chariotsolutions/nfc/plugin/Util.java
 	
-You can delete phonegap-nfc-webworks.jar
+You can delete phonegap-nfc-webworks-VERSION.jar
 
 ### plugins.xml
 
