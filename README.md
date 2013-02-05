@@ -14,6 +14,15 @@ See [INSTALL.md](INSTALL.md) for details on how to install the plugin.
 
 **Requires PhoneGap 2.2.0+**
 
+* [NFC](#nfc)
+* [NDEF](#ndef)
+  - [NdefMessage](#ndefmessage)
+  - [NdefRecord](#ndefrecord)
+* [Events](#events)
+* Launching Application when Scanning a Tag
+* [Sample Projects](#sampleprojects)
+* [License](#license)
+
 NFC
 ===========
 
