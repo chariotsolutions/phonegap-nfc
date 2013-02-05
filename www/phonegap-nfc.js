@@ -88,12 +88,26 @@ var ndef = {
     },
 
     /**
+     * Helper that creates a NDEF record containing a URI.
+     *
+     * @uri String
+     * @id byte[] (optional)
+     */
+    uriRecord: function (uri, id) {
+        if (!id) { id = []; }
+        var payload = nfc.stringToBytes(uri);
+        // add identifier code 0x0, meaning no prefix substitution
+        payload.unshift(0x0);        
+        return ndef.record(ndef.TNF_WELL_KNOWN, ndef.RTD_URI, id, payload);
+    },
+
+    /**
      * Helper that creates a NDEF record containing an absolute URI.
      *
      * @text String
      * @id byte[] (optional)
      */
-    uriRecord: function (text, id) {
+    absoluteUriRecord: function (text, id) {
         if (!id) { id = []; }
         return ndef.record(ndef.TNF_ABSOLUTE_URI, nfc.stringToBytes(text), id, []);
     },
