@@ -19,8 +19,8 @@ See [INSTALL.md](INSTALL.md) for details on how to install the plugin.
   - [NdefMessage](#ndefmessage)
   - [NdefRecord](#ndefrecord)
 * [Events](#events)
-* Launching Application when Scanning a Tag
-* [Sample Projects](#sampleprojects)
+* [Launching Application when Scanning a Tag](#launching-your-application-when-scanning-a-tag)
+* [Sample Projects](#sample-projects)
 * [License](#license)
 
 NFC
@@ -369,7 +369,7 @@ On Android, addTagDiscoveredListener scans non-NDEF tags and NDEF tags. The tag 
 
 On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks returns the ndefMessage in the event.
 	
-### Non-NDEF tag scanned with addTagDiscoveredListener on *Android*
+#### Non-NDEF tag scanned with addTagDiscoveredListener on *Android*
 
 	{
 	    type: 'tag',
@@ -379,7 +379,7 @@ On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks
 	    }
 	}
 
-### NDEF tag scanned with addTagDiscoveredListener on *Android*
+#### NDEF tag scanned with addTagDiscoveredListener on *Android*
 
 	{
 	    type: 'tag',
@@ -391,18 +391,16 @@ On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks
 	
 
 
-Getting Details about Events
----------------
+## Getting Details about Events
 	
 The raw contents of the scanned tags are written to the log before the event is fired.  Use `adb logcat` on Android and Event Log (hold alt + lglg) on BlackBerry. 
 
 You can also log the tag contents in your event handlers.  `console.log(JSON.stringify(nfcEvent.tag))`  Note that you want to stringify the tag not the event to avoid a circular reference.
 
 
-Launching your Application when Scanning a Tag (Android)
-===========
+# Launching your Application when Scanning a Tag
 
-  Intents can be used to launch your application when a NFC tag is read.  This is optional and configured in AndroidManifest.xml.
+  On Android, intents can be used to launch your application when a NFC tag is read.  This is optional and configured in AndroidManifest.xml.
 
     <intent-filter>
       <action android:name="android.nfc.action.NDEF_DISCOVERED" />
