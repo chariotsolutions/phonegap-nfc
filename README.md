@@ -395,21 +395,29 @@ You can also log the tag contents in your event handlers.  `console.log(JSON.str
 
 Only Android and BlackBerry 7 can read Non-NDEF NFC tags.
 
-### Mifare Classic 
+## Mifare Classic  Tags
 
 BlackBerry 7 and BlackBerry 10 will not read Mifare Classic tags.  Mifare Ultralight tags will work since they are NFC Forum Type 2 tags.
 
-### Tag Id and Meta Data
+## Tag Id and Meta Data
 
 Windows Phone 8 and BlackBerry 10 read the NDEF information from a tag, but do not have access to the tag id or other meta data like capacity, read-only status or tag technologies.
 
-### addTagDiscoveredListener on Android and BlackBerry 7.
+## Multiple Listeners
+
+Multiple listeners can be registered in JavaScript. e.g. addTagDiscoveredListener, addNdefListener, addMimeTypeListener.
+
+On Android, only the most specific event will fire.  If a Mime Media Tag is scanned, only the addMimeTypeListener callback is called.
+
+On BlackBerry 10, all the events fire if a Mime Media Tag is scanned.
+
+## addTagDiscoveredListener on Android and BlackBerry 7.
 
 On Android, addTagDiscoveredListener scans non-NDEF tags and NDEF tags. The tag event does NOT contain an ndefMessage even if there are NDEF messages on the tag.  Use addNdefListener or addMimeTypeListener to get the NDEF information.
 
 On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks returns the ndefMessage in the event.
 	
-#### Non-NDEF tag scanned with addTagDiscoveredListener on *Android*
+### Non-NDEF tag scanned with addTagDiscoveredListener on *Android*
 
 	{
 	    type: 'tag',
@@ -419,7 +427,7 @@ On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks
 	    }
 	}
 
-#### NDEF tag scanned with addTagDiscoveredListener on *Android*
+### NDEF tag scanned with addTagDiscoveredListener on *Android*
 
 	{
 	    type: 'tag',
