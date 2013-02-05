@@ -145,13 +145,20 @@ A ndef-formatable event occurs when a tag is read that can be NDEF formatted.  T
 
 ## nfc.write
 
-Writes data to an NDEF tag.
+Writes an NDEF Message to a NFC tag.
 
+A NDEF Message is an array of one or more NDEF Records
+
+    var ndefRecord = ndef.textRecord("Hello World"),
+    	ndefMessage = [];
+    
+    ndefMessage.push();
+    
     nfc.write(ndefMessage, [onSuccess], [onFailure]);
 
 ### Parameters
 
-- __ndefMessage__: The NdefMessage that is written to the tag.
+- __ndefMessage__: An array of NDEF Records.
 - __onSuccess__: (Optional) The callback that is called when the tag is written.
 - __onFailure__: (Optional) The callback that is called if there was an error.
 
@@ -170,13 +177,20 @@ This method *must* be called from within an NDEF Event Handler.
 
 ## nfc.share
 
-Shares a NdefMessage via peer-to-peer.
+Shares an NDEF Message via peer-to-peer.
+
+A NDEF Message is an array of one or more NDEF Records
+
+    var ndefRecord = ndef.textRecord("Hello World"),
+    	ndefMessage = [];
+    
+    ndefMessage.push();
 
     nfc.share(ndefMessage, [onSuccess], [onFailure]);
 
 ### Parameters
 
-- __ndefMessage__: The NdefMessage that is shared.
+- __ndefMessage__: An array of NDEF Records.
 - __onSuccess__: (Optional) The callback that is called when the message is pushed.
 - __onFailure__: (Optional) The callback that is called if there was an error.
 
