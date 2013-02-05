@@ -1,9 +1,16 @@
-Installing the Plugin (Android)
-=============
+# Installing PhoneGap NFC
+
+* [Android](#android)
+* [BlackBerry 7](#blackberry-7)
+* [BlackBerry 10](#blackberry-10)
+* [Windows Phone 8](#windows-phone-8)
 
 Assuming you have an existing PhoneGap 2.3.0 Android project:
 
-### Installing with Plugman (recommended)
+
+# Android
+
+## Installing with Plugman (recommended)
 
 Use [plugman](https://github.com/imhotep/plugman) to add phonegap-nfc to your Android project.  Plugman requires [node.js](http://nodejs.org) and is installed through npm.
 
@@ -19,23 +26,37 @@ Modify your HTML to include phonegap-nfc.js
 
 	<script type="text/javascript" src="js/phonegap-nfc.js"></script>  
 
-### Manually Installing the Plugin (Android)
+## Manually Installing on Android
 
-Note: GitHub downloads are going away soon. These instructions install an older version of the plugin. Installing with plugman is recommended.
+Get the latest source code from http://github.com/chariotsolutions/phonegap-nfc
 
 ### Java
 
+The java code can be installed into your project as a jar file or by copying the source files.
+
+#### Install the jar file
+
+Build the code
+
+    $ ant android
+    
+Copy phonegap-nfc-$VERSION.js from `dist/` to the `libs/` directory in your project.
+
+#### Install source files (alternate method)
+
+Copy the Java source files from src/android/src/ of phonegap-nfc project into the source directory of your Android project.
+
 [Download phonegap-nfc-android.jar](https://github.com/chariotsolutions/phonegap-nfc/downloads) and add it to libs/
 
-### plugins.xml 
+### config.xml 
 
-Configure the NfcPlugin in res/xml/plugins.xml
+Add the NfcPlugin in res/xml/config.xml
 
     <plugin name="NfcPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
 
 ### JavaScript 
 
-[Download phonegap-nfc.js](https://github.com/chariotsolutions/phonegap-nfc/downloads) and add it to assets/www
+Copy www/phonegap.nfc into assets/www
     
 Include phonegap-nfc.js in index.html
 
