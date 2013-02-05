@@ -6,8 +6,8 @@ The PhoneGap NFC Plugin provides access to Near Field Communication (NFC) functi
 Supported Platforms
 -------------------
 * Android
-* Blackberry 7
-* Blackberry 10
+* BlackBerry 7
+* BlackBerry 10
 * Windows Phone 8
 
 See [INSTALL.md](INSTALL.md) for details on how to install the plugin.
@@ -31,48 +31,43 @@ Methods
 - nfc.unshare
 - nfc.erase
 
-nfc.addTagDiscoveredListener
-==============================
+## nfc.addTagDiscoveredListener
+
 Registers an event listener for tags matching any tag type.
 
     nfc.addTagDiscoveredListener(callback, [onSuccess], [onFailure]);
 
-Parameters
-----------
+### Parameters
+
 - __callback__: The callback that is called when a tag is detected.
 - __onSuccess__: (Optional) The callback that is called when the listener is added.
 - __onFailure__: (Optional) The callback that is called if there was an error.
 
-Description
------------
+### Description
 
 Function `nfc.addTagDiscoveredListener` registers the callback for tag events.
 
 This event occurs when any tag is detected by the phone.
 
-Supported Platforms
--------------------
+### Supported Platforms
 
 - Android
-- Blackberry Webworks (OS 7.0 and higher)
+- BlackBerry 7
 
+## nfc.addMimeTypeListener
 
-
-nfc.addMimeTypeListener
-==============================
 Registers an event listener for NDEF tags matching a specified MIME type.
 
     nfc.addMimeTypeListener(mimeType, callback, [onSuccess], [onFailure]);
 
-Parameters
-----------
+### Parameters
+
 - __mimeType__: The MIME type to filter for messages.
 - __callback__: The callback that is called when an NDEF tag matching the MIME type is read.
 - __onSuccess__: (Optional) The callback that is called when the listener is added.
 - __onFailure__: (Optional) The callback that is called if there was an error.
 
-Description
------------
+### Description
 
 Function `nfc.addMimeTypeListener` registers the callback for ndef-mime events.
 
@@ -80,27 +75,25 @@ A ndef-mime event occurs when a `Ndef.TNF_MIME_MEDIA` tag is read and matches th
 
 This function can be called multiple times to register different MIME types.
 
-Supported Platforms
--------------------
+### Supported Platforms
 
 - Android
-- Blackberry Webworks (OS 7.0 and higher)
+- BlackBerry 7
 
 
-nfc.addNdefListener
-==============================
+## nfc.addNdefListener
+
 Registers an event listener for any NDEF tag.
 
     nfc.addNdefListener(callback, [onSuccess], [onFailure]);
 
-Parameters
-----------
+### Parameters
+
 - __callback__: The callback that is called when an NDEF tag is read.
 - __onSuccess__: (Optional) The callback that is called when the listener is added.
 - __onFailure__: (Optional) The callback that is called if there was an error.
 
-Description
------------
+### Description
 
 Function `nfc.addNdefListener` registers the callback for ndef events.
 
@@ -108,132 +101,120 @@ A ndef event occurs when a NDEF tag is read.
 
 NOTE: Registered mimeTypeListeners takes precedence over the more generic NDEF listener.
 
-
-Supported Platforms
--------------------
+### Supported Platforms
 
 - Android
-- Blackberry Webworks (OS 7.0 and higher)
-- Blackberry 10
+- BlackBerry 7
+- BlackBerry 10
 - Windows Phone 8
 
 
-nfc.addNdefFormatableListener
-==============================
+## nfc.addNdefFormatableListener
+
 Registers an event listener for formatable NDEF tags.
 
     nfc.addNdefFormatableListener(callback, [onSuccess], [onFailure]);
 
-Parameters
-----------
+### Parameters
+
 - __callback__: The callback that is called when NDEF formatable tag is read.
 - __onSuccess__: (Optional) The callback that is called when the listener is added.
 - __onFailure__: (Optional) The callback that is called if there was an error.
 
-Description
------------
+### Description
 
 Function `nfc.addNdefFormatableListener` registers the callback for ndef-formatable events.
 
 A ndef-formatable event occurs when a tag is read that can be NDEF formatted.  This is not fired for tags that are already formatted as NDEF.  The ndef-formatable event will not contain an NdefMessage.
 
-Supported Platforms
--------------------
+### Supported Platforms
 
 - Android
 
-nfc.write
-==============================
+## nfc.write
+
 Writes data to an NDEF tag.
 
     nfc.write(ndefMessage, [onSuccess], [onFailure]);
 
-Parameters
-----------
+### Parameters
+
 - __ndefMessage__: The NdefMessage that is written to the tag.
 - __onSuccess__: (Optional) The callback that is called when the tag is written.
 - __onFailure__: (Optional) The callback that is called if there was an error.
 
-Description
------------
+### Description
 
 Function `nfc.write` writes an NdefMessage to a NFC tag.
 
 This method *must* be called from within an NDEF Event Handler. 
 
-Supported Platforms
--------------------
+### Supported Platforms
 
 - Android
-- Blackberry Webworks (OS 7.0 and higher)
-- Blackberry 10
+- BlackBerry 7
+- BlackBerry 10
 - Windows Phone 8
 
-nfc.share
-==============================
+## nfc.share
+
 Shares a NdefMessage via peer-to-peer.
 
     nfc.share(ndefMessage, [onSuccess], [onFailure]);
 
-Parameters
-----------
+### Parameters
+
 - __ndefMessage__: The NdefMessage that is shared.
 - __onSuccess__: (Optional) The callback that is called when the message is pushed.
 - __onFailure__: (Optional) The callback that is called if there was an error.
 
-Description
------------
+### Description
 
 Function `nfc.share` writes an NdefMessage via peer-to-peer.  This should appear as an NFC tag to another device.
 
-Supported Platforms
--------------------
+### Supported Platforms
 
 - Android
-- Blackberry Webworks (OS 7.0 and higher)
-- Blackberry 10
+- BlackBerry 7
+- BlackBerry 10
 - Windows Phone 8
 
-nfc.unshare
-==============================
+## nfc.unshare
+
 Stop sharing NDEF data via peer-to-peer.
 
     nfc.unshare([onSuccess], [onFailure]);
 
-Parameters
-----------
+### Parameters
+
 - __onSuccess__: (Optional) The callback that is called when sharing stops.
 - __onFailure__: (Optional) The callback that is called if there was an error.
 
-Description
------------
+### Description
 
 Function `nfc.unshare` stops sharing data via peer-to-peer.
 
-nfc.erase
-==============================
+## nfc.erase
+
 Erase a NDEF tag
 
     nfc.erase([onSuccess], [onFailure]);
 
-Parameters
-----------
+### Parameters
+
 - __onSuccess__: (Optional) The callback that is called when sharing stops.
 - __onFailure__: (Optional) The callback that is called if there was an error.
 
-Description
------------
+### Description
 
 Function `nfc.erase` erases a tag by writing an empty message.  Will format unformatted tags before writing.
 
 This method *must* be called from within an NDEF Event Handler.
 
-Supported Platforms
--------------------
+### Supported Platforms
 
 - Android
-- Blackberry Webworks (OS 7.0 and higher)
-
+- BlackBerry 7
 
 Ndef
 ========
@@ -301,13 +282,13 @@ Types
 
 The tag contents are platform dependent.
 
-`id` and `techTypes` may be included when scanning a tag on Android.  `serialNumber` may be included on Blackberry.
+`id` and `techTypes` may be included when scanning a tag on Android.  `serialNumber` may be included on BlackBerry.
 
 `id` and `serialNumber` are different names for the same value.  `id` is typically displayed as a hex string `ndef.bytesToHexString(tag.id)`.
 
 Generating the following tag and
 
-Writing this NDEF message to a tag and then scanning on Android and Blackberry will produced the following events.  
+Writing this NDEF message to a tag and then scanning on Android and BlackBerry will produced the following events.  
 
 	var ndefMessage = [
 		ndef.createMimeRecord('text/pg', 'Hello PhoneGap')		
@@ -361,7 +342,7 @@ Sample Event (Webworks)
 
 ### Mifare Classic 
 
-Blackberry 7 and BlackBerry 10 will not read Mifare Classic tags.  Mifare Ultralight tags will work since they are NFC Forum Type 2 tags.
+BlackBerry 7 and BlackBerry 10 will not read Mifare Classic tags.  Mifare Ultralight tags will work since they are NFC Forum Type 2 tags.
 
 ### Tag Id and Meta Data
 
@@ -398,7 +379,7 @@ On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks
 Getting Details about Events
 ---------------
 	
-The raw contents of the scanned tags are written to the log before the event is fired.  Use `adb logcat` on Android and Event Log (hold alt + lglg) on Blackberry. 
+The raw contents of the scanned tags are written to the log before the event is fired.  Use `adb logcat` on Android and Event Log (hold alt + lglg) on BlackBerry. 
 
 You can also log the tag contents in your event handlers.  `console.log(JSON.stringify(nfcEvent.tag))`  Note that you want to stringify the tag not the event to avoid a circular reference.
 
