@@ -82,8 +82,21 @@ If you want to restrict your application to only devices with NFC hardware, set 
 
     <uses-feature android:name="android.hardware.nfc" android:required="true" />
 
-
 ## BlackBerry 10
+
+### JavaScript 
+
+The BB10 implementation is 100% JavaScript.  You must build the code from source.
+
+	ant build-javascript
+
+Copy dist/phonegap-nfc-VERSION.js and add it to your www folder
+
+    $ cp dist/phonegap-nfc-0.4.2.js $YOUR_PROJECT/www
+    
+Include phonegap-nfc-VERSION.js in index.html
+
+    <script type="text/javascript" src="phonegap-nfc-0.4.2.js"></script>        
 
 ### config.xml
 
@@ -103,18 +116,6 @@ The example filter above filters for all NDEF tags with TNF_EMPTY (0), TNF_WELL_
 The filter can also be more restrictive.  For example we could only handle TNF_MIME_MEDIA tags with a mime type of 'text/pg'
 
 	 <property var="uris" value="ndef://2/text/pg" /> 
-
-### JavaScript 
-
-The BB10 implementation is 100% JavaScript.  You must build the code from source.
-
-	ant build-javascript
-
-Copy dist/phonegap-nfc-VERSION.js and add it to your www folder
-    
-Include phonegap-nfc-VERSION.js in index.html
-
-    <script type="text/javascript" src="phonegap-nfc-0.4.2.js"></script>        
 
 ## BlackBerry 7
 
@@ -164,16 +165,20 @@ You can delete phonegap-nfc-webworks-VERSION.jar
 
 ### plugins.xml
 
-Configure the NfcPlugin in res/xml/plugins.xml
+Configure the NfcPlugin in www/plugins.xml
 
     <plugin name="NfcPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
-
-### JavaScript 
-
-[Download phonegap-nfc.js](https://github.com/chariotsolutions/phonegap-nfc/downloads) and add it to the www folder
     
-Include phonegap-nfc.js in index.html
+## Windows Phone 8
 
-    <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>        
+Copy the plugin files from phonegap-nfc\src\windows-phone-8 to the Plugins directory of your project
 
+    c:\phonegap-nfc> copy src\windows-phone-8\*.cs %YOUR_PROJECT%\Plugins
+    
+Copy the javascript files from phonegap-nfc\www to the www directory of your project
 
+    c:\phonegap-nfc> copy src\www\phonegap-nfc.js %YOUR_PROJECT%\www
+    
+Include phonegap-nfc-VERSION.js in index.html
+
+    <script type="text/javascript" src="phonegap-nfc.js"></script>   
