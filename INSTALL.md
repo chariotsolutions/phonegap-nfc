@@ -91,7 +91,7 @@ Get the latest source code
 
 The BB10 implementation is 100% JavaScript.  You must build the code from source.
 
-    ant build-javascript
+    $ ant build-javascript
 
 Copy dist/phonegap-nfc-VERSION.js and add it to your www folder
 
@@ -125,8 +125,6 @@ The filter can also be more restrictive.  For example we could only handle TNF_M
 Get the latest source code
 
     $ git clone https://github.com/chariotsolutions/phonegap-nfc.git
-
-### Build
 
 Build the code
 
