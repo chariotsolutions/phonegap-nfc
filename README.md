@@ -238,8 +238,11 @@ Represents a logical (unchunked) NDEF (NFC Data Exchange Format) record.
 - __payload__: byte array, containing zero to (2 ** 32 - 1) bytes, must not be null
 
 The `ndef` object has a function for creating NdefRecords
-
-    var record = ndef.record(ndef.TNF_ABSOLUTE_URI, ndef.RTD_URI, [], ndef.stringToBytes("http://chariotsolutions.com"));
+    
+    var type = "text/pg",
+    	id = [],
+    	payload = ndef.stringToBytes("Hello World"),
+    	record = ndef.record(ndef.TNF_MIME_MEDIA, type, id, payload);
     
 There are also helper functions for some types of records
 
@@ -256,6 +259,10 @@ Create a mime type record
     var mimeType = "text/pg",
         payload = "Hello Phongap",
         record = ndef.mimeMediaRecord(mimeType, nfc.stringToBytes(payload));
+        
+Create an Empty record
+
+    var recrod = ndef.emptyRecord();
 
 See `ndef.record`, `ndef.textRecord`, `ndef.mimeMediaRecord`, and `ndef.uriRecord`.
 
