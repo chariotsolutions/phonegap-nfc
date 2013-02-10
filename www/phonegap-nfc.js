@@ -28,6 +28,7 @@ function handleNfcFromIntentFilter() {
 document.addEventListener('deviceready', handleNfcFromIntentFilter, false);
 
 var ndef = {
+        
     // see android.nfc.NdefRecord for documentation about constants
     // http://developer.android.com/reference/android/nfc/NdefRecord.html
     TNF_EMPTY: 0x0,
@@ -130,7 +131,177 @@ var ndef = {
      */
     emptyRecord: function() {
         return ndef.record(ndef.TNF_EMPTY, [], [], []);        
+    },
+    
+    /**
+     * Encodes an NDEF Message into bytes that can be written to a NFC tag.
+     * 
+     * @ndefRecords an Array of NDEF Records
+     *
+     * @returns byte array
+     * 
+     * @see NFC Data Exchange Format (NDEF) http://www.nfc-forum.org/specs/spec_list/
+     */
+    encodeMessage: function (ndefRecords) {
+
+        var encoded = [],
+            tnf_byte,
+            type_length,
+            payload_length,
+            id_length,
+            i,
+            mb, me, // messageBegin, messageEnd
+            cf = false, // chunkFlag TODO implement
+            sr, // boolean shortRecord
+            il; // boolean idLengthFieldIsPresent
+
+        for(i = 0; i < ndefRecords.length; i++) {
+
+            mb = (i === 0);
+            me = (i === (ndefRecords.length - 1));
+            sr = (ndefRecords[i].payload.length < 0xFF);
+            il = (ndefRecords[i].id.length > 0);
+            tnf_byte = ndef.encodeTnf(mb, me, cf, sr, il, ndefRecords[i].tnf);
+            encoded.push(tnf_byte);
+
+            type_length = ndefRecords[i].type.length;
+            encoded.push(type_length);
+
+            if (sr) {
+                payload_length = ndefRecords[i].payload.length;
+                encoded.push(payload_length);
+            } else {
+                payload_length = ndefRecords[i].payload.length;
+                // 4 bytes
+                encoded.push((payload_length >> 24));
+                encoded.push((payload_length >> 16));
+                encoded.push((payload_length >> 8));
+                encoded.push((payload_length & 0xFF));
+            }
+
+            if (il) {
+                id_length = ndefRecords[i].id.length;
+                encoded.push(id_length);
+            }
+
+            encoded = encoded.concat(ndefRecords[i].type);
+
+            if (il) {
+                encoded = encoded.concat(ndefRecords[i].id);
+            }
+
+            encoded = encoded.concat(ndefRecords[i].payload);
+        }
+
+        return encoded;
+    },
+
+    /**
+     * Decodes an array bytes into an NDEF Message
+     * 
+     * @bytes an array bytes read from a NFC tag
+     *
+     * @returns array of NDEF Records
+     * 
+     * @see NFC Data Exchange Format (NDEF) http://www.nfc-forum.org/specs/spec_list/
+     */
+    decodeMessage: function (bytes) {
+
+        var ndef_message = [],
+            tnf_byte = bytes.shift(),
+            header = ndef.decodeTnf(tnf_byte),
+            type_length = 0,
+            payload_length = 0,
+            id_length = 0,
+            record_type = [],
+            id = [],
+            payload = [];
+            
+        while(bytes.length) {
+
+            type_length = bytes.shift();
+
+            if (header.sr) {
+                payload_length = bytes.shift();
+            } else {
+                // next 4 bytes are length
+                payload_length = ((0xFF & bytes.shift()) << 24) |
+                    ((0xFF & bytes.shift()) << 26) |
+                    ((0xFF & bytes.shift()) << 8) | 
+                    (0xFF & bytes.shift());
+            }
+
+            if (header.il) {
+                id_length = bytes.shift();
+            }
+
+            record_type = bytes.splice(0, type_length);
+            id = bytes.splice(0, id_length);
+            payload = bytes.splice(0, payload_length);
+
+            ndef_message.push(
+                ndef.record(header.tnf, record_type, id, payload)
+            );
+
+            if (header.me) break; // last message
+        }
+
+        return ndef_message;
+    },
+    
+    /**
+     * Decode the bit flags from a TNF Byte.
+     * 
+     * @returns object with decoded data
+     *
+     *  See NFC Data Exchange Format (NDEF) Specification Section 3.2 RecordLayout
+     */
+    decodeTnf: function (tnf_byte) {
+        return {
+            mb: (tnf_byte & 0x80) !== 0,
+            me: (tnf_byte & 0x40) !== 0,
+            cf: (tnf_byte & 0x20) !== 0,
+            sr: (tnf_byte & 0x10) !== 0,
+            il: (tnf_byte & 0x8) !== 0,
+            tnf: (tnf_byte & 0x7)
+        };
+    },
+
+    /**
+     * Encode NDEF bit flags into a TNF Byte.
+     * 
+     * @returns tnf byte
+     *
+     *  See NFC Data Exchange Format (NDEF) Specification Section 3.2 RecordLayout
+     */
+    encodeTnf: function (mb, me, cf, sr, il, tnf) {
+
+        var value = tnf;
+
+        if (mb) {
+            value = value | 0x80;
+        }
+
+        if (me) {
+            value = value | 0x40;
+        }
+        
+        // note if cf: me, mb, li must be false and tnf must be 0x6
+        if (cf) {
+            value = value | 0x20;
+        }
+
+        if (sr) {
+            value = value | 0x10;
+        }
+
+        if (il) {
+            value = value | 0x8;
+        }
+
+        return value;
     }
+    
 };
 
 var nfc = {
@@ -237,6 +408,35 @@ var nfc = {
         return bytesAsHexString;
     }
     
+};
+
+var util = {
+    // i must be <= 256
+    toHex: function (i) {
+        var hex;
+
+        if (i < 0) {
+            i += 256;
+        }
+
+        hex = i.toString(16);
+
+        // zero padding
+        if (hex.length == 1) {
+            hex = "0" + hex;
+        } 
+        
+        return hex;
+    },
+
+    toPrintable: function(i) {
+
+        if (i >= 0x20 & i <= 0x7F) {
+            return String.fromCharCode(i);
+        } else {
+            return '.';
+        }
+    }
 };
 
 // added since WP8 must call a named function
