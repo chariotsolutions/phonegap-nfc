@@ -61,6 +61,24 @@ var ndef = {
      * @see Ndef.textRecord, Ndef.uriRecord and Ndef.mimeMediaRecord for examples        
      */
     record: function (tnf, type, id, payload) {
+        
+        // handle null values
+        if (!tnf) { tnf = ndef.TNF_EMPTY; }
+        if (!type) { type = []; }
+        if (!id) { id = []; }    
+        if (!payload) { payload = []; }
+
+        // convert strings to arrays
+        if (!(type instanceof Array)) {
+           type = nfc.stringToBytes(type);
+        }
+        if (!(id instanceof Array)) {
+           id = nfc.stringToBytes(id);
+        }
+        if (!(payload instanceof Array)) {
+           payload = nfc.stringToBytes(payload);
+        }
+                
         return {
             tnf: tnf,
             type: type,
@@ -70,17 +88,19 @@ var ndef = {
     },
 
     /**
-     * Helper that creates a NDEF record containing plain text.
+     * Helper that creates an NDEF record containing plain text.
      *
-     * @text String
+     * @text String of text to encode
+     * @languageCode ISO/IANA language code. Examples: “fi”, “en-US”, “fr- CA”, “jp”. (optional)
      * @id byte[] (optional)
      */
-    textRecord: function (text, id) {
-        var languageCode = 'en', // TODO get from browser
-            payload = [];
+    textRecord: function (text, languageCode, id) {
+        var payload = [];
             
+        if (!languageCode) { languageCode = 'en'; }   
         if (!id) { id = []; }   
         
+        // TODO need to handle UTF-16 see Text Record Type Definition Section 3.2.1 Syntax, Table 3
         payload.push(languageCode.length);        
         nfc.concatArray(payload, nfc.stringToBytes(languageCode));
         nfc.concatArray(payload, nfc.stringToBytes(text));
@@ -124,7 +144,34 @@ var ndef = {
         if (!id) { id = []; }   
         return ndef.record(ndef.TNF_MIME_MEDIA, nfc.stringToBytes(mimeType), id, payload);
     },
-    
+
+    /**
+     * Helper that creates an NDEF record containing an Smart Poster.
+     *
+     * @ndefRecords array of NDEF Records
+     * @id byte[] (optional)
+     */    
+    smartPoster: function (ndefRecords, id) {
+        var payload = [];
+        
+        if (!id) { id = []; }
+        
+        if (ndefRecords)
+        {
+            // make sure we have an array of something like NDEF records before encoding
+            if (ndefRecords[0] instanceof Object && ndefRecords[0].hasOwnProperty('tnf')) {
+                payload = ndef.encodeMessage(ndefRecords);                
+            } else {
+                // assume the caller has already encoded the NDEF records into a byte array
+                payload = ndefRecords;
+            }
+        } else {
+            console.log("WARNING: Expecting an array of NDEF records");
+        }
+                   
+        return ndef.record(ndef.TNF_WELL_KNOWN, ndef.RTD_SMART_POSTER, id, payload);
+    },
+
     /**
      * Helper that creates an empty NDEF record.
      *
