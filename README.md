@@ -172,7 +172,6 @@ This method *must* be called from within an NDEF Event Handler.
 
 - Android
 - BlackBerry 7
-- BlackBerry 10
 - Windows Phone 8
 
 ## nfc.share
@@ -202,7 +201,6 @@ Function `nfc.share` writes an NdefMessage via peer-to-peer.  This should appear
 
 - Android
 - BlackBerry 7
-- BlackBerry 10
 - Windows Phone 8
 
 ## nfc.unshare
@@ -219,6 +217,11 @@ Stop sharing NDEF data via peer-to-peer.
 ### Description
 
 Function `nfc.unshare` stops sharing data via peer-to-peer.
+
+### Supported Platforms
+
+- Android
+- BlackBerry 7
 
 ## nfc.erase
 
