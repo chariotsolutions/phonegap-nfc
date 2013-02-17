@@ -10,7 +10,7 @@ Supported Platforms
 * BlackBerry 10
 * Windows Phone 8
 
-## Contents
+### Contents
 
 * [Installing](#installing)
 * [NFC](#nfc)
