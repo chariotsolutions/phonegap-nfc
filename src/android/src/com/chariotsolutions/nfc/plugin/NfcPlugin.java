@@ -250,7 +250,7 @@ public class NfcPlugin extends CordovaPlugin {
             public void run() {
                 NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
-                if (nfcAdapter != null) {
+                if (nfcAdapter != null && getActivity().isFinishing() == false) {
                     nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
 
                     if (p2pMessage != null) {
