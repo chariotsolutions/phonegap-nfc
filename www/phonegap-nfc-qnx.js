@@ -143,6 +143,31 @@ if (navigator.userAgent.indexOf("BB10") > -1) {
                 // init() handles the blackberry event and creates a phonegap-nfc event
                 // and nfc.addNdefListener adds the listener for the client code
                 return { "status" : cordova.callbackStatus.OK, "message" : "" };
+            },
+            shareTag: function(args, win, fail) {
+                var message = args[0],
+                    byteArray = ndef.encodeMessage(message),
+                    data = "";
+                
+    			for (var i=0; i< byteArray.length; ++i) {
+    				data += String.fromCharCode(byteArray[i]);
+    			}
+
+    			var query = {
+    					"action": "bb.action.SHARE",
+    					"type": "application/vnd.rim.nfc.ndef",
+    					"data": data
+    			};
+
+                // http://developer.blackberry.com/html5/api/blackberry.invoke.html#.invoke
+                blackberry.invoke.invoke(query, win, fail);
+                
+                return { "status" : cordova.callbackStatus.NO_RESULT, "message" : "" };
+            },
+            unshareTag: function(args, win, fail) {
+                blackberry.invoke.closeChildCard();
+                // no idea if it worked, assume success
+                return { "status" : cordova.callbackStatus.OK, "message" : "" };                
             }
         };
     });

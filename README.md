@@ -186,7 +186,7 @@ A NDEF Message is an array of one or more NDEF Records
     ndefMessage.push();
 
     nfc.share(ndefMessage, [onSuccess], [onFailure]);
-
+    
 ### Parameters
 
 - __ndefMessage__: An array of NDEF Records.
@@ -201,7 +201,14 @@ Function `nfc.share` writes an NdefMessage via peer-to-peer.  This should appear
 
 - Android
 - BlackBerry 7
+- BlackBerry 10
 - Windows Phone 8
+
+### Platform differences
+
+    Android - shares message until unshare is called
+    Blackberry 10 - shares the message one time or until unshare is called  
+    Windows Phone 8 - must be called from within a NFC event handler like nfc.write 
 
 ## nfc.unshare
 
@@ -222,6 +229,7 @@ Function `nfc.unshare` stops sharing data via peer-to-peer.
 
 - Android
 - BlackBerry 7
+- BlackBerry 10
 
 ## nfc.erase
 
