@@ -56,7 +56,8 @@ if (navigator.userAgent.indexOf("BB10") > -1) {
                 hasIdLength = (flags & 8) !== 0, // identification length
                 offset = 1,
                 typeLength = encoded[offset++],
-                idLength = payloadLength = 0;
+                idLength = 0,
+                payloadLength = 0;
 
             if (isShortRecord) {
                 payloadLength = encoded[offset++];
