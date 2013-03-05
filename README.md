@@ -27,7 +27,7 @@ Supported Platforms
 
 See [INSTALL.md](INSTALL.md) for details on how to install the nfc-plugin into your PhoneGap project.
 
-PhoneGap 2.2.0 or greater is required. PhoneGap 2.4.0 is recommended.
+PhoneGap 2.2.0 or greater is required. PhoneGap 2.5.0 is recommended.
 
 # NFC
 
