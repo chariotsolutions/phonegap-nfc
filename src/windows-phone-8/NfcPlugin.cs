@@ -28,6 +28,16 @@ namespace Cordova.Extension.Commands
         private long subscribedMessageId = -1;
         private long publishedMessageId = -1;
 
+        public NfcPlugin()
+        {
+            Debug.WriteLine("Nfc Plugin");
+            proximityDevice = ProximityDevice.GetDefault();
+            if (proximityDevice == null) // shouldn't happen
+            {
+                Debug.WriteLine("WARNING: proximity device is null");
+            }
+        }
+
         public void init(string args)
         {
             // not used for WP8
@@ -37,55 +47,104 @@ namespace Cordova.Extension.Commands
         public void registerNdef(string args)
         {
             Debug.WriteLine("Registering for NDEF");
-            proximityDevice = ProximityDevice.GetDefault();
-            subscribedMessageId = proximityDevice.SubscribeForMessage("NDEF", MessageReceivedHandler);
-            DispatchCommandResult();
+
+            try
+            {
+                subscribedMessageId = proximityDevice.SubscribeForMessage("NDEF", MessageReceivedHandler);
+                DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
+            }
+            catch (System.Exception e)
+            {
+                Debug.WriteLine(e);
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, e.Message));
+            }
         }
 
         // no args
         public void removeNdef(string args)
         {
             Debug.WriteLine("Removing NDEF");
-            if (subscribedMessageId != -1)
+
+            try
             {
-                proximityDevice.StopSubscribingForMessage(subscribedMessageId);
-                subscribedMessageId = -1;
+                if (subscribedMessageId != -1)
+                {
+                    proximityDevice.StopSubscribingForMessage(subscribedMessageId);
+                    subscribedMessageId = -1;
+                }
+                DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
             }
-            DispatchCommandResult();
+            catch (System.Exception e)
+            {
+                Debug.WriteLine(e);
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, e.Message));
+            }
+
         }
 
         // args[0] is a NdefMessage, which is a JSON array of NdefRecords
         public void writeTag(string args)
         {
             Debug.WriteLine("Write Tag");
-            publish("NDEF:WriteTag", args);
-            DispatchCommandResult();
 
-            // TODO is there a callback after a successful write so we can stop publishing?
+            try
+            {
+                string ndefMessage = JsonHelper.Deserialize<string[]>(args)[0];
+                NdefRecord[] records = JsonHelper.Deserialize<NdefRecord[]>(ndefMessage);
+                byte[] data = Ndef.toBytes(records);
+
+                stopPublishing();
+                publishedMessageId = proximityDevice.PublishBinaryMessage("NDEF:WriteTag", data.AsBuffer(), nfcWriteTagCallback);
+
+                // send no result now, C# callback will send success after write
+                PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+                result.KeepCallback = true;
+                DispatchCommandResult(result);
+            }
+            catch (System.Exception e)
+            {
+                Debug.WriteLine(e);
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, e.Message));
+            }
         }
 
-        // args[0] is NdefMessage
+        // args[0] is a NdefMessage, which is a JSON array of NdefRecords
         public void shareTag(string args)
         {
             Debug.WriteLine("Share Tag");
-            publish("NDEF", args);
-            DispatchCommandResult();
+
+            try
+            {
+                string ndefMessage = JsonHelper.Deserialize<string[]>(args)[0];
+                NdefRecord[] records = JsonHelper.Deserialize<NdefRecord[]>(ndefMessage);
+                byte[] data = Ndef.toBytes(records);
+            
+                stopPublishing();
+                publishedMessageId = proximityDevice.PublishBinaryMessage("NDEF", data.AsBuffer());
+                DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
+            }
+            catch (System.Exception e)
+            {
+                Debug.WriteLine(e);
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, e.Message));
+            }
         }
 
         // no args
-        public void unshare(string args)
+        public void unshareTag(string args)
         {
-            stopPublishing();
-            DispatchCommandResult();
-        }
+            Debug.WriteLine("Unshare Tag");
 
-        private void publish(string type, string args)
-        {
-            string ndefMessage = JsonHelper.Deserialize<string[]>(args)[0];
-            NdefRecord[] records = JsonHelper.Deserialize<NdefRecord[]>(ndefMessage);
-            byte[] data = Ndef.toBytes(records);
-            stopPublishing();
-            publishedMessageId = proximityDevice.PublishBinaryMessage(type, data.AsBuffer());
+            try
+            {
+                stopPublishing();
+                DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
+            }
+            catch (System.Exception e)
+            {
+                Debug.WriteLine(e);
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, e.Message));
+            }
         }
 
         private void stopPublishing()
@@ -95,6 +154,17 @@ namespace Cordova.Extension.Commands
                 proximityDevice.StopPublishingMessage(publishedMessageId);
                 publishedMessageId = -1;
             }
+        }
+
+        // MessageTransmittedHandler called after the message is written to a tag
+        private void nfcWriteTagCallback(ProximityDevice sender, long messageId)
+        {
+            Debug.WriteLine("Successfully wrote message to the NFC tag.");
+
+            // only write the tag one time
+            stopPublishing();
+
+            DispatchCommandResult(new PluginResult(PluginResult.Status.OK));
         }
 
         private void MessageReceivedHandler(ProximityDevice sender, ProximityMessage message)
