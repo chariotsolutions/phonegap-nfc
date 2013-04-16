@@ -190,4 +190,10 @@ Copy the javascript files from phonegap-nfc\www to the www directory of your pro
     
 Include phonegap-nfc-VERSION.js in index.html
 
-    <script type="text/javascript" src="phonegap-nfc.js"></script>   
+    <script type="text/javascript" src="phonegap-nfc.js"></script>
+    
+Add NfcPlugin to config.xml
+
+    <plugin name="NfcPlugin"/>
+    
+Open WMAppManifest.xml, choose the Capabilities tab, and check ID_CAP_PROXIMITY permission
