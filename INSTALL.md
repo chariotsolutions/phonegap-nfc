@@ -17,9 +17,13 @@ Install plugman
 
     $ npm install -g plugman
 
+Get the latest source code
+
+    $ git clone https://github.com/chariotsolutions/phonegap-nfc.git
+
 Install the plugin
 
-    $ plugman --platform android --project /path/to/your/project --plugin NFC
+    $ plugman --platform android --project /path/to/your/project --plugin /path/to/phonegap-nfc
 
 Modify your HTML to include phonegap-nfc.js
 
