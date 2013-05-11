@@ -37,7 +37,11 @@ Get the latest source code
 
 Copy the Java source files from src/android/src/ of phonegap-nfc project into the source directory of your Android project.
 
-    $ cp -R src/android/src/ $YOUR_PROJECT/src
+    $ cp -R phonegap-nfc/src/android/src/ $YOUR_PROJECT/src
+    
+For windows use xcopy
+
+    c:\> xcopy phonegap-nfc\src\android\src %YOUR_PROJECT%\src /S
 
 #### config.xml 
 
@@ -47,9 +51,15 @@ Add the NfcPlugin in res/xml/config.xml
 
 #### JavaScript 
 
-Copy www/phonegap-nfc/js into assets/www/js/
+Copy phonegap-nfc.js into assets/www/js/
+
+     $ cp phonegap-nfc/www/phonegap-nfc.js $YOUR_PROJECT/assets/www/js/
+     
+Windows     
+     
+     $ copy phonegap-nfc\www\phonegap-nfc.js %YOUR_PROJECT%\assets\www\js\
     
-Include phonegap-nfc.js in index.html
+Include phonegap-nfc.js in index.html.  Ensure that phonegap-nfc.js is *after* cordova.js and *before* index.js
 
     <script type="text/javascript" src="js/phonegap-nfc.js"></script>        
 
