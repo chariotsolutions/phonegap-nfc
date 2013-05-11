@@ -35,22 +35,6 @@ Get the latest source code
 
     $ git clone https://github.com/chariotsolutions/phonegap-nfc.git
 
-#### Java
-
-The java code can be installed into your project as a jar file or by copying the source files.
-
-##### Install the jar file
-
-Build the code
-
-    $ ant android
-    
-Copy phonegap-nfc-$VERSION.jar from `dist/` to the `libs/` directory in your project.
-
-    $ cp dist/phonegap-nfc-0.4.2.jar $YOUR_PROJECT/libs/
-
-##### Install source files (alternate method)
-
 Copy the Java source files from src/android/src/ of phonegap-nfc project into the source directory of your Android project.
 
     $ cp -R src/android/src/ $YOUR_PROJECT/src
@@ -63,11 +47,11 @@ Add the NfcPlugin in res/xml/config.xml
 
 #### JavaScript 
 
-Copy www/phonegap-nfc/js into assets/www
+Copy www/phonegap-nfc/js into assets/www/js/
     
 Include phonegap-nfc.js in index.html
 
-    <script type="text/javascript" charset="utf-8" src="phonegap-nfc.js"></script>        
+    <script type="text/javascript" src="js/phonegap-nfc.js"></script>        
 
 #### AndroidManifest.xml
 
