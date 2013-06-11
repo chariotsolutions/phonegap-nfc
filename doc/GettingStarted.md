@@ -1,4 +1,4 @@
-# Quickstart for PhoneGap NFC on Android.
+# Quickstart for PhoneGap NFC on Android
 
 Follow these instructions to generate a default PhoneGap app and modify it to read NFC tags.
 
@@ -81,11 +81,11 @@ Build and run the code
     
 ## Scan a NDEF tag
 
-    Scan an NDEF tag with your phone. If you need to put data on a tag, try writing a plain text message to a tag with [NXP Tag Writer](https://play.google.com/store/apps/details?id=com.nxp.nfc.tagwriter).
+Scan an NDEF tag with your phone. If you need to put data on a tag, try writing a plain text message to a tag with [NXP Tag Writer](https://play.google.com/store/apps/details?id=com.nxp.nfc.tagwriter).
     
-    ![Basic App](doc/read_tag_1_basic_app.png "Basic App")
-    ![Dump Tag As JSON](doc/read_tag_2_dump_tag.png "Dump Tag As JSON")
-    ![Payload As String](doc/read_tag_3_payload_as_string.png "Payload As String")
+![Basic App](read_tag_1_basic_app.png "Basic App")
+![Dump Tag As JSON](read_tag_2_dump_tag.png "Dump Tag As JSON")
+![Payload As String](read_tag_3_payload_as_string.png "Payload As String")
      
     
     
