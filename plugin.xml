@@ -3,21 +3,24 @@
     xmlns="http://www.phonegap.com/ns/plugins/1.0" 
     xmlns:android="http://schemas.android.com/apk/res/android" 
     id="com.chariotsolutions.nfc.plugin" 
-    version="0.4.3-SNAPSHOT">
+    version="0.4.4-SNAPSHOT">
     
     <name>NFC</name>
     
     <asset src="www/phonegap-nfc.js" target="js/phonegap-nfc.js"/>
 
     <platform name="android">
-                
-        <config-file target="res/xml/config.xml" parent="/cordova/plugins">
-            <plugin name="NfcPlugin" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
+
+        <!-- requires Cordova-2.8.0 -->
+        <config-file target="res/xml/config.xml" parent="/widget">        
+            <feature name="NfcPlugin">
+                <param name="android-package" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
+            </feature>
         </config-file>
-        
-        <source-file src="src/com/chariotsolutions/nfc/plugin/NfcPlugin.java"
+                
+        <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/NfcPlugin.java"
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
-        <source-file src="src/com/chariotsolutions/nfc/plugin/Util.java" 
+        <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/Util.java" 
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
