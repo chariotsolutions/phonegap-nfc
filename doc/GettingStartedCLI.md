@@ -1,16 +1,12 @@
-# Quickstart for PhoneGap NFC on Android
+# Quickstart for PhoneGap NFC - CLI Version
 
 Follow these instructions to generate a default PhoneGap app and modify it to read NFC tags.
 
-## PhoneGap 2.8
-    
-This requires PhoneGap 2.8.x.  Download from [phonegap.com](http://phonegap.com/download). Unzip the archive in `/usr/local`.
+## Cordova Command Line Interface (CLI)
 
-## Plugman 0.7.10
+The Cordova Command Line Interface [cordova-cli](https://npmjs.org/package/cordova) can be used to create, build and run multi-platform Cordova projects. Cordova CLI requires [node.js](http://nodejs.org). Requires Cordova CLI >= 2.8.14.
 
-Plugman is used to install the plugin into the PhoneGap project. Plugman requires [node.js](http://nodejs.org). Plugman 0.7.10 or greater is recommended. Install plugman globally.
-
-    $ npm install plugman -g
+    $ npm install cordova -g
         
 ## Clone NFC Plugin
 
@@ -22,11 +18,16 @@ Get a local copy of the PhoneGap NFC plugin
 ## Generate a project
 
     $ cd ~
-    $ /usr/local/phonegap-2.8.0/lib/android/bin/create foo com.example.foo Foo
+    $ cordova create foo com.example.foo Foo
+
+## Add Android
+
+    $ cd foo
+    $ cordova platform add android
 
 ## Install the Plugin
 
-    $ plugman --platform android --project foo --plugin ~/phonegap-nfc
+    $ cordova plugin add ~/phonegap-nfc
             
 ## Edit `index.js`
 
@@ -76,5 +77,3 @@ Scan an NDEF tag with your phone. If you need to put data on a tag, try writing 
 ![Dump Tag As JSON](read_tag_2_dump_tag.png "Dump Tag As JSON")
 ![Payload As String](read_tag_3_payload_as_string.png "Payload As String")
      
-    
-    
