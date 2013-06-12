@@ -29,6 +29,8 @@ See [INSTALL.md](INSTALL.md) for details on how to install the nfc-plugin into y
 
 Phonegap 2.8.0 is required for Android and recommended for other platforms. BlackBerry and Windows Phone *should* work with Corodva 2.5 and greater.
 
+See the [doc](doc) directory for additional documentation.
+
 # NFC
 
 > The nfc object provides access to the device's NFC sensor.
