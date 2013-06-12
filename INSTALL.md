@@ -5,17 +5,19 @@
 * [BlackBerry 7](#blackberry-7)
 * [Windows Phone 8](#windows-phone-8)
 
-These instructions assume you have an Assuming you have an existing PhoneGap 2.3.0 Android project.
+These instructions assume you have an existing PhoneGap project. 
 
 ## Android
+
+Your Android project should be using PhoneGap 2.8.
 
 ### Installing with Plugman (recommended)
 
 Use [plugman](https://github.com/imhotep/plugman) to add phonegap-nfc to your Android project.  Plugman requires [node.js](http://nodejs.org) and is installed through npm.
 
-Install plugman
+Install plugman 0.7.10 or greater
 
-    $ npm install -g plugman@0.5.6
+    $ npm install -g plugman
 
 Get the latest source code
 
@@ -24,10 +26,6 @@ Get the latest source code
 Install the plugin
 
     $ plugman --platform android --project /path/to/your/project --plugin /path/to/phonegap-nfc
-
-Modify your HTML to include phonegap-nfc.js
-
-    <script type="text/javascript" src="js/phonegap-nfc.js"></script>  
 
 ### Manually Installing on Android
 
