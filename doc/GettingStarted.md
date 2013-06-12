@@ -4,7 +4,7 @@ Follow these instructions to generate a default PhoneGap app and modify it to re
 
 ### PhoneGap 2.8
     
-This requires PhoneGap 2.8.x.  Download from [phonegap.com](http://phonegap.com/download). Unzip the archive in `/usr/local`.
+PhoneGap NFC requires PhoneGap 2.8.x.  Download from [phonegap.com](http://phonegap.com/download). Unzip the archive in `/usr/local`.
 
 ### Plugman 0.7.10
 
