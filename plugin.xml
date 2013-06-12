@@ -7,7 +7,9 @@
     
     <name>NFC</name>
     
-    <asset src="www/phonegap-nfc.js" target="js/phonegap-nfc.js"/>
+    <js-module src="www/phonegap-nfc.js" name="NFC">
+        <runs />
+    </js-module>
 
     <platform name="android">
 
