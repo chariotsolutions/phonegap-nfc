@@ -497,3 +497,10 @@ function fireNfcTagEvent(eventType, tagAsJson) {
         document.dispatchEvent(e);
     }, 10);
 }
+
+// kludge some global variables for plugman js-module support
+// eventually these should be replaced and referenced via the module
+window.nfc = nfc;
+window.ndef = ndef;
+window.util = util;
+window.fireNfcTagEvent = fireNfcTagEvent;
