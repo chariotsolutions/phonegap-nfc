@@ -8,28 +8,28 @@ The Cordova Command Line Interface [cordova-cli](https://npmjs.org/package/cordo
 
     $ npm install cordova -g
         
-## Clone NFC Plugin
+### Clone NFC Plugin
 
 Get a local copy of the PhoneGap NFC plugin
 
     $ cd ~
     $ git clone git://github.com/chariotsolutions/phonegap-nfc.git
 
-## Generate a project
+### Generate a project
 
     $ cd ~
     $ cordova create foo com.example.foo Foo
 
-## Add Android
+### Add Android
 
     $ cd foo
     $ cordova platform add android
 
-## Install the Plugin
+### Install the Plugin
 
     $ cordova plugin add ~/phonegap-nfc
             
-## Edit `index.js`
+### Edit `index.js`
 
 Edit `index.js` and modify onDeviceReady with the following code
 
@@ -60,7 +60,7 @@ Edit `index.js` and modify onDeviceReady with the following code
         );
     },
         
-## Run the code
+### Run the code
 
 Plug your phone into your computer.
     
