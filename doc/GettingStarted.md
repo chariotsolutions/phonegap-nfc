@@ -27,18 +27,7 @@ Get a local copy of the PhoneGap NFC plugin
 ## Install the Plugin
 
     $ plugman --platform android --project foo --plugin ~/phonegap-nfc
-    
-## Include `phonegap-nfc.js` in `index.html`
-
-The `phonegap-nfc.js` needs to be included in your `index.html` file
-    
-    <script type="text/javascript" src="cordova.js"></script>
-    <script type="text/javascript" src="js/phonegap-nfc.js"></script> // <<-- Add this line
-    <script type="text/javascript" src="js/index.js"></script>
-    <script type="text/javascript">
-        app.initialize();
-    </script>    
-        
+            
 ## Edit `index.js`
 
 Edit `index.js` and modify onDeviceReady with the following code
