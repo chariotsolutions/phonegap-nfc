@@ -2,7 +2,7 @@ Install cordova-cli if necessary
 
 	$ npm install cordova -g
 
-Ensure you're version of cordova-cli is new enough
+Ensure your version of cordova-cli is new enough
 
 	$ cordova -v
 	2.8.14
