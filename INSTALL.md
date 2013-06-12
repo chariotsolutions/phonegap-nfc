@@ -13,7 +13,7 @@ Your Android project should be using PhoneGap 2.8.
 
 ### Installing with Plugman (recommended)
 
-Use [plugman](https://github.com/imhotep/plugman) to add phonegap-nfc to your Android project.  Plugman requires [node.js](http://nodejs.org) and is installed through npm.
+Use [plugman](https://github.com/apache/cordova-plugman) to add phonegap-nfc to your Android project.  Plugman requires [node.js](http://nodejs.org) and is installed through npm.
 
 Install plugman 0.7.10 or greater
 
