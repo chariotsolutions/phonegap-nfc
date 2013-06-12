@@ -1,8 +1,8 @@
-# Quickstart for PhoneGap NFC - CLI Version
+## Quickstart for PhoneGap NFC - CLI Version
 
 Follow these instructions to generate a default PhoneGap app and modify it to read NFC tags.
 
-## Cordova Command Line Interface (CLI)
+### Cordova Command Line Interface (CLI)
 
 The Cordova Command Line Interface [cordova-cli](https://npmjs.org/package/cordova) can be used to create, build and run multi-platform Cordova projects. Cordova CLI requires [node.js](http://nodejs.org). Requires Cordova CLI >= 2.8.14.
 
@@ -69,7 +69,7 @@ Build and run the code
     $ cd ~/foo
     $ ./cordova/run
     
-## Scan a NDEF tag
+### Scan a NDEF tag
 
 Scan an NDEF tag with your phone. If you need to put data on a tag, try writing a plain text message to a tag with [NXP Tag Writer](https://play.google.com/store/apps/details?id=com.nxp.nfc.tagwriter).
     
