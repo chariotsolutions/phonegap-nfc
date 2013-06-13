@@ -441,7 +441,10 @@ public class NfcPlugin extends CordovaPlugin {
     public void onPause(boolean multitasking) {
         Log.d(TAG, "onPause " + getIntent());
         super.onPause(multitasking);
-        stopNfc();
+        if (multitasking) {
+            // nfc can't run in background
+            stopNfc();            
+        }
     }
 
     @Override
