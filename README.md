@@ -154,7 +154,7 @@ A NDEF Message is an array of one or more NDEF Records
     var ndefRecord = ndef.textRecord("Hello World"),
     	ndefMessage = [];
     
-    ndefMessage.push();
+    ndefMessage.push(ndefRecord);
     
     nfc.write(ndefMessage, [onSuccess], [onFailure]);
 
@@ -185,7 +185,7 @@ A NDEF Message is an array of one or more NDEF Records
     var ndefRecord = ndef.textRecord("Hello World"),
     	ndefMessage = [];
     
-    ndefMessage.push();
+    ndefMessage.push(ndefRecord);
 
     nfc.share(ndefMessage, [onSuccess], [onFailure]);
     
