@@ -6,19 +6,12 @@ Follow these instructions to generate a default PhoneGap app and modify it to re
     
 PhoneGap NFC requires PhoneGap 2.8.x.  Download from [phonegap.com](http://phonegap.com/download). Unzip the archive in `/usr/local`.
 
-### Plugman 0.7.10
+### Plugman 0.7.12
 
-Plugman is used to install the plugin into the PhoneGap project. Plugman requires [node.js](http://nodejs.org). Plugman 0.7.10 or greater is recommended. Install plugman globally.
+Plugman is used to install the plugin into the PhoneGap project. Plugman requires [node.js](http://nodejs.org). Plugman 0.7.12 or greater is recommended. Install plugman globally.
 
     $ npm install plugman -g
         
-### Clone NFC Plugin
-
-Get a local copy of the PhoneGap NFC plugin
-
-    $ cd ~
-    $ git clone git://github.com/chariotsolutions/phonegap-nfc.git
-
 ### Generate a project
 
     $ cd ~
@@ -26,7 +19,7 @@ Get a local copy of the PhoneGap NFC plugin
 
 ### Install the Plugin
 
-    $ plugman --platform android --project foo --plugin ~/phonegap-nfc
+    $ plugman --platform android --project foo --plugin git://github.com/don/phonegap-nfc.git
             
 ### Edit `index.js`
 
