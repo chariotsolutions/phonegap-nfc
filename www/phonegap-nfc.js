@@ -254,9 +254,10 @@ var ndef = {
      */
     decodeMessage: function (bytes) {
 
-        var ndef_message = [],
-            tnf_byte = bytes.shift(),
-            header = ndef.decodeTnf(tnf_byte),
+        var bytes = bytes.slice(0), // clone since parsing is destructive
+            ndef_message = [],        
+            tnf_byte,
+            header,
             type_length = 0,
             payload_length = 0,
             id_length = 0,
@@ -265,7 +266,9 @@ var ndef = {
             payload = [];
             
         while(bytes.length) {
-
+            tnf_byte = bytes.shift();
+            header = ndef.decodeTnf(tnf_byte);
+            
             type_length = bytes.shift();
 
             if (header.sr) {
