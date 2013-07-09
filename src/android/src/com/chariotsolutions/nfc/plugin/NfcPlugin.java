@@ -12,6 +12,7 @@ import android.os.Parcelable;
 import android.util.Log;
 import org.apache.cordova.api.CallbackContext;
 import org.apache.cordova.api.CordovaPlugin;
+import org.apache.cordova.api.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,7 +22,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NfcPlugin extends CordovaPlugin {
+public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCompleteCallback {
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
     private static final String REGISTER_NDEF = "registerNdef";
     private static final String REGISTER_NDEF_FORMATABLE = "registerNdefFormatable";
@@ -50,6 +51,7 @@ public class NfcPlugin extends CordovaPlugin {
     private PendingIntent pendingIntent = null;
 
     private Intent savedIntent = null;
+    private CallbackContext shareTagCallback;
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
@@ -127,6 +129,7 @@ public class NfcPlugin extends CordovaPlugin {
     private void unshareTag(CallbackContext callbackContext) {
         p2pMessage = null;
         stopNdefPush();
+        shareTagCallback = null;
         callbackContext.success();
     }
 
@@ -289,7 +292,12 @@ public class NfcPlugin extends CordovaPlugin {
                 //    callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
                 } else {
                     nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
-                    callbackContext.success();
+                    nfcAdapter.setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity());
+
+                    PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+                    result.setKeepCallback(true);
+                    shareTagCallback = callbackContext;
+                    callbackContext.sendPluginResult(result);
                 }
             }
         });
@@ -481,4 +489,12 @@ public class NfcPlugin extends CordovaPlugin {
         "e.tag = {1};\n" +
         "document.dispatchEvent(e);";
 
+    @Override
+    public void onNdefPushComplete(NfcEvent event) {
+        if (shareTagCallback != null) {
+            PluginResult result = new PluginResult(PluginResult.Status.OK, "Shared Message with Peer");
+            result.setKeepCallback(true);
+            shareTagCallback.sendPluginResult(result);
+        }
+    }
 }
