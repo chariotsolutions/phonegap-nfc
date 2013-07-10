@@ -379,6 +379,18 @@ var nfc = {
         cordova.exec(win, fail, "NfcPlugin", "unshareTag", []);
     },
 
+    handover: function (uris, win, fail) {
+        // if we get a single URI, wrap it in an array
+        if (!Array.isArray(uris)) {
+            uris = [ uris ];
+        }
+        cordova.exec(win, fail, "NfcPlugin", "handover", uris);
+    },
+
+    stopHandover: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "stopHandover", []);
+    },
+        
     erase: function (win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "eraseTag", [[]]);
     },
