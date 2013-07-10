@@ -95,16 +95,8 @@ var ndef = {
      * @id byte[] (optional)
      */
     textRecord: function (text, languageCode, id) {
-        var payload = [];
-            
-        if (!languageCode) { languageCode = 'en'; }   
+        var payload = textHelper.encodePayload(text, languageCode);
         if (!id) { id = []; }   
-        
-        // TODO need to handle UTF-16 see Text Record Type Definition Section 3.2.1 Syntax, Table 3
-        payload.push(languageCode.length);        
-        nfc.concatArray(payload, nfc.stringToBytes(languageCode));
-        nfc.concatArray(payload, nfc.stringToBytes(text));
-
         return ndef.record(ndef.TNF_WELL_KNOWN, ndef.RTD_TEXT, id, payload);
     },
 
@@ -115,10 +107,8 @@ var ndef = {
      * @id byte[] (optional)
      */
     uriRecord: function (uri, id) {
+        var payload = uriHelper.encodePayload(uri);    
         if (!id) { id = []; }
-        var payload = nfc.stringToBytes(uri);
-        // add identifier code 0x0, meaning no prefix substitution
-        payload.unshift(0x0);        
         return ndef.record(ndef.TNF_WELL_KNOWN, ndef.RTD_URI, id, payload);
     },
 
@@ -351,9 +341,10 @@ var ndef = {
 
         return value;
     }
-    
+        
 };
 
+// nfc provides javascript wrappers to the native phonegap implementation
 var nfc = {
 
     addTagDiscoveredListener: function (callback, win, fail) {
@@ -407,13 +398,51 @@ var nfc = {
         cordova.exec(win, fail, "NfcPlugin", "removeNdef", []);
     },
 
-    concatArray: function (a1, a2) { // this isn't built in?
-        for (var i = 0; i < a2.length; i++) {
-            a1.push(a2[i]);
-        }
-        return a1;
+    bytesToString: function (bytes) {
+        console.log("deprecated: use util.bytesToString");
+        return util.bytesToString(bytes);
     },
 
+    stringToBytes: function (str) {
+        console.log("deprecated: use util.stringToBytes");
+        return util.stringToBytes(str);
+    },
+
+    bytesToHexString: function (bytes) {
+        console.log("deprecated: use util.bytesToHexString");
+        return util.bytesToHexString(bytes);
+    }
+    
+};
+
+var util = {
+    // i must be <= 256
+    toHex: function (i) {
+        var hex;
+
+        if (i < 0) {
+            i += 256;
+        }
+
+        hex = i.toString(16);
+
+        // zero padding
+        if (hex.length == 1) {
+            hex = "0" + hex;
+        } 
+        
+        return hex;
+    },
+
+    toPrintable: function(i) {
+
+        if (i >= 0x20 & i <= 0x7F) {
+            return String.fromCharCode(i);
+        } else {
+            return '.';
+        }
+    },
+    
     bytesToString: function (bytes) {
         var bytesAsString = "";
         for (var i = 0; i < bytes.length; i++) {
@@ -460,32 +489,79 @@ var nfc = {
     
 };
 
-var util = {
-    // i must be <= 256
-    toHex: function (i) {
-        var hex;
+// this is a module in ndef-js
+var textHelper = {
+    
+    decodePayload: function (data) {
 
-        if (i < 0) {
-            i += 256;
+        var languageCodeLength = (data[0] & 0x1F), // 5 bits
+            languageCode = data.slice(1, 1 + languageCodeLength),
+            utf16 = (data[0] & 0x80) !== 0; // assuming UTF-16BE
+
+        // TODO need to deal with UTF in the future
+        // console.log("lang " + languageCode + (utf16 ? " utf16" : " utf8"));        
+
+        return util.bytesToString(data.slice(languageCodeLength + 1));        
+    }, 
+
+    // encode text payload
+    // @returns an array of bytes
+    encodePayload: function(text, lang, encoding) {
+
+        // ISO/IANA language code, but we're not enforcing
+        if (!lang) { lang = 'en'; }
+
+        var encoded = util.stringToBytes(lang + text);
+        encoded.unshift(lang.length);
+
+        return encoded; 
+    }
+    
+};
+
+// this is a module in ndef-js
+var uriHelper = {
+    // URI identifier codes from URI Record Type Definition NFCForum-TS-RTD_URI_1.0 2006-07-24
+    // index in array matches code in the spec
+    protocols: [ "", "http://www.", "https://www.", "http://", "https://", "tel:", "mailto:", "ftp://anonymous:anonymous@", "ftp://ftp.", "ftps://", "sftp://", "smb://", "nfs://", "ftp://", "dav://", "news:", "telnet://", "imap:", "rtsp://", "urn:", "pop:", "sip:", "sips:", "tftp:", "btspp://", "btl2cap://", "btgoep://", "tcpobex://", "irdaobex://", "file://", "urn:epc:id:", "urn:epc:tag:", "urn:epc:pat:", "urn:epc:raw:", "urn:epc:", "urn:nfc:" ],
+
+    // decode a URI payload bytes
+    // @returns a string
+    decodePayload: function (data) {
+        var prefix = uriHelper.protocols[data[0]];
+        if (!prefix) { // 36 to 255 should be ""
+            prefix = "";
+        }    
+        return prefix + util.bytesToString(data.slice(1));      
+    }, 
+
+    // shorten a URI with standard prefix
+    // @returns an array of bytes
+    encodePayload: function (uri) {
+
+        var prefix,
+            protocolCode,
+            encoded;
+
+        // check each protocol, unless we've found a match
+        // "urn:" is the one exception where we need to keep checking
+        // slice so we don't check ""
+        uriHelper.protocols.slice(1).forEach(function(protocol) {                        
+            if ((!prefix || prefix === "urn:") && uri.indexOf(protocol) === 0) { 
+                prefix = protocol;
+            }
+        });
+
+        if (!prefix) {
+            prefix = "";
         }
 
-        hex = i.toString(16);
+        encoded = util.stringToBytes(uri.slice(prefix.length));
+        protocolCode = uriHelper.protocols.indexOf(prefix);    
+        // prepend protocol code
+        encoded.unshift(protocolCode);
 
-        // zero padding
-        if (hex.length == 1) {
-            hex = "0" + hex;
-        } 
-        
-        return hex;
-    },
-
-    toPrintable: function(i) {
-
-        if (i >= 0x20 & i <= 0x7F) {
-            return String.fromCharCode(i);
-        } else {
-            return '.';
-        }
+        return encoded; 
     }
 };
 
@@ -500,6 +576,10 @@ function fireNfcTagEvent(eventType, tagAsJson) {
         document.dispatchEvent(e);
     }, 10);
 }
+
+// textHelper and uriHelper aren't exported, add a property
+ndef.uriHelper = uriHelper;
+ndef.textHelper = textHelper;
 
 // kludge some global variables for plugman js-module support
 // eventually these should be replaced and referenced via the module

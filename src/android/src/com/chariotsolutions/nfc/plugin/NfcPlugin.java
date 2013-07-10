@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
+import android.net.Uri;
 import android.nfc.*;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
@@ -31,6 +32,8 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String ERASE_TAG = "eraseTag";
     private static final String SHARE_TAG = "shareTag";
     private static final String UNSHARE_TAG = "unshareTag";
+    private static final String HANDOVER = "handover"; // Android Beam
+    private static final String STOP_HANDOVER = "stopHandover";
     private static final String INIT = "init";
 
     private static final String NDEF = "ndef";
@@ -51,7 +54,9 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private PendingIntent pendingIntent = null;
 
     private Intent savedIntent = null;
+
     private CallbackContext shareTagCallback;
+    private CallbackContext handoverCallback;
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
@@ -72,7 +77,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             registerNdef(callbackContext);
 
         } else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATABLE)) {
-            registerNdefFormattable(callbackContext);
+            registerNdefFormatable(callbackContext);
 
         }  else if (action.equals(REGISTER_DEFAULT_TAG)) {
             registerDefaultTag(callbackContext);
@@ -88,6 +93,12 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
         } else if (action.equalsIgnoreCase(UNSHARE_TAG)) {
             unshareTag(callbackContext);
+
+        } else if (action.equalsIgnoreCase(HANDOVER)) {
+            handover(data, callbackContext);
+
+        } else if (action.equalsIgnoreCase(STOP_HANDOVER)) {
+            stopHandover(callbackContext);
 
         } else if (action.equalsIgnoreCase(INIT)) {
             init(callbackContext);
@@ -116,7 +127,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         callbackContext.success();
     }
 
-    private void registerNdefFormattable(CallbackContext callbackContext) {
+    private void registerNdefFormatable(CallbackContext callbackContext) {
         addTechList(new String[]{NdefFormatable.class.getName()});
         callbackContext.success();
     }
@@ -224,6 +235,28 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         startNdefPush(callbackContext);
     }
 
+    // setBeamPushUris
+    // Every Uri you provide must have either scheme 'file' or scheme 'content'.
+    // Note that this takes priority over setNdefPush
+    //
+    // See http://developer.android.com/reference/android/nfc/NfcAdapter.html#setBeamPushUris(android.net.Uri[],%20android.app.Activity)
+    private void handover(JSONArray data, CallbackContext callbackContext) throws JSONException {
+
+        Uri[] uri = new Uri[data.length()];
+
+        for (int i = 0; i < data.length(); i++) {
+            uri[i] = Uri.parse(data.getString(i));
+        }
+
+        startNdefBeam(callbackContext, uri);
+    }
+
+    private void stopHandover(CallbackContext callbackContext) throws JSONException {
+        stopNdefBeam();
+        handoverCallback = null;
+        callbackContext.success();
+    }
+
     private void createPendingIntent() {
         if (pendingIntent == null) {
             Activity activity = getActivity();
@@ -253,7 +286,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             public void run() {
                 NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
-                if (nfcAdapter != null && getActivity().isFinishing() == false) {
+                if (nfcAdapter != null && !getActivity().isFinishing()) {
                     nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
 
                     if (p2pMessage != null) {
@@ -279,6 +312,29 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         });
     }
 
+    private void startNdefBeam(final CallbackContext callbackContext, final Uri[] uris) {
+        getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
+
+                if (nfcAdapter == null) {
+                    callbackContext.error(STATUS_NO_NFC);
+                } else if (!nfcAdapter.isNdefPushEnabled()) {
+                    callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
+                } else {
+                    nfcAdapter.setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity());
+                    nfcAdapter.setBeamPushUris(uris, getActivity());
+
+                    PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+                    result.setKeepCallback(true);
+                    handoverCallback = callbackContext;
+                    callbackContext.sendPluginResult(result);
+                }
+            }
+        });
+    }
+
     private void startNdefPush(final CallbackContext callbackContext) {
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
@@ -287,9 +343,8 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
                 if (nfcAdapter == null) {
                     callbackContext.error(STATUS_NO_NFC);
-                // isNdefPushEnabled would be nice, but requires android-17
-                //} else if (!nfcAdapter.isNdefPushEnabled()) {
-                //    callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
+                } else if (!nfcAdapter.isNdefPushEnabled()) {
+                    callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
                 } else {
                     nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
                     nfcAdapter.setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity());
@@ -311,6 +366,20 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
                 if (nfcAdapter != null) {
                     nfcAdapter.setNdefPushMessage(null, getActivity());
+                }
+
+            }
+        });
+    }
+
+    private void stopNdefBeam() {
+        getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+
+                NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
+
+                if (nfcAdapter != null) {
+                    nfcAdapter.setBeamPushUris(null, getActivity());
                 }
 
             }
@@ -491,10 +560,17 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     @Override
     public void onNdefPushComplete(NfcEvent event) {
-        if (shareTagCallback != null) {
+
+        // handover (beam) take precedence over share tag (ndef push)
+        if (handoverCallback != null) {
+            PluginResult result = new PluginResult(PluginResult.Status.OK, "Beamed Message to Peer");
+            result.setKeepCallback(true);
+            handoverCallback.sendPluginResult(result);
+        } else if (shareTagCallback != null) {
             PluginResult result = new PluginResult(PluginResult.Status.OK, "Shared Message with Peer");
             result.setKeepCallback(true);
             shareTagCallback.sendPluginResult(result);
         }
+
     }
 }
