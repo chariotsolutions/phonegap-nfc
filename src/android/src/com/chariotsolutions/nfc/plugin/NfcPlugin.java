@@ -324,12 +324,17 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                     callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
                 } else {
                     nfcAdapter.setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity());
-                    nfcAdapter.setBeamPushUris(uris, getActivity());
+                    try {
+                        nfcAdapter.setBeamPushUris(uris, getActivity());
+                        
+                        PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+                        result.setKeepCallback(true);
+                        handoverCallback = callbackContext;
+                        callbackContext.sendPluginResult(result);
 
-                    PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
-                    result.setKeepCallback(true);
-                    handoverCallback = callbackContext;
-                    callbackContext.sendPluginResult(result);
+                    } catch (IllegalArgumentException e) {
+                        callbackContext.error(e.getMessage());
+                    }
                 }
             }
         });
