@@ -408,23 +408,8 @@ var nfc = {
     removeNdefListener: function (callback, win, fail) {
         document.removeEventListener("ndef", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "removeNdef", []);
-    },
-
-    bytesToString: function (bytes) {
-        console.log("deprecated: use util.bytesToString");
-        return util.bytesToString(bytes);
-    },
-
-    stringToBytes: function (str) {
-        console.log("deprecated: use util.stringToBytes");
-        return util.stringToBytes(str);
-    },
-
-    bytesToHexString: function (bytes) {
-        console.log("deprecated: use util.bytesToHexString");
-        return util.bytesToHexString(bytes);
     }
-    
+   
 };
 
 var util = {
@@ -592,6 +577,11 @@ function fireNfcTagEvent(eventType, tagAsJson) {
 // textHelper and uriHelper aren't exported, add a property
 ndef.uriHelper = uriHelper;
 ndef.textHelper = textHelper;
+
+// create aliases 
+nfc.bytesToString = util.bytesToString;
+nfc.stringToBytes = util.stringToBytes;
+nfc.bytesToHexString = util.bytesToHexString;
 
 // kludge some global variables for plugman js-module support
 // eventually these should be replaced and referenced via the module
