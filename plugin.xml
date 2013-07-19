@@ -9,6 +9,8 @@
     
     <description>Near Field Communication (NFC) Plugin. Read and write NDEF messages to tags or share with peers.</description>
     
+    <license>MIT</license>
+    
     <engines>
         <engine name="cordova" version=">=2.8.0" />
     </engines>
