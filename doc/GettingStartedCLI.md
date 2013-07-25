@@ -1,22 +1,15 @@
 ## Quickstart for PhoneGap NFC - CLI Version
 
-These instructions use cordova to generate a default PhoneGap app and modify it to read NFC tags.
+These instructions use [Cordova](http://codova.io) to generate a default PhoneGap app and modify it to read NFC tags.
 
 ### Cordova Command Line Interface (CLI)
 
-The Cordova Command Line Interface [cordova-cli](https://npmjs.org/package/cordova) can be used to create, build and run multi-platform Cordova projects. Cordova CLI requires [node.js](http://nodejs.org). Requires Cordova CLI >= 2.8.14.
+The Cordova Command Line Interface [cordova-cli](https://npmjs.org/package/cordova) can be used to create, build and run multi-platform Cordova projects. Cordova CLI requires [node.js](http://nodejs.org).
 
     $ npm install cordova -g
     
 If you'd rather use the downloaded version of PhoneGap see [Getting Started](GettingStarted.md).
         
-### Clone NFC Plugin
-
-Get a local copy of the PhoneGap NFC plugin
-
-    $ cd ~
-    $ git clone git://github.com/chariotsolutions/phonegap-nfc.git
-
 ### Generate a project
 
     $ cd ~
@@ -29,7 +22,7 @@ Get a local copy of the PhoneGap NFC plugin
 
 ### Install the Plugin
 
-    $ cordova plugin add ~/phonegap-nfc
+    $ cordova plugin add https://github.com/chariotsolutions/phonegap-nfc.git
             
 ### Edit `index.js`
 
@@ -69,7 +62,7 @@ Plug your phone into your computer.
 Build and run the code
 
     $ cd ~/foo
-    $ ./cordova/run
+    $ cordova run
     
 ### Scan a NDEF tag
 
