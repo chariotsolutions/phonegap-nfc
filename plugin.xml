@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<plugin 
-    xmlns="http://www.phonegap.com/ns/plugins/1.0" 
-    xmlns:android="http://schemas.android.com/apk/res/android" 
-    id="com.chariotsolutions.nfc.plugin" 
+<plugin
+    xmlns="http://www.phonegap.com/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="com.chariotsolutions.nfc.plugin"
     version="0.4.5">
-    
+
     <name>NFC</name>
-    
+
     <description>Near Field Communication (NFC) Plugin. Read and write NDEF messages to tags or share with peers.</description>
-    
+
     <license>MIT</license>
-    
+
     <engines>
         <engine name="cordova" version=">=2.8.0" />
     </engines>
-    
+
     <js-module src="www/phonegap-nfc.js" name="NFC">
         <runs />
     </js-module>
@@ -22,21 +22,38 @@
     <platform name="android">
 
         <!-- requires Cordova-2.8.0 -->
-        <config-file target="res/xml/config.xml" parent="/widget">        
+        <config-file target="res/xml/config.xml" parent="/widget">
             <feature name="NfcPlugin">
                 <param name="android-package" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
             </feature>
         </config-file>
-                
+
         <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/NfcPlugin.java"
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
-        <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/Util.java" 
+        <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/Util.java"
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.NFC"/>
             <uses-feature android:name="android.hardware.nfc" android:required="false"/>
         </config-file>
-        
+
+    </platform>
+
+    <platform name="wp8">
+
+        <config-file target="config.xml" parent="/*">
+            <feature name="NfcPlugin">
+                <param name="wp-package" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
+            </feature>
+        </config-file>
+
+        <config-file target="Properties/WMAppManifest.xml" parent="/Deployment/App/Capabilities">
+            <Capability Name="ID_CAP_PROXIMITY" />
+        </config-file>
+
+        <source-file src="src/windows-phone-8/Ndef.cs" />
+        <source-file src="src/windows-phone-8/NfcPlugin.cs" />
+
     </platform>
 </plugin>
