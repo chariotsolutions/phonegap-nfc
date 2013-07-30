@@ -44,7 +44,7 @@
 
         <config-file target="config.xml" parent="/*">
             <feature name="NfcPlugin">
-                <param name="wp-package" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
+                <param name="wp-package" value="NfcPlugin"/>
             </feature>
         </config-file>
 
