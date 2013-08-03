@@ -11,9 +11,11 @@ import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.os.Parcelable;
 import android.util.Log;
-import org.apache.cordova.api.CallbackContext;
-import org.apache.cordova.api.CordovaPlugin;
-import org.apache.cordova.api.PluginResult;
+import org.apache.cordova.*;
+import org.apache.cordova.api.*;  // for Cordova 2.9
+// import org.apache.cordova.CallbackContext;
+// import org.apache.cordova.CordovaPlugin;
+// import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
