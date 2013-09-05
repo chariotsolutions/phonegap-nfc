@@ -19,7 +19,7 @@ Plugman is used to install the plugin into the PhoneGap project. Plugman require
 ### Generate a project
 
     $ cd ~
-    $ /usr/local/phonegap-2.9.1/lib/android/bin/create foo com.example.foo Foo
+    $ /usr/local/phonegap-2.9.0/lib/android/bin/create foo com.example.foo Foo
 
 ### Install the Plugin
 
