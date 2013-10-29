@@ -137,6 +137,7 @@ var ndef = {
      */
     absoluteUriRecord: function (uri, payload, id) {
         if (!id) { id = []; }
+        if (!payload) { payload = []; }
         return ndef.record(ndef.TNF_ABSOLUTE_URI, uri, id, payload);
     },
 
