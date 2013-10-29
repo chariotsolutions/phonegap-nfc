@@ -25,9 +25,13 @@ Supported Platforms
  
 # Installing
 
-See [INSTALL.md](INSTALL.md) for details on how to install the nfc-plugin into your PhoneGap project.
+<!-- See [INSTALL.md](INSTALL.md) for details on how to install the nfc-plugin into your PhoneGap project. -->
 
-Phonegap 2.8.0 is required for Android and recommended for other platforms. BlackBerry and Windows Phone *should* work with Corodva 2.5 and greater.
+Phonegap 2.9.0+ is required for Android and recommended for other platforms. BlackBerry and Windows Phone *should* work with Corodva 2.5 and greater.
+
+**Cordova 3.0 is the recommended way to use phonegap-nfc, see [Getting Started Cordova CLI](https://github.com/chariotsolutions/phonegap-nfc/blob/master/doc/GettingStartedCLI.md).**
+
+[INSTALL.md](INSTALL.md) has **older** instructions for installing the nfc-plugin into your PhoneGap project.
 
 See the [doc](doc) directory for additional documentation.
 
