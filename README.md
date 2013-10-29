@@ -509,7 +509,7 @@ On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks
 
 # Launching your Application when Scanning a Tag
 
-  On Android, intents can be used to launch your application when a NFC tag is read.  This is optional and configured in AndroidManifest.xml.
+On Android, intents can be used to launch your application when a NFC tag is read.  This is optional and configured in AndroidManifest.xml.
 
     <intent-filter>
       <action android:name="android.nfc.action.NDEF_DISCOVERED" />
@@ -519,8 +519,9 @@ On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks
   
 Note: `data android:mimeType="text/pg"` should match the data type you specified in JavaScript
 
-  We have found it necessary to add `android:noHistory="true"` to the activity element so that scanning a tag launches the application after the user has pressed the home button.
+We have found it necessary to add `android:noHistory="true"` to the activity element so that scanning a tag launches the application after the user has pressed the home button.
 
+See the Android documentation for more information about [filtering for NFC intents](http://developer.android.com/guide/topics/connectivity/nfc/nfc.html#ndef-disc).
 
 Sample Projects
 ================
