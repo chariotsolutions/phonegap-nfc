@@ -115,12 +115,29 @@ var ndef = {
     /**
      * Helper that creates a NDEF record containing an absolute URI.
      *
-     * @text String
+     * An Absolute URI record means the URI describes the payload of the record.
+     *
+     * For example a SOAP message could use "http://schemas.xmlsoap.org/soap/envelope/"
+     * as the type and XML content for the payload.
+     *
+     * Absolute URI can also be used to write LaunchApp records for Windows.
+     *
+     * See 2.4.2 Payload Type of the NDEF Specification
+     * http://www.nfc-forum.org/specs/spec_list#ndefts
+     *
+     * Note that by default, Android will open the URI defined in the type
+     * field of an Absolute URI record (TNF=3) and ignore the payload.
+     * BlackBerry and Windows do not open the browser for TNF=3.
+     *
+     * To write a URI as the payload use ndef.uriRecord(uri)
+     *
+     * @uri String
+     * @payload byte[] or String
      * @id byte[] (optional)
      */
-    absoluteUriRecord: function (text, id) {
+    absoluteUriRecord: function (uri, payload, id) {
         if (!id) { id = []; }
-        return ndef.record(ndef.TNF_ABSOLUTE_URI, nfc.stringToBytes(text), id, []);
+        return ndef.record(ndef.TNF_ABSOLUTE_URI, uri, id, payload);
     },
 
     /**
