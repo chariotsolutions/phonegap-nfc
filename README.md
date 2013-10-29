@@ -45,6 +45,8 @@ See the [doc](doc) directory for additional documentation.
 - [nfc.share](#nfcshare)
 - [nfc.unshare](#nfcunshare)
 - [nfc.erase](#nfcerase)
+- [nfc.handover](#nfchandover)
+- [nfc.stopHandover](#nfcstophandover)
 
 ## nfc.addTagDiscoveredListener
 
@@ -253,6 +255,57 @@ This method *must* be called from within an NDEF Event Handler.
 
 - Android
 - BlackBerry 7
+
+## nfc.handover
+
+Send a file to another device via NFC handover.
+
+    var uri = "content://media/external/audio/media/175";
+    nfc.handover(uri, [onSuccess], [onFailure]);
+
+
+    var uris = [
+        "content://media/external/audio/media/175",
+        "content://media/external/audio/media/176",
+        "content://media/external/audio/media/348"        
+    ];
+    nfc.handover(uris, [onSuccess], [onFailure]);
+
+    
+### Parameters
+
+- __uri__: A URI as a String, or an *array* of URIs.
+- __onSuccess__: (Optional) The callback that is called when the message is pushed.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+### Description
+
+Function `nfc.handover` shares files to a NFC peer using handover. Files are sent by specifying a file:// or context:// URI or a list of URIs. The file transfer is initiated with NFC but the transfer is completed with over Bluetooth or WiFi which is handled by a NFC handover request. The Android code is responsible for building the handover NFC Message.
+
+This is Android only, but it should be possible to add implementations for other platforms.
+
+### Supported Platforms
+
+- Android
+
+## nfc.stopHandover
+
+Stop sharing NDEF data via NFC handover.
+
+    nfc.stopHandover([onSuccess], [onFailure]);
+
+### Parameters
+
+- __onSuccess__: (Optional) The callback that is called when sharing stops.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+### Description
+
+Function `nfc.stopHandover` stops sharing data via peer-to-peer.
+
+### Supported Platforms
+
+- Android
 
 # NDEF
 
