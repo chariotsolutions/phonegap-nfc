@@ -60,4 +60,25 @@
         <source-file src="src/windows-phone-8/NfcPlugin.cs" />
 
     </platform>
+        
+    <platform name="blackberry10">
+        <!-- why does this need to be repeated? -->
+        <js-module src="www/phonegap-nfc.js" name="NFC">
+            <runs />
+        </js-module>
+        <!-- override defaults for BB10 -->
+        <js-module src="www/phonegap-nfc-blackberry.js" name="NFCBB10">
+            <runs />
+        </js-module>
+        
+        <!-- "native" implementation -->
+        <source-file src="src/blackberry10/index.js" />
+        
+        <config-file target="www/config.xml" parent="/widget">
+            <!-- Note: mapping is broken in Cordova 3.1.0-0.2.0 -->
+            <feature name="NfcPlugin" value="com.chariotsolutions.nfc.plugin" />
+        </config-file>
+    </platform>
+    
+    
 </plugin>
