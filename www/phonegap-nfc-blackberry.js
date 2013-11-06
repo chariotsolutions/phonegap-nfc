@@ -1,7 +1,8 @@
 /*jslint browser: true, unused: vars, quotmark: double */
 /*global cordova, nfc, ndef, blackberry */
 
-// blackberry required the com.blackberry.invoke plugin installed
+// blackberry requires the com.blackberry.invoke plugin installed
+
 // you need to edit config.xml for your app and add an invoke-target
 // <rim:invoke-target id="com.chariotsolutions.nfc.demo.reader.target">
 //     <type>APPLICATION</type>
@@ -32,6 +33,7 @@ nfc.share = function(ndefMessage, success, failure) {
     blackberry.invoke.invoke(query, success, failure);
 };
 
+// clobber existing unshare function
 nfc.unshare = function(success, failure) {
     "use strict";
     blackberry.invoke.closeChildCard();
@@ -40,9 +42,22 @@ nfc.unshare = function(success, failure) {
     }
 };
 
-// need to override addNdefListener because service name is different for BB10 (due to a bug)
-nfc.addNdefListener = function (callback, win, fail) {
+// takes an ndefMessage from the success callback and fires a javascript event
+var proxy = function(ndefMessageAsString) {
+    "use strict";
+    var ndefMessage = JSON.parse(ndefMessageAsString);
+    cordova.fireDocumentEvent("ndef", {
+        type: "ndef",
+        tag: {
+            ndefMessage: ndefMessage
+        }
+    });
+};
+
+// clobber existing addNdefListener function
+nfc.addNdefListener = function (callback, success, failure) {
     "use strict";
     document.addEventListener("ndef", callback, false);
-    cordova.exec(win, fail, "com.chariotsolutions.nfc.plugin", "registerNdef", []);
+    cordova.exec(proxy, failure, "com.chariotsolutions.nfc.plugin", "registerNdef", []);
+    success(); // assume success
 };

@@ -1,5 +1,5 @@
+/*jshint  bitwise: false, camelcase: false, quotmark: false, unused: vars */
 /*global cordova, console */
-/*jslint sloppy: false, browser: true, camelcase: false, quotmark: false */
 "use strict";
 
 function handleNfcFromIntentFilter() {
@@ -10,19 +10,21 @@ function handleNfcFromIntentFilter() {
     // addConstructor was finishing *before* deviceReady was complete and the
     // ndef listeners had not been registered.
     // It seems like there should be a better solution.
-    setTimeout(
-        function () {
-            cordova.exec(
-                function () {
-                    console.log("Initialized the NfcPlugin");
-                },
-                function (reason) {
-                    console.log("Failed to initialize the NfcPlugin " + reason);
-                },
-                "NfcPlugin", "init", []
-            );
-        }, 10
-    );
+    if (cordova.platformId !== "blackberry10") {
+        setTimeout(
+            function () {
+                cordova.exec(
+                    function () {
+                        console.log("Initialized the NfcPlugin");
+                    },
+                    function (reason) {
+                        console.log("Failed to initialize the NfcPlugin " + reason);
+                    },
+                    "NfcPlugin", "init", []
+                );
+            }, 10
+        );
+    }
 }
 
 document.addEventListener('deviceready', handleNfcFromIntentFilter, false);
@@ -583,7 +585,6 @@ var uriHelper = {
 // added since WP8 must call a named function
 // TODO consider switching NFC events from JS events to using the PG callbacks
 function fireNfcTagEvent(eventType, tagAsJson) {
-    alert(tagAsJson);
     setTimeout(function () {
         var e = document.createEvent('Events');
         e.initEvent(eventType, true, false);

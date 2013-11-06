@@ -1,5 +1,5 @@
 /*jshint quotmark:double, strict:false, bitwise: false */
-/*global PluginResult, cordova */
+/*global PluginResult */
 
 // based on code from Gord Tanner https://github.com/chariotsolutions/phonegap-nfc/pull/32
 
@@ -123,8 +123,16 @@ function decode(encoding) {
     return decoded;
 }
 
+// called by invoke, when NFC tag is scanned
+var tagListener = function(pluginResult, payloadString) {
+    var payload = JSON.parse(payloadString),
+        ndefObjectAsString = JSON.stringify(decode(b64toArray(payload.data)));
+    pluginResult.callbackOk(ndefObjectAsString, true);
+};
+
 module.exports = {
     init: function(success, failure, args, env) {
+        // no-op, just here for Android compatibility
         var result = new PluginResult(args, env);
         result.ok();
     },
@@ -132,23 +140,9 @@ module.exports = {
 
         var result = new PluginResult(args, env),
             application = window.qnx.webplatform.getApplication(),
-            ndefListener = function (payload) {
-                payload = JSON.parse(payload);
-
-                // debug
-                var ndefObjectAsString = JSON.stringify(decode(b64toArray(payload.data)));
-                alert(ndefObjectAsString);
-
-                // send data to client via ndef event
-                cordova.fireDocumentEvent("ndef", {
-                    type: "ndef",
-                    tag: {
-                        ndefMessage: decode(b64toArray(payload.data))
-                    }
-                });
-            };
+            ndefListener = tagListener.bind(null, result);
 
         application.invocation.addEventListener("invoked", ndefListener);
-        result.ok();
+        result.noResult(true);
     }
 };
