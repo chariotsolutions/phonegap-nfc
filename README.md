@@ -10,6 +10,8 @@ Supported Platforms
 * BlackBerry 10
 * BlackBerry 7
 
+Note: BlackBerry 7 support is only available for Cordova 2.x. If you are supporting BlackBerry 7, use [PhoneGap NFC v0.4.6](https://github.com/chariotsolutions/phonegap-nfc/tree/0.4.6) or older.
+
 ## Contents
 
 * [Installing](#installing)
@@ -31,8 +33,6 @@ Supported Platforms
 [INSTALL.md](INSTALL.md) has **older** instructions for installing the nfc-plugin into your PhoneGap project.
 
 See the [doc](doc) directory for additional documentation.
-
-Note: BlackBerry 7 support is only available for Cordova 2.x.
 
 # NFC
 
