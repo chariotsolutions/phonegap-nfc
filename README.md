@@ -1,7 +1,7 @@
 PhoneGap NFC Plugin
 ==========================
 
-The PhoneGap NFC Plugin provides access to Near Field Communication (NFC) functionality, allowing applications to read NDEF message in NFC tags. A "tag" may actually be another device that appears as a tag.
+Near Field Communication (NFC) Plugin. Read and write NDEF messages to tags or share NDEF messages with peers.
 
 Supported Platforms
 -------------------
@@ -20,7 +20,7 @@ Supported Platforms
 * [Events](#events)
 * [Platform Differences](#platform-differences)
 * [BlackBerry 10 Invoke Target](#blackberry-10-invoke-target)
-* [Launching Application when Scanning a Tag](#launching-your-application-when-scanning-a-tag)
+* [Launching Application when Scanning a Tag](#launching-your-android-application-when-scanning-a-tag)
 * [Sample Projects](#sample-projects)
 * [License](#license)
  
@@ -512,9 +512,7 @@ On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks
 
 This plugin uses the [BlackBerry Invocation Framework](http://developer.blackberry.com/native/documentation/cascades/device_platform/invocation/receiving_invocation.html) to read NFC tags on BlackBerry 10. This means that you need to register an invoke target in the config.xml.
 
-If your project supports multiple platforms, copy www/config.xml to merges/config.xml and add a `rim:invoke-target` tag. The invoke-target determines which tags your app will scan.
-
-The invoke-target controls which tags are scanned when you application is running. If your application is not running, BlackBerry will launch it when a matching tag is scanned.
+If your project supports multiple platforms, copy www/config.xml to merges/config.xml and add a `rim:invoke-target` tag. The invoke-target determines which tags your app will scan when it is running. If your application is not running, BlackBerry will launch it when a matching tag is scanned.
 
 This sample configuration attempts to open any NDEF tag.
 
@@ -530,31 +528,33 @@ This sample configuration attempts to open any NDEF tag.
     
 You can configure you application to handle only certain tags. 
 
-For example to scan only MIME Media (TNF = 2) tags of type "text/pg" use  
+For example to scan only MIME Media tags of type "text/pg" use  
 
     <rim:invoke-target id="your.unique.id.here">
         <type>APPLICATION</type>
         <filter>
             <action>bb.action.OPEN</action>
             <mime-type>application/vnd.rim.nfc.ndef</mime-type>
+            <!-- TNF MIME Media(2) with type "text/pg" -->
             <property var="uris" value="ndef://2/text/pg" />
         </filter>
     </rim:invoke-target>
 
-Or to scan only Plain Text tag (TNF = 1, RTD = T) use  
+Or to scan only Plain Text tags use  
 
     <rim:invoke-target id="your.unique.id.here">
         <type>APPLICATION</type>
         <filter>
             <action>bb.action.OPEN</action>
             <mime-type>application/vnd.rim.nfc.ndef</mime-type>
+            <!-- TNF Well Known(1), RTD T -->
             <property var="uris" value="ndef://1/T" />
         </filter>
     </rim:invoke-target>
 
 See the [BlackBerry documentation](http://developer.blackberry.com/native/documentation/cascades/device_comm/nfc/receiving_content.html) for more info.
 	
-# Launching your Application when Scanning a Tag
+# Launching your Android Application when Scanning a Tag
 
 On Android, intents can be used to launch your application when a NFC tag is read.  This is optional and configured in AndroidManifest.xml.
 
