@@ -1,0 +1,4 @@
+= 0.4.7 =
+Rewrite BlackBerry10 implementation for Cordova 3.0
+Remove unused Android Ant scripts
+Update documentation
