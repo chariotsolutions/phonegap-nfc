@@ -4,7 +4,7 @@ These instructions use [Cordova](http://codova.io) to generate a default PhoneGa
 
 ### Cordova Command Line Interface (CLI)
 
-The Cordova Command Line Interface [cordova-cli](https://npmjs.org/package/cordova) can be used to create, build and run multi-platform Cordova projects. Cordova CLI requires [node.js](http://nodejs.org).
+The Cordova Command Line Interface [cordova-cli](https://npmjs.org/package/cordova) can be used to create, build and run multi-platform Cordova projects. Cordova CLI requires [node.js](http://nodejs.org), [git](http://git-scm.com/) and the SDK tools for your target platform (Android, BlackBerry10 or Windows Phone 8.)
 
     $ npm install cordova -g
     
