@@ -27,6 +27,7 @@
         <config-file target="res/xml/config.xml" parent="/widget">
             <feature name="NfcPlugin">
                 <param name="android-package" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
+                <param name="onload" value="true" />                
             </feature>
         </config-file>
 
