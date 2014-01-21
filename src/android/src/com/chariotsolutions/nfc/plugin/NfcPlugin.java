@@ -289,10 +289,15 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
                 if (nfcAdapter != null && !getActivity().isFinishing()) {
-                    nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
+                    try {
+                        nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
 
-                    if (p2pMessage != null) {
-                        nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
+                        if (p2pMessage != null) {
+                            nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
+                        }
+                    } catch (IllegalStateException e) {
+                        // issue 110 - user exits app with home button while nfc is initializing
+                        Log.w(TAG, "Illegal State Exception starting NFC. Assuming application is terminating.");
                     }
 
                 }
