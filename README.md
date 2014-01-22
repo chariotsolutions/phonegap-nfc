@@ -124,6 +124,8 @@ A ndef-mime event occurs when a `Ndef.TNF_MIME_MEDIA` tag is read and matches th
 
 This function can be called multiple times to register different MIME types.
 
+On Android, mime-types for filtering should always be lower case. (See [IntentFilter.addDataType](http://developer.android.com/reference/android/content/IntentFilter.html#addDataType\(java.lang.String\)))
+
 ### Supported Platforms
 
 - Android
