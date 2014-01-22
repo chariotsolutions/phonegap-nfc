@@ -124,10 +124,10 @@ A ndef-mime event occurs when a `Ndef.TNF_MIME_MEDIA` tag is read and matches th
 
 This function can be called multiple times to register different MIME types. You should use the *same* handler for all MIME messages. 
 
-    nfc.addMimeTypeListener("text/json", **onNfc**, success, failure);
-    nfc.addMimeTypeListener("text/demo", **onNfc**, success, failure);
+    nfc.addMimeTypeListener("text/json", *onNfc*, success, failure);
+    nfc.addMimeTypeListener("text/demo", *onNfc*, success, failure);
 
-On Android, MIME types for filtering should always be lower case. (See [IntentFilter.addDataType](http://developer.android.com/reference/android/content/IntentFilter.html#addDataType\(java.lang.String\)))
+On Android, MIME types for filtering should always be lower case. (See [IntentFilter.addDataType()](http://developer.android.com/reference/android/content/IntentFilter.html#addDataType\(java.lang.String\)))
 
 ### Supported Platforms
 
