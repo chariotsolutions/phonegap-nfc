@@ -1,3 +1,9 @@
+= 0.4.8 =
+Fix IllegalArgumentException #110
+Update documentation about filtering mime types #71 and #72
+Add onLoad for Android #105 and #99
+Build better JSON from @didlich #113
+
 = 0.4.7 =
 Rewrite BlackBerry10 implementation for Cordova 3.0
 Remove unused Android Ant scripts
