@@ -10,6 +10,9 @@
     <description>Near Field Communication (NFC) Plugin. Read and write NDEF messages to tags or share NDEF messages with peers.</description>
 
     <license>MIT</license>
+    <keywords>nfc, NFC, NDEF</keywords>
+    <repo>https://github.com/chariotsolutions/phonegap-nfc.git</repo>
+    <issue>https://github.com/chariotsolutions/phonegap-nfc/issues</issue>
 
     <!-- temp remove engines tag due to bug CB-5139 in cli 3.1.0-0.2.0 for blackberry 10
     <engines>
