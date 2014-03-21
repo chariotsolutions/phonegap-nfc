@@ -22,6 +22,7 @@ Supported Platforms
 * [BlackBerry 10 Invoke Target](#blackberry-10-invoke-target)
 * [Launching Application when Scanning a Tag](#launching-your-android-application-when-scanning-a-tag)
 * [Sample Projects](#sample-projects)
+* [Book](#book)
 * [License](#license)
  
 # Installing
@@ -575,6 +576,7 @@ We have found it necessary to add `android:noHistory="true"` to the activity ele
 
 See the Android documentation for more information about [filtering for NFC intents](http://developer.android.com/guide/topics/connectivity/nfc/nfc.html#ndef-disc).
 
+
 Sample Projects
 ================
 
@@ -582,6 +584,12 @@ Sample Projects
 - [NFC Writer](https://github.com/don/phonegap-nfc-writer)
 - [NFC Peer to Peer](https://github.com/don/phonegap-p2p)
 - [Rock Paper Scissors](https://github.com/don/rockpaperscissors) *Android 2.x only*
+
+Book
+================
+Need more info? Check out my book [Beginning NFC: Near Field Communication with Arduino, Android, and PhoneGap](http://shop.oreilly.com/product/0636920021193.do)
+
+![Beginning NFC](http://akamaicovers.oreilly.com/images/0636920021193/cat.gif)
 
 License
 ================
