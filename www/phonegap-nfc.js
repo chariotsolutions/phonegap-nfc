@@ -502,6 +502,27 @@ var util = {
             bytesAsHexString += hexstring;
         }
         return bytesAsHexString;
+    },
+     
+    // This function can be removed if record.type is changed to a String   
+    /**
+     * Returns true if the record's TNF and type matches the supplied TNF and type.
+     *
+     * @record NDEF record
+     * @tnf 3-bit TNF (Type Name Format) - use one of the TNF_* constants
+     * @type byte array or String
+     */
+    isType: function(record, tnf, type) {
+        if (record.tnf === tnf) { // TNF is 3-bit
+            var recordType;
+            if (typeof(type) === 'string') {
+                recordType = type;
+            } else {
+                recordType = nfc.bytesToString(type);
+            }
+            return (nfc.bytesToString(record.type) === recordType);
+        }
+        return false;
     }
 
 };
