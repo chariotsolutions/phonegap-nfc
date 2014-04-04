@@ -10,7 +10,7 @@ function handleNfcFromIntentFilter() {
     // addConstructor was finishing *before* deviceReady was complete and the
     // ndef listeners had not been registered.
     // It seems like there should be a better solution.
-    if (cordova.platformId !== "blackberry10" && cordova.platformId !== "ios") {
+    if (cordova.platformId === "android") {
         setTimeout(
             function () {
                 cordova.exec(
