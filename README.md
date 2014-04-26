@@ -583,6 +583,7 @@ Sample Projects
 - [NFC Reader](https://github.com/don/phonegap-nfc-reader)
 - [NFC Writer](https://github.com/don/phonegap-nfc-writer)
 - [NFC Peer to Peer](https://github.com/don/phonegap-p2p)
+- [ApacheCon 2014 Demos](https://github.com/don/apachecon-nfc-demos)
 - [Rock Paper Scissors](https://github.com/don/rockpaperscissors) *Android 2.x only*
 
 Book
