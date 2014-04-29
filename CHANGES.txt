@@ -1,3 +1,7 @@
+= 0.4.9 =
+handleNfcFromIntentFilter is android only
+add isType helper #103
+
 = 0.4.8 =
 Fix IllegalArgumentException #110
 Update documentation about filtering mime types #71 and #72
