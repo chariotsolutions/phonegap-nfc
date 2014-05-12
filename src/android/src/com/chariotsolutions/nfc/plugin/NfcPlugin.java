@@ -313,7 +313,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
                 if (nfcAdapter != null) {
-                    nfcAdapter.disableForegroundDispatch(getActivity());
+                    try {
+                		nfcAdapter.disableForegroundDispatch(getActivity());
+                	} catch(IllegalStateException ex) {
+                		Log.w(TAG, "Illegal State Exception stopping NFC. Assuming application is terminating.");
+                	}
                 }
             }
         });
