@@ -1,3 +1,7 @@
+= 0.5.0 =
+remove listeners for Android implemented by Axel Nennker @AxelNennker #129
+bug fix in stopNfc() from Michal Letynski @mletynski #125 #126
+
 = 0.4.9 =
 handleNfcFromIntentFilter is android only
 add isType helper #103
