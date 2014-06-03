@@ -1,32 +1,43 @@
 package com.chariotsolutions.nfc.plugin;
 
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaPlugin;
+import org.apache.cordova.PluginResult;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
 import android.net.Uri;
-import android.nfc.*;
+import android.nfc.FormatException;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
+import android.nfc.Tag;
+import android.nfc.TagLostException;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.os.Parcelable;
 import android.util.Log;
-import org.apache.cordova.*;
-import org.apache.cordova.api.*;  // for Cordova 2.9
+// for Cordova 2.9
 // import org.apache.cordova.CallbackContext;
 // import org.apache.cordova.CordovaPlugin;
 // import org.apache.cordova.PluginResult;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCompleteCallback {
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
+    private static final String REMOVE_MIME_TYPE = "removeMimeType";
     private static final String REGISTER_NDEF = "registerNdef";
     private static final String REGISTER_NDEF_FORMATABLE = "registerNdefFormatable";
     private static final String REGISTER_DEFAULT_TAG = "registerTag";
@@ -75,8 +86,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
             registerMimeType(data, callbackContext);
 
+        } else if (action.equalsIgnoreCase(REMOVE_MIME_TYPE)) {
+          removeMimeType(data, callbackContext);
+
         } else if (action.equalsIgnoreCase(REGISTER_NDEF)) {
-            registerNdef(callbackContext);
+          registerNdef(callbackContext);
 
         } else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATABLE)) {
             registerNdefFormatable(callbackContext);
@@ -154,6 +168,17 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             parseMessage();
         }
         callbackContext.success();
+    }
+
+    private void removeMimeType(JSONArray data, CallbackContext callbackContext) throws JSONException {
+      String mimeType = "";
+      try {
+          mimeType = data.getString(0);
+          /*boolean removed =*/ removeIntentFilter(mimeType);
+          callbackContext.success();
+      } catch (MalformedMimeTypeException e) {
+          callbackContext.error("Invalid MIME Type " + mimeType);
+      }
     }
 
     private void registerMimeType(JSONArray data, CallbackContext callbackContext) throws JSONException {
@@ -313,11 +338,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
                 if (nfcAdapter != null) {
-                    try {
-                		nfcAdapter.disableForegroundDispatch(getActivity());
-                	} catch(IllegalStateException ex) {
-                		Log.w(TAG, "Illegal State Exception stopping NFC. Assuming application is terminating.");
-                	}
+                    nfcAdapter.disableForegroundDispatch(getActivity());
                 }
             }
         });
@@ -404,6 +425,20 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private void addToTechList(String[] techs) {
         techLists.add(techs);
+    }
+
+    private boolean removeIntentFilter(String mimeType) throws MalformedMimeTypeException {
+      boolean removed = false;
+      Iterator<IntentFilter> iter = intentFilters.iterator();
+      while (iter.hasNext()) {
+        IntentFilter intentFilter = iter.next();
+        String mt = intentFilter.getDataType(0);
+        if (mimeType.equals(mt)) {
+          intentFilters.remove(intentFilter);
+          removed = true;
+        }
+      }
+      return removed;
     }
 
     private IntentFilter createIntentFilter(String mimeType) throws MalformedMimeTypeException {
