@@ -42,6 +42,7 @@ Note: BlackBerry 7 support is only available for Cordova 2.x. For applications t
 ## Methods
 
 - [nfc.addNdefListener](#nfcaddndeflistener)
+- [nfc.removeNdefListener](#nfcremovendeflistener)
 - [nfc.addTagDiscoveredListener](#nfcaddtagdiscoveredlistener)
 - [nfc.addMimeTypeListener](#nfcaddmimetypelistener)
 - [nfc.addNdefFormatableListener](#nfcaddndefformatablelistener)
@@ -80,6 +81,22 @@ On Android registered [mimeTypeListeners](#nfcaddmimetypelistener) takes precede
 - BlackBerry 7
 - BlackBerry 10
 - Windows Phone 8
+
+## nfc.removeNdefListener
+
+Remove an event listener for any NDEF tag.
+
+    nfc.removeNdefListener(callback, [onSuccess], [onFailure]);
+
+### Parameters
+
+- __callback__: The callback that is called when an NDEF tag is read.
+- __onSuccess__: (Optional) The callback that is called when the listener is added.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+### Description
+
+Function `nfc.removeNdefListener` removes the callback for ndef events.
 
 ## nfc.addTagDiscoveredListener
 
