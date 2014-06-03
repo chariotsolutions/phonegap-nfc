@@ -186,14 +186,14 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     private void removeMimeType(JSONArray data, CallbackContext callbackContext) throws JSONException {
-      String mimeType = "";
-      try {
-          mimeType = data.getString(0);
-          /*boolean removed =*/ removeIntentFilter(mimeType);
-          callbackContext.success();
-      } catch (MalformedMimeTypeException e) {
-          callbackContext.error("Invalid MIME Type " + mimeType);
-      }
+        String mimeType = "";
+        try {
+            mimeType = data.getString(0);
+            /*boolean removed =*/ removeIntentFilter(mimeType);
+            callbackContext.success();
+        } catch (MalformedMimeTypeException e) {
+            callbackContext.error("Invalid MIME Type " + mimeType);
+        }
     }
 
     private void registerMimeType(JSONArray data, CallbackContext callbackContext) throws JSONException {
