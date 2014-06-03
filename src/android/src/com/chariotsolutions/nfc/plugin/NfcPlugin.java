@@ -30,10 +30,6 @@ import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.os.Parcelable;
 import android.util.Log;
-// for Cordova 2.9
-// import org.apache.cordova.CallbackContext;
-// import org.apache.cordova.CordovaPlugin;
-// import org.apache.cordova.PluginResult;
 
 public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCompleteCallback {
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
@@ -387,7 +383,12 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
                 if (nfcAdapter != null) {
-                    nfcAdapter.disableForegroundDispatch(getActivity());
+                    try {
+                        nfcAdapter.disableForegroundDispatch(getActivity());                        
+                    } catch (IllegalStateException e) {
+                        // issue 125 - user exits app with back button while nfc
+                        Log.w(TAG, "Illegal State Exception stopping NFC. Assuming application is terminating.");                        
+                    }
                 }
             }
         });
