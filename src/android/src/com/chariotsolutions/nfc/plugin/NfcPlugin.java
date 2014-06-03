@@ -6,9 +6,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.cordova.CallbackContext;
-import org.apache.cordova.CordovaPlugin;
-import org.apache.cordova.PluginResult;
+// using wildcard imports so we can support Cordova 3.x and Cordova 2.9
+import org.apache.cordova.*; // Cordova 3.x
+import org.apache.cordova.api.*;  // Cordova 2.9
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
