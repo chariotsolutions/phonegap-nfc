@@ -21,6 +21,7 @@ Supported Platforms
 * [Platform Differences](#platform-differences)
 * [BlackBerry 10 Invoke Target](#blackberry-10-invoke-target)
 * [Launching Application when Scanning a Tag](#launching-your-android-application-when-scanning-a-tag)
+* [Testing](#testing)
 * [Sample Projects](#sample-projects)
 * [Book](#book)
 * [License](#license)
@@ -600,10 +601,12 @@ Tests require the [Cordova Plugin Test Framework](https://github.com/apache/cord
 
 Create a new project
 
+    git clone https://github.com/chariotsolutions/phonegap-nfc
     cordova create nfc-test com.example.nfc.test NfcTest
+    cd nfc-test
     cordova platform add android
-    cordova plugin add https://github.com/chariotsolutions/phonegap-nfc
-    cordova plugin add https://github.com/chariotsolutions/phonegap-nfc#tests
+    cordova plugin add ../phonegap-nfc
+    cordova plugin add ../phonegap-nfc/tests
     cordova plugin add http://git-wip-us.apache.org/repos/asf/cordova-plugin-test-framework.git
 
 Change the start page in `config.xml`
