@@ -1,15 +1,4 @@
 exports.defineAutoTests = function () {
-
-    // describe('Vibration (navigator.notification.vibrate)', function () {
-    //     it("navigator.notification should exist", function () {
-    //         expect(navigator.notification).toBeDefined();
-    //     });
-    //
-    //     it("should contain a vibrate function", function () {
-    //         expect(typeof navigator.notification.vibrate).toBeDefined();
-    //         expect(typeof navigator.notification.vibrate).toBe("function");
-    //     });
-    // });
     
     describe('NFC object', function () {
         it("nfc should exist", function () {
@@ -22,15 +11,14 @@ exports.defineAutoTests = function () {
         });
     });
     
-    // String Encoding and Decoding
-    describe('UTF-8', function() {
+    describe('UTF-8 Encoding and Decoding', function() {
+        // https://github.com/don/ndef-js/blob/master/test/util.js
 
         it('should encode UTF-8', function() {
 
             var bytes=[ 0x54, 0x65, 0x73, 0x74, 0x73, 0xd7, 0x90, 0xc2, 0xa2];
 
             var encoded = util.stringToBytes("Testsא¢");
-            //assert.deepEqual(encoded, bytes);
             expect(encoded).toEqual(bytes);
 
         });
@@ -40,7 +28,6 @@ exports.defineAutoTests = function () {
             var bytes=[ 0x54, 0x65, 0x73, 0x74, 0x73, 0xd7, 0x90, 0xc2, 0xa2];
 
             var decoded = util.bytesToString(bytes);
-            //assert.equal(decoded, "Testsא¢");
             expect(decoded).toEqual("Testsא¢");
 
         });
@@ -54,12 +41,10 @@ exports.defineAutoTests = function () {
                 0xBD, 0xD0, 0xBD, 0xD1, 0x8B, 0xD1, 0x85, 0x20, 0xD0, 0xB2, 0xD0, 0xBE, 0xD0, 0xBB, 0xD0, 0xBD ];
 
             var encoded = util.stringToBytes(russian);
-            //assert.deepEqual(encoded, russianBytes);
             expect(encoded).toEqual(russianBytes);
             
 
             var decoded = util.bytesToString(russianBytes);
-            //assert.equal(decoded, russian);
             expect(decoded).toEqual(russian);
             
         });
@@ -69,17 +54,14 @@ exports.defineAutoTests = function () {
             // http://www.columbia.edu/~kermit/utf8.html
             var chinese = "我能吞下玻璃而不伤身体。";
             var roundTrip = util.bytesToString(util.stringToBytes(chinese));
-            //assert.equal(util.bytesToString(util.stringToBytes(chinese)), chinese);
             expect(roundTrip).toEqual(chinese);
 
             var korean = "나는 유리를 먹을 수 있어요. 그래도 아프지 않아요";
             roundTrip = util.bytesToString(util.stringToBytes(korean));            
-            //assert.equal(util.bytesToString(util.stringToBytes(korean)), korean);
             expect(roundTrip).toEqual(korean);            
 
             var url = "http://example.com/with-utf8-✓";
             roundTrip = util.bytesToString(util.stringToBytes(url));                        
-            //assert.equal(util.bytesToString(util.stringToBytes(url)), url);
             expect(roundTrip).toEqual(url);
 
         });
