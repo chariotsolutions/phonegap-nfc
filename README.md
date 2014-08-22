@@ -48,7 +48,7 @@ Note: BlackBerry 7 support is only available for Cordova 2.x. For applications t
 - [nfc.addMimeTypeListener](#nfcaddmimetypelistener)
 - [nfc.addNdefFormatableListener](#nfcaddndefformatablelistener)
 - [nfc.write](#nfcwrite)
-- [nfc.makeReadOnly](#makereadonly)
+- [nfc.makeReadOnly](#nfcmakereadonly)
 - [nfc.share](#nfcshare)
 - [nfc.unshare](#nfcunshare)
 - [nfc.erase](#nfcerase)
