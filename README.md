@@ -48,6 +48,7 @@ Note: BlackBerry 7 support is only available for Cordova 2.x. For applications t
 - [nfc.addMimeTypeListener](#nfcaddmimetypelistener)
 - [nfc.addNdefFormatableListener](#nfcaddndefformatablelistener)
 - [nfc.write](#nfcwrite)
+- [nfc.makeReadOnly](#makereadonly)
 - [nfc.share](#nfcshare)
 - [nfc.unshare](#nfcunshare)
 - [nfc.erase](#nfcerase)
@@ -207,6 +208,51 @@ On **Windows Phone** this method should be called outside the NDEF Event Handler
 - Android
 - BlackBerry 7
 - Windows Phone 8
+
+## nfc.makeReadOnly
+
+Makes a NFC tag read only.  **Warning this is permanent.**
+
+    nfc.makeReadOnly([onSuccess], [onFailure]);
+
+### Parameters
+
+- __onSuccess__: (Optional) The callback that is called when the tag is locked.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+### Description
+
+Function `nfc.makeReadOnly` make a NFC tag read only. **Warning this is permanent** and can not be undone.
+
+On **Android** this method *must* be called from within an NDEF Event Handler.
+
+Example usage
+
+    onNfc: function(nfcEvent) {
+
+        var record = [
+            ndef.textRecord("hello, world")
+        ];
+
+        var failure = function(reason) {
+            alert("ERROR: " + reason);
+        };
+
+        var lockSuccess = function() {
+            alert("Tag is now read only.");
+        };
+
+        var lock = function() {
+            nfc.makeReadOnly(lockSuccess, failure);
+        };
+
+        nfc.write(record, lock, failure);
+
+    },
+
+### Supported Platforms
+
+- Android
 
 ## nfc.share
 

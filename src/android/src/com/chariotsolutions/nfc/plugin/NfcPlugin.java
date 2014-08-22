@@ -41,6 +41,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String REGISTER_DEFAULT_TAG = "registerTag";
     private static final String REMOVE_DEFAULT_TAG = "removeTag";
     private static final String WRITE_TAG = "writeTag";
+    private static final String MAKE_READ_ONLY = "makeReadOnly";
     private static final String ERASE_TAG = "eraseTag";
     private static final String SHARE_TAG = "shareTag";
     private static final String UNSHARE_TAG = "unshareTag";
@@ -105,6 +106,9 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
         } else if (action.equalsIgnoreCase(WRITE_TAG)) {
             writeTag(data, callbackContext);
+
+        } else if (action.equalsIgnoreCase(MAKE_READ_ONLY)) {
+            makeReadOnly(callbackContext);
 
         } else if (action.equalsIgnoreCase(ERASE_TAG)) {
             eraseTag(callbackContext);
@@ -268,6 +272,59 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 }
             }
         });
+    }
+
+    private void makeReadOnly(CallbackContext callbackContext) throws JSONException {
+
+        boolean success = false;
+        String message = "Could not make tag read only";
+
+        if (getIntent() == null) { // Lost Tag
+            callbackContext.error("Failed to make tag read only, received null intent");
+            return;
+        }
+
+        Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        if (tag == null) {
+            callbackContext.error("Failed to make tag read only, tag is null");
+            return;
+        }
+
+        Ndef ndef = Ndef.get(tag);
+
+        try {
+            if (ndef != null) {
+
+                ndef.connect();
+
+                if (!ndef.isWritable()) {
+                    message = "Tag is not writable.";
+                } else if (ndef.canMakeReadOnly()) {
+                    success = ndef.makeReadOnly();
+                    //message = "Not locking during testing.";
+                } else {
+                    message = "Tag can not be made read only.";
+                }
+
+            } else {
+                // This shouldn't happen
+                message = "Failed to make tag read only, unable to get Ndef from tag.";
+            }
+
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to make tag read only", e);
+            if (e.getMessage() != null) {
+                message = e.getMessage();
+            } else {
+                message = e.toString();
+            }
+        }
+
+        if (success) {
+            callbackContext.success();
+        } else {
+            callbackContext.error(message);
+        }
     }
 
     private void shareTag(JSONArray data, CallbackContext callbackContext) throws JSONException {
