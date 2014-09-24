@@ -45,7 +45,9 @@ Note: BlackBerry 7 support is only available for Cordova 2.x. For applications t
 - [nfc.addNdefListener](#nfcaddndeflistener)
 - [nfc.removeNdefListener](#nfcremovendeflistener)
 - [nfc.addTagDiscoveredListener](#nfcaddtagdiscoveredlistener)
+- [nfc.removeTagDiscoveredListener](#nfcremovetagdiscoveredlistener)
 - [nfc.addMimeTypeListener](#nfcaddmimetypelistener)
+- [nfc.removeMimeTypeListener](#nfcremovemimetypelistener)
 - [nfc.addNdefFormatableListener](#nfcaddndefformatablelistener)
 - [nfc.write](#nfcwrite)
 - [nfc.makeReadOnly](#nfcmakereadonly)
@@ -86,19 +88,16 @@ On Android registered [mimeTypeListeners](#nfcaddmimetypelistener) takes precede
 
 ## nfc.removeNdefListener
 
-Remove an event listener for any NDEF tag.
+Removes a previosly registered event listener added via `nfc.addNdefListener`.
 
     nfc.removeNdefListener(callback, [onSuccess], [onFailure]);
 
 ### Parameters
 
-- __callback__: The callback that is called when an NDEF tag is read.
-- __onSuccess__: (Optional) The callback that is called when the listener is added.
-- __onFailure__: (Optional) The callback that is called if there was an error.
+- __callback__: The previously registered callback.
+- __onSuccess__: (Optional) The callback that is called when the listener is successfully removed.
+- __onFailure__: (Optional) The callback that is called if there was an error during removal.
 
-### Description
-
-Function `nfc.removeNdefListener` removes the callback for ndef events.
 
 ## nfc.addTagDiscoveredListener
 
@@ -122,6 +121,18 @@ This event occurs when any tag is detected by the phone.
 
 - Android
 - BlackBerry 7
+
+## nfc.removeTagDiscoveredListener
+
+Removes a previosly registered event listener added via `nfc.addTagDiscoveredListener`.
+
+    nfc.removeTagDiscoveredListener(callback, [onSuccess], [onFailure]);
+
+### Parameters
+
+- __callback__: The previously registered callback.
+- __onSuccess__: (Optional) The callback that is called when the listener is successfully removed.
+- __onFailure__: (Optional) The callback that is called if there was an error during removal.
 
 ## nfc.addMimeTypeListener
 
@@ -153,6 +164,19 @@ On Android, MIME types for filtering should always be lower case. (See [IntentFi
 
 - Android
 - BlackBerry 7
+
+## nfc.removeMimeTypeListener
+
+Removes a previosly registered event listener added via `nfc.addMimeTypeListener`.
+
+    nfc.removeMimeTypeListener(mimeType, callback, [onSuccess], [onFailure]);
+
+### Parameters
+
+- __mimeType__: The MIME type to filter for messages.
+- __callback__: The previously registered callback.
+- __onSuccess__: (Optional) The callback that is called when the listener is successfully removed.
+- __onFailure__: (Optional) The callback that is called if there was an error during removal.
 
 ## nfc.addNdefFormatableListener
 
@@ -407,9 +431,9 @@ Represents a logical (unchunked) NDEF (NFC Data Exchange Format) record.
 The `ndef` object has a function for creating NdefRecords
 
     var type = "text/pg",
-    	id = [],
-    	payload = ndef.stringToBytes("Hello World"),
-    	record = ndef.record(ndef.TNF_MIME_MEDIA, type, id, payload);
+      id = [],
+      payload = ndef.stringToBytes("Hello World"),
+      record = ndef.record(ndef.TNF_MIME_MEDIA, type, id, payload);
 
 There are also helper functions for some types of records
 
@@ -465,64 +489,64 @@ Windows Phone 8 and BlackBerry 10 read the NDEF information from a tag, but do n
 
 Assuming the following NDEF message is written to a tag, it will produce the following events when read.
 
-	var ndefMessage = [
-		ndef.createMimeRecord('text/pg', 'Hello PhoneGap')
-	];
+  var ndefMessage = [
+    ndef.createMimeRecord('text/pg', 'Hello PhoneGap')
+  ];
 
 #### Sample Event on Android
 
-	{
-	    type: 'ndef',
-	    tag: {
-	        "isWritable": true,
-	        "id": [4, 96, 117, 74, -17, 34, -128],
-	        "techTypes": ["android.nfc.tech.IsoDep", "android.nfc.tech.NfcA", "android.nfc.tech.Ndef"],
-	        "type": "NFC Forum Type 4",
-	        "canMakeReadOnly": false,
-	        "maxSize": 2046,
-	        "ndefMessage": [{
-	            "id": [],
-	            "type": [116, 101, 120, 116, 47, 112, 103],
-	            "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112],
-	            "tnf": 2
-	        }]
-	    }
-	}
+  {
+      type: 'ndef',
+      tag: {
+          "isWritable": true,
+          "id": [4, 96, 117, 74, -17, 34, -128],
+          "techTypes": ["android.nfc.tech.IsoDep", "android.nfc.tech.NfcA", "android.nfc.tech.Ndef"],
+          "type": "NFC Forum Type 4",
+          "canMakeReadOnly": false,
+          "maxSize": 2046,
+          "ndefMessage": [{
+              "id": [],
+              "type": [116, 101, 120, 116, 47, 112, 103],
+              "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112],
+              "tnf": 2
+          }]
+      }
+  }
 
 #### Sample Event on BlackBerry 7
 
-	{
-	    type: 'ndef',
-	    tag: {
-	        "tagType": "4",
-	        "isLocked": false,
-	        "isLockable": false,
-	        "freeSpaceSize": "2022",
-	        "serialNumberLength": "7",
-	        "serialNumber": [4, 96, 117, 74, -17, 34, -128],
-	        "name": "Desfire EV1 2K",
-	        "ndefMessage": [{
-	            "tnf": 2,
-	            "type": [116, 101, 120, 116, 47, 112, 103],
-	            "id": [],
-	            "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112]
-	        }]
-	    }
-	}
+  {
+      type: 'ndef',
+      tag: {
+          "tagType": "4",
+          "isLocked": false,
+          "isLockable": false,
+          "freeSpaceSize": "2022",
+          "serialNumberLength": "7",
+          "serialNumber": [4, 96, 117, 74, -17, 34, -128],
+          "name": "Desfire EV1 2K",
+          "ndefMessage": [{
+              "tnf": 2,
+              "type": [116, 101, 120, 116, 47, 112, 103],
+              "id": [],
+              "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112]
+          }]
+      }
+  }
 
 #### Sample Event on BlackBerry 10 or Windows Phone 8
 
-	{
-	    type: 'ndef',
-	    tag: {
-	        "ndefMessage": [{
-	            "tnf": 2,
-	            "type": [116, 101, 120, 116, 47, 112, 103],
-	            "id": [],
-	            "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112]
-	        }]
-	    }
-	}
+  {
+      type: 'ndef',
+      tag: {
+          "ndefMessage": [{
+              "tnf": 2,
+              "type": [116, 101, 120, 116, 47, 112, 103],
+              "id": [],
+              "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112]
+          }]
+      }
+  }
 
 ## Getting Details about Events
 
@@ -560,23 +584,23 @@ On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks
 
 ### Non-NDEF tag scanned with addTagDiscoveredListener on *Android*
 
-	{
-	    type: 'tag',
-	    tag: {
-	        "id": [ - 81, 105, -4, 64],
-	        "techTypes": ["android.nfc.tech.MifareClassic", "android.nfc.tech.NfcA", "android.nfc.tech.NdefFormatable"]
-	    }
-	}
+  {
+      type: 'tag',
+      tag: {
+          "id": [ - 81, 105, -4, 64],
+          "techTypes": ["android.nfc.tech.MifareClassic", "android.nfc.tech.NfcA", "android.nfc.tech.NdefFormatable"]
+      }
+  }
 
 ### NDEF tag scanned with addTagDiscoveredListener on *Android*
 
-	{
-	    type: 'tag',
-	    tag: {
-	        "id": [4, 96, 117, 74, -17, 34, -128],
-	        "techTypes": ["android.nfc.tech.IsoDep", "android.nfc.tech.NfcA", "android.nfc.tech.Ndef"]
-	    }
-	}
+  {
+      type: 'tag',
+      tag: {
+          "id": [4, 96, 117, 74, -17, 34, -128],
+          "techTypes": ["android.nfc.tech.IsoDep", "android.nfc.tech.NfcA", "android.nfc.tech.Ndef"]
+      }
+  }
 
 # BlackBerry 10 Invoke Target
 
