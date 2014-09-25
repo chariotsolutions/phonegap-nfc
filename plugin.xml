@@ -3,7 +3,7 @@
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="com.chariotsolutions.nfc.plugin"
-    version="0.5.1">
+    version="0.6.0">
 
     <name>NFC</name>
 
@@ -30,7 +30,7 @@
         <config-file target="res/xml/config.xml" parent="/widget">
             <feature name="NfcPlugin">
                 <param name="android-package" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
-                <param name="onload" value="true" />                
+                <param name="onload" value="true" />
             </feature>
         </config-file>
 
@@ -66,7 +66,7 @@
         <source-file src="src/windows-phone-8/NfcPlugin.cs" />
 
     </platform>
-        
+
     <platform name="blackberry10">
         <!-- why does this need to be repeated? -->
         <js-module src="www/phonegap-nfc.js" name="NFC">
@@ -76,15 +76,15 @@
         <js-module src="www/phonegap-nfc-blackberry.js" name="NFCBB10">
             <runs />
         </js-module>
-        
+
         <!-- "native" implementation -->
         <source-file src="src/blackberry10/index.js" />
-        
+
         <config-file target="www/config.xml" parent="/widget">
             <!-- Note: mapping is broken in Cordova 3.1.0-0.2.0 -->
             <feature name="NfcPlugin" value="com.chariotsolutions.nfc.plugin" />
         </config-file>
     </platform>
-    
-    
+
+
 </plugin>

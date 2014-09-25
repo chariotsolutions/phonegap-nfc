@@ -419,17 +419,17 @@ var nfc = {
         cordova.exec(win, fail, "NfcPlugin", "eraseTag", [[]]);
     },
 
-    removeTagDiscoveredListener: function (callback, win, fail) {
+    removeTagDiscoveredListener: function (win, fail) {
         document.removeEventListener("tag", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "removeTag", []);
     },
 
-    removeMimeTypeListener: function(mimeType, callback, win, fail) {
+    removeMimeTypeListener: function(mimeType, win, fail) {
         document.removeEventListener("ndef-mime", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "removeMimeType", [mimeType]);
     },
 
-    removeNdefListener: function (callback, win, fail) {
+    removeNdefListener: function (win, fail) {
         document.removeEventListener("ndef", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "removeNdef", []);
     }

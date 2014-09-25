@@ -88,13 +88,12 @@ On Android registered [mimeTypeListeners](#nfcaddmimetypelistener) takes precede
 
 ## nfc.removeNdefListener
 
-Removes a previously registered event listener added via `nfc.addNdefListener`.
+Removes the event listener for NDEF tags added via `nfc.addNdefListener`.
 
-    nfc.removeNdefListener(callback, [onSuccess], [onFailure]);
+    nfc.removeNdefListener([onSuccess], [onFailure]);
 
 ### Parameters
 
-- __callback__: The previously registered callback.
 - __onSuccess__: (Optional) The callback that is called when the listener is successfully removed.
 - __onFailure__: (Optional) The callback that is called if there was an error during removal.
 
@@ -107,7 +106,7 @@ Removes a previously registered event listener added via `nfc.addNdefListener`.
 
 Registers an event listener for tags matching any tag type.
 
-    nfc.addTagDiscoveredListener(callback, [onSuccess], [onFailure]);
+    nfc.addTagDiscoveredListener([onSuccess], [onFailure]);
 
 ### Parameters
 
@@ -128,13 +127,12 @@ This event occurs when any tag is detected by the phone.
 
 ## nfc.removeTagDiscoveredListener
 
-Removes a previously registered event listener added via `nfc.addTagDiscoveredListener`.
+Removes the event listener added via `nfc.addTagDiscoveredListener`.
 
-    nfc.removeTagDiscoveredListener(callback, [onSuccess], [onFailure]);
+    nfc.removeTagDiscoveredListener([onSuccess], [onFailure]);
 
 ### Parameters
 
-- __callback__: The previously registered callback.
 - __onSuccess__: (Optional) The callback that is called when the listener is successfully removed.
 - __onFailure__: (Optional) The callback that is called if there was an error during removal.
 
@@ -176,14 +174,13 @@ On Android, MIME types for filtering should always be lower case. (See [IntentFi
 
 ## nfc.removeMimeTypeListener
 
-Removes a previously registered event listener added via `nfc.addMimeTypeListener`.
+Removes the event listener added via `nfc.addMimeTypeListener`.
 
-    nfc.removeMimeTypeListener(mimeType, callback, [onSuccess], [onFailure]);
+    nfc.removeMimeTypeListener(mimeType, [onSuccess], [onFailure]);
 
 ### Parameters
 
 - __mimeType__: The MIME type to filter for messages.
-- __callback__: The previously registered callback.
 - __onSuccess__: (Optional) The callback that is called when the listener is successfully removed.
 - __onFailure__: (Optional) The callback that is called if there was an error during removal.
 

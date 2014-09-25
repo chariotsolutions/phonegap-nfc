@@ -1,3 +1,6 @@
+= 0.6.0 =
+Change signature for remove*Listener methods. Fixes #142
+
 = 0.5.1 =
 nfc.makeReadOnly Fixes #6
 Better encoding and decoding of UTF-8 strings. Fixes #102
