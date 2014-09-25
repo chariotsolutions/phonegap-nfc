@@ -88,7 +88,7 @@ On Android registered [mimeTypeListeners](#nfcaddmimetypelistener) takes precede
 
 ## nfc.removeNdefListener
 
-Removes a previosly registered event listener added via `nfc.addNdefListener`.
+Removes a previously registered event listener added via `nfc.addNdefListener`.
 
     nfc.removeNdefListener(callback, [onSuccess], [onFailure]);
 
@@ -98,6 +98,10 @@ Removes a previosly registered event listener added via `nfc.addNdefListener`.
 - __onSuccess__: (Optional) The callback that is called when the listener is successfully removed.
 - __onFailure__: (Optional) The callback that is called if there was an error during removal.
 
+### Supported Platforms
+
+- Android
+- BlackBerry 7
 
 ## nfc.addTagDiscoveredListener
 
@@ -124,7 +128,7 @@ This event occurs when any tag is detected by the phone.
 
 ## nfc.removeTagDiscoveredListener
 
-Removes a previosly registered event listener added via `nfc.addTagDiscoveredListener`.
+Removes a previously registered event listener added via `nfc.addTagDiscoveredListener`.
 
     nfc.removeTagDiscoveredListener(callback, [onSuccess], [onFailure]);
 
@@ -133,6 +137,11 @@ Removes a previosly registered event listener added via `nfc.addTagDiscoveredLis
 - __callback__: The previously registered callback.
 - __onSuccess__: (Optional) The callback that is called when the listener is successfully removed.
 - __onFailure__: (Optional) The callback that is called if there was an error during removal.
+
+### Supported Platforms
+
+- Android
+- BlackBerry 7
 
 ## nfc.addMimeTypeListener
 
@@ -167,7 +176,7 @@ On Android, MIME types for filtering should always be lower case. (See [IntentFi
 
 ## nfc.removeMimeTypeListener
 
-Removes a previosly registered event listener added via `nfc.addMimeTypeListener`.
+Removes a previously registered event listener added via `nfc.addMimeTypeListener`.
 
     nfc.removeMimeTypeListener(mimeType, callback, [onSuccess], [onFailure]);
 
@@ -177,6 +186,11 @@ Removes a previosly registered event listener added via `nfc.addMimeTypeListener
 - __callback__: The previously registered callback.
 - __onSuccess__: (Optional) The callback that is called when the listener is successfully removed.
 - __onFailure__: (Optional) The callback that is called if there was an error during removal.
+
+### Supported Platforms
+
+- Android
+- BlackBerry 7
 
 ## nfc.addNdefFormatableListener
 
