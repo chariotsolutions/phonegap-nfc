@@ -1,6 +1,6 @@
 ## Quickstart for PhoneGap NFC - Cordova CLI
 
-These instructions use [Cordova](http://codova.io) to generate a default PhoneGap app and modify it to read NFC tags.
+These instructions use [Cordova](http://cordova.apache.org/) to generate a default PhoneGap app and modify it to read NFC tags.
 
 ### Cordova Command Line Interface (CLI)
 
