@@ -705,6 +705,7 @@ Run the app on your phone
 Sample Projects
 ================
 
+- [Ionic NFC Reader](https://github.com/don/ionic-nfc-reader)
 - [NFC Reader](https://github.com/don/phonegap-nfc-reader)
 - [NFC Writer](https://github.com/don/phonegap-nfc-writer)
 - [NFC Peer to Peer](https://github.com/don/phonegap-p2p)
@@ -722,7 +723,7 @@ License
 
 The MIT License
 
-Copyright (c) 2011-2013 Chariot Solutions
+Copyright (c) 2011-2014 Chariot Solutions
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
