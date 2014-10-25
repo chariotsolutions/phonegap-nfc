@@ -442,9 +442,9 @@ Represents a logical (unchunked) NDEF (NFC Data Exchange Format) record.
 The `ndef` object has a function for creating NdefRecords
 
     var type = "text/pg",
-      id = [],
-      payload = ndef.stringToBytes("Hello World"),
-      record = ndef.record(ndef.TNF_MIME_MEDIA, type, id, payload);
+        id = [],
+        payload = ndef.stringToBytes("Hello World"),
+        record = ndef.record(ndef.TNF_MIME_MEDIA, type, id, payload);
 
 There are also helper functions for some types of records
 
@@ -500,64 +500,66 @@ Windows Phone 8 and BlackBerry 10 read the NDEF information from a tag, but do n
 
 Assuming the following NDEF message is written to a tag, it will produce the following events when read.
 
-  var ndefMessage = [
-    ndef.createMimeRecord('text/pg', 'Hello PhoneGap')
-  ];
+    var ndefMessage = [
+        ndef.createMimeRecord('text/pg', 'Hello PhoneGap')
+    ];
 
 #### Sample Event on Android
 
-  {
-      type: 'ndef',
-      tag: {
-          "isWritable": true,
-          "id": [4, 96, 117, 74, -17, 34, -128],
-          "techTypes": ["android.nfc.tech.IsoDep", "android.nfc.tech.NfcA", "android.nfc.tech.Ndef"],
-          "type": "NFC Forum Type 4",
-          "canMakeReadOnly": false,
-          "maxSize": 2046,
-          "ndefMessage": [{
-              "id": [],
-              "type": [116, 101, 120, 116, 47, 112, 103],
-              "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112],
-              "tnf": 2
-          }]
-      }
-  }
+    {
+        type: 'ndef',
+        tag: {
+            "isWritable": true,
+            "id": [4, 96, 117, 74, -17, 34, -128],
+            "techTypes": ["android.nfc.tech.IsoDep", "android.nfc.tech.NfcA", "android.nfc.tech.Ndef"],
+            "type": "NFC Forum Type 4",
+            "canMakeReadOnly": false,
+            "maxSize": 2046,
+            "ndefMessage": [{
+                "id": [],
+                "type": [116, 101, 120, 116, 47, 112, 103],
+                "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112],
+                "tnf": 2
+            }]
+        }
+    }
+
 
 #### Sample Event on BlackBerry 7
 
-  {
-      type: 'ndef',
-      tag: {
-          "tagType": "4",
-          "isLocked": false,
-          "isLockable": false,
-          "freeSpaceSize": "2022",
-          "serialNumberLength": "7",
-          "serialNumber": [4, 96, 117, 74, -17, 34, -128],
-          "name": "Desfire EV1 2K",
-          "ndefMessage": [{
-              "tnf": 2,
-              "type": [116, 101, 120, 116, 47, 112, 103],
-              "id": [],
-              "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112]
-          }]
-      }
-  }
+    {
+        type: 'ndef',
+        tag: {
+            "tagType": "4",
+            "isLocked": false,
+            "isLockable": false,
+            "freeSpaceSize": "2022",
+            "serialNumberLength": "7",
+            "serialNumber": [4, 96, 117, 74, -17, 34, -128],
+            "name": "Desfire EV1 2K",
+            "ndefMessage": [{
+                "tnf": 2,
+                "type": [116, 101, 120, 116, 47, 112, 103],
+                "id": [],
+                "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112]
+            }]
+        }
+    }
 
 #### Sample Event on BlackBerry 10 or Windows Phone 8
 
-  {
-      type: 'ndef',
-      tag: {
-          "ndefMessage": [{
-              "tnf": 2,
-              "type": [116, 101, 120, 116, 47, 112, 103],
-              "id": [],
-              "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112]
-          }]
-      }
-  }
+    {
+        type: 'ndef',
+        tag: {
+            "ndefMessage": [{
+                "tnf": 2,
+                "type": [116, 101, 120, 116, 47, 112, 103],
+                "id": [],
+                "payload": [72, 101, 108, 108, 111, 32, 80, 104, 111, 110, 101, 71, 97, 112]
+            }]
+        }
+    }
+
 
 ## Getting Details about Events
 
@@ -595,23 +597,24 @@ On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks
 
 ### Non-NDEF tag scanned with addTagDiscoveredListener on *Android*
 
-  {
-      type: 'tag',
-      tag: {
-          "id": [ - 81, 105, -4, 64],
-          "techTypes": ["android.nfc.tech.MifareClassic", "android.nfc.tech.NfcA", "android.nfc.tech.NdefFormatable"]
-      }
-  }
+    {
+        type: 'tag',
+        tag: {
+            "id": [-81, 105, -4, 64],
+            "techTypes": ["android.nfc.tech.MifareClassic", "android.nfc.tech.NfcA", "android.nfc.tech.NdefFormatable"]
+        }
+    }
+
 
 ### NDEF tag scanned with addTagDiscoveredListener on *Android*
 
-  {
-      type: 'tag',
-      tag: {
-          "id": [4, 96, 117, 74, -17, 34, -128],
-          "techTypes": ["android.nfc.tech.IsoDep", "android.nfc.tech.NfcA", "android.nfc.tech.Ndef"]
-      }
-  }
+    {
+        type: 'tag',
+        tag: {
+            "id": [4, 96, 117, 74, -17, 34, -128],
+            "techTypes": ["android.nfc.tech.IsoDep", "android.nfc.tech.NfcA", "android.nfc.tech.Ndef"]
+        }
+    }
 
 # BlackBerry 10 Invoke Target
 
@@ -702,6 +705,7 @@ Run the app on your phone
 Sample Projects
 ================
 
+- [Ionic NFC Reader](https://github.com/don/ionic-nfc-reader)
 - [NFC Reader](https://github.com/don/phonegap-nfc-reader)
 - [NFC Writer](https://github.com/don/phonegap-nfc-writer)
 - [NFC Peer to Peer](https://github.com/don/phonegap-p2p)
@@ -719,7 +723,7 @@ License
 
 The MIT License
 
-Copyright (c) 2011-2013 Chariot Solutions
+Copyright (c) 2011-2014 Chariot Solutions
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
