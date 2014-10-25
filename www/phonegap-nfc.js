@@ -429,7 +429,7 @@ var nfc = {
         cordova.exec(win, fail, "NfcPlugin", "removeMimeType", [mimeType]);
     },
 
-    removeNdefListener: function (win, fail) {
+    removeNdefListener: function (callback, win, fail) {
         document.removeEventListener("ndef", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "removeNdef", []);
     }
