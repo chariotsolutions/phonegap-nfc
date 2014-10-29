@@ -20,11 +20,10 @@
     </engines>
     -->
 
-    <js-module src="www/phonegap-nfc.js" name="NFC">
-        <runs />
-    </js-module>
-
     <platform name="android">
+        <js-module src="www/phonegap-nfc.js" name="NFC">
+            <runs />
+        </js-module>
 
         <!-- requires Cordova-2.8.0 -->
         <config-file target="res/xml/config.xml" parent="/widget">
@@ -51,6 +50,9 @@
     </platform>
 
     <platform name="wp8">
+        <js-module src="www/phonegap-nfc.js" name="NFC">
+            <runs />
+        </js-module>
 
         <config-file target="config.xml" parent="/*">
             <feature name="NfcPlugin">
@@ -68,7 +70,6 @@
     </platform>
 
     <platform name="blackberry10">
-        <!-- why does this need to be repeated? -->
         <js-module src="www/phonegap-nfc.js" name="NFC">
             <runs />
         </js-module>
