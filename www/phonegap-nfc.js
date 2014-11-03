@@ -418,6 +418,10 @@ var nfc = {
     erase: function (win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "eraseTag", [[]]);
     },
+    
+    getStatus: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "getStatus", [[]]);
+    },
 
     removeTagDiscoveredListener: function (callback, win, fail) {
         document.removeEventListener("tag", callback, false);
