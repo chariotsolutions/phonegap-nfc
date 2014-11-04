@@ -418,9 +418,9 @@ var nfc = {
     erase: function (win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "eraseTag", [[]]);
     },
-    
-    getStatus: function (win, fail) {
-        cordova.exec(win, fail, "NfcPlugin", "getStatus", [[]]);
+
+    enabled: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "enabled", [[]]);
     },
 
     removeTagDiscoveredListener: function (callback, win, fail) {
