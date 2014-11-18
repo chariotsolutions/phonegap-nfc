@@ -74,11 +74,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private CallbackContext handoverCallback;
     
     private static final String READMIFARE ="readMf";
-	private static final String READMIFARE_SB="readMf_SB";
+    private static final String READMIFARE_SB="readMf_SB";
 
     public String data_nfc;
-	int secCount;
-	private String cardNumber;
+    int secCount;
+    private String cardNumber;
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
 
