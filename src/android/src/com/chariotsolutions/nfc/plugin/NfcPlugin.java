@@ -32,6 +32,8 @@ import android.nfc.tech.NdefFormatable;
 import android.os.Parcelable;
 import android.util.Log;
 
+import android.nfc.tech.MifareClassic;
+
 public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCompleteCallback {
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
     private static final String REMOVE_MIME_TYPE = "removeMimeType";
@@ -70,7 +72,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private CallbackContext shareTagCallback;
     private CallbackContext handoverCallback;
+    
+    private static final String READMIFARE ="readMf";
+    private static final String READMIFARE_SB="readMf_SB";
 
+    public String data_nfc;
+    int secCount;
+    private String cardNumber;
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
 
@@ -128,7 +136,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         } else if (action.equalsIgnoreCase(INIT)) {
             init(callbackContext);
 
-        } else {
+        } else if(action.equalsIgnoreCase(READMIFARE)){
+        	readMifare(callbackContext);
+        	
+        }else if(action.equalsIgnoreCase(READMIFARE_SB)){
+        	readMifare_SB(data,callbackContext);
+        	
+        }else {
             // invalid action
             return false;
         }
@@ -171,6 +185,82 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
       removeTechList(new String[]{Ndef.class.getName()});
       callbackContext.success();
   }
+   private void readMifare(CallbackContext callbackContext){
+ 	
+       Tag tagFromIntent = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+ 		byte[] data;
+ 		data_nfc="test";
+ 		MifareClassic mfc = MifareClassic.get(tagFromIntent);
+ 		try {
+	        mfc.connect();
+	        secCount = mfc.getSectorCount();
+	        int sec=0;
+	        for(sec=0;sec< secCount;sec++)
+	        {
+	          if(sec>0)
+	          {
+	             data_nfc= data_nfc+"|";
+	          }
+	          int bloque=0;
+	          boolean auth2 = mfc.authenticateSectorWithKeyA(sec, MifareClassic.KEY_DEFAULT);
+	          if(auth2)
+	          {
+	            for(bloque=0;bloque<4;bloque++)
+	    	    {
+	    	      int bIndex = 0;
+	    	      bIndex = mfc.sectorToBlock(sec);    
+	    	      data = mfc.readBlock(bIndex+bloque);
+	    	      data_nfc = data_nfc+";"+getHexaString(data).trim();
+	    	    }
+	    	   }
+	        }
+	       } catch (IOException e) {
+	               //Log.e(TAG, "No Conecto", e);
+	       } finally {
+	         if (mfc != null) {
+	            try {
+	                   mfc.close();
+	            }
+	            catch (IOException e) {
+	                 //     Log.e(TAG, "Error closing tag...", e);
+	            }
+	          }
+	       }
+
+           callbackContext.success(data_nfc);
+     } 
+     private void readMifare_SB(JSONArray data, CallbackContext callbackContext) throws JSONException {
+    	int sector=Integer.parseInt(data.getString(0));
+    	int bloque=Integer.parseInt(data.getString(1));
+    	Tag tagFromIntent = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+ 		byte[] data_mf;
+ 		data_nfc="test";
+ 		MifareClassic mfc = MifareClassic.get(tagFromIntent);
+ 		try {
+	      mfc.connect();
+	      boolean auth2 = mfc.authenticateSectorWithKeyA(sector, MifareClassic.KEY_DEFAULT);
+		  if(auth2)
+		  {
+	   	   	int bIndex = 0;
+	        bIndex = mfc.sectorToBlock(sector);  
+	        data_mf = mfc.readBlock(bIndex+bloque);
+	        data_nfc=getHexaString(data_mf).trim();
+		  }        
+	    } catch (IOException e) {
+	               //Log.e(TAG, "No Conecto", e);
+	    } finally {
+	      if (mfc != null) {
+	        try {
+	          mfc.close();
+	        }
+	        catch (IOException e) {
+	                 //     Log.e(TAG, "Error closing tag...", e);
+	        }
+	     }
+	   }
+       callbackContext.success(data_nfc);
+    	
+    }
 
     private void unshareTag(CallbackContext callbackContext) {
         p2pMessage = null;
@@ -739,4 +829,16 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         }
 
     }
+    private String getHexaString(byte[] data) {
+    	
+		cardNumber = bytesToString(data);
+		return cardNumber; 
+	}
+    private static String bytesToString(byte[] ary) {
+		final StringBuilder result = new StringBuilder();
+		for(int i = 0; i < ary.length; ++i) {
+			result.append(Character.valueOf((char)ary[i]));
+		}
+		return result.toString();
+	}
 }
