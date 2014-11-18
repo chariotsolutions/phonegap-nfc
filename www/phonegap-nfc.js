@@ -432,7 +432,16 @@ var nfc = {
     removeNdefListener: function (callback, win, fail) {
         document.removeEventListener("ndef", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "removeNdef", []);
+    },
+    readMifare: function (win, fail) {
+        
+        cordova.exec(win, fail, "NfcPlugin", "readMf", []);
+    },
+    readMifareSecBloc: function (sector,bloque,win, fail) {
+        
+        cordova.exec(win, fail, "NfcPlugin", "readMf_SB", [sector,bloque]);
     }
+    
 
 };
 
