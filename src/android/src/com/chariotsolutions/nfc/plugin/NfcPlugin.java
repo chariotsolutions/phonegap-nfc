@@ -47,6 +47,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String UNSHARE_TAG = "unshareTag";
     private static final String HANDOVER = "handover"; // Android Beam
     private static final String STOP_HANDOVER = "stopHandover";
+    private static final String ENABLED = "enabled";
     private static final String INIT = "init";
 
     private static final String NDEF = "ndef";
@@ -73,7 +74,12 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
-
+    
+        if (action.equalsIgnoreCase(ENABLED)) {
+          callbackContext.success(getNfcStatus());
+          return true;
+        }
+        
         Log.d(TAG, "execute " + action);
 
         if (!getNfcStatus().equals(STATUS_NFC_OK)) {
