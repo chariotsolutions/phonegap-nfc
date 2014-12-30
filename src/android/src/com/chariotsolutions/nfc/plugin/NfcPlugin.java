@@ -74,12 +74,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
-    
-        if (action.equalsIgnoreCase(ENABLED)) {
-          callbackContext.success(getNfcStatus());
-          return true;
-        }
-        
+
         Log.d(TAG, "execute " + action);
 
         if (!getNfcStatus().equals(STATUS_NFC_OK)) {
@@ -133,6 +128,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
         } else if (action.equalsIgnoreCase(INIT)) {
             init(callbackContext);
+
+        } else if (action.equalsIgnoreCase(ENABLED)) {
+            // status is checked before every call
+            // if code made it here, NFC is enabled
+            return true;
 
         } else {
             // invalid action
@@ -225,7 +225,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         };
         writeNdefMessage(new NdefMessage(records), tag, callbackContext);
     }
-    
+
     private void writeTag(JSONArray data, CallbackContext callbackContext) throws JSONException {
         if (getIntent() == null) {  // TODO remove this and handle LostTag
             callbackContext.error("Failed to write tag, received null intent");
@@ -451,10 +451,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
                 if (nfcAdapter != null) {
                     try {
-                        nfcAdapter.disableForegroundDispatch(getActivity());                        
+                        nfcAdapter.disableForegroundDispatch(getActivity());
                     } catch (IllegalStateException e) {
                         // issue 125 - user exits app with back button while nfc
-                        Log.w(TAG, "Illegal State Exception stopping NFC. Assuming application is terminating.");                        
+                        Log.w(TAG, "Illegal State Exception stopping NFC. Assuming application is terminating.");
                     }
                 }
             }
@@ -475,7 +475,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                     nfcAdapter.setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity());
                     try {
                         nfcAdapter.setBeamPushUris(uris, getActivity());
-                        
+
                         PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
                         result.setKeepCallback(true);
                         handoverCallback = callbackContext;
@@ -692,7 +692,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         super.onPause(multitasking);
         if (multitasking) {
             // nfc can't run in background
-            stopNfc();            
+            stopNfc();
         }
     }
 

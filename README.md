@@ -56,6 +56,7 @@ Note: BlackBerry 7 support is only available for Cordova 2.x. For applications t
 - [nfc.erase](#nfcerase)
 - [nfc.handover](#nfchandover)
 - [nfc.stopHandover](#nfcstophandover)
+- [nfc.enabled](#enabled)
 
 ## nfc.addNdefListener
 
@@ -416,6 +417,27 @@ Stop sharing NDEF data via NFC handover.
 ### Description
 
 Function `nfc.stopHandover` stops sharing data via peer-to-peer.
+
+### Supported Platforms
+
+- Android
+
+## nfc.enabled
+
+Check if NFC is available and enabled on this device.
+
+nfc.enabled([onSuccess], [onFailure]);
+
+### Parameters
+
+- __onSuccess__: (Optional) The callback that is called when NFC is enabled.
+- __onFailure__: (Optional) The callback that is called when NFC is disabled or missing.
+
+### Description
+
+Function `nfc.enabled` checks to see if the phone has NFC and if NFC is enabled. If
+everything is OK, the success callback is called. If there is a problem, the failure callback
+will be called. The reason code is passed to the failure function. The reason will be *NO_NFC* if the device doesn't support NFC and *NFC_DISABLED* if the user has disabled NFC. 
 
 ### Supported Platforms
 
