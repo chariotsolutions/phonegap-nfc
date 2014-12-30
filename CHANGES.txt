@@ -1,3 +1,10 @@
+= 0.6.1 =
+Add ndef.tnfToString Fixes #145
+Add ndef.androidApplicationRecord(packageName) Fixes #161
+Add more documentation for NO_NFC and NFC_DISABLED error codes Fixes #160
+Ensure window.nfc is undefined on unsupported platforms like iOS. Fixes #151 & 152 from Jakob Witte Larsen @jakobwitte
+Check if NFC is enabled #146 & #154 from David Froehlich @didlich
+
 = 0.6.0 =
 Change signature for remove*Listener methods. Fixes #142
 
