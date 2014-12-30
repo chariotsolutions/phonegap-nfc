@@ -191,6 +191,15 @@ var ndef = {
     },
 
     /**
+     * Helper that creates an Android Application Record (AAR).
+     * http://developer.android.com/guide/topics/connectivity/nfc/nfc.html#aar
+     *
+     */
+    androidApplicationRecord: function(packageName) {
+        return ndef.record(ndef.TNF_EXTERNAL_TYPE, "android.com:pkg", [], packageName);
+    },
+    
+    /**
      * Encodes an NDEF Message into bytes that can be written to a NFC tag.
      *
      * @ndefRecords an Array of NDEF Records
