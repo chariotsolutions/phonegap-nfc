@@ -198,7 +198,7 @@ var ndef = {
     androidApplicationRecord: function(packageName) {
         return ndef.record(ndef.TNF_EXTERNAL_TYPE, "android.com:pkg", [], packageName);
     },
-    
+
     /**
      * Encodes an NDEF Message into bytes that can be written to a NFC tag.
      *
@@ -368,6 +368,42 @@ var ndef = {
             value = value | 0x8;
         }
 
+        return value;
+    },
+
+    /**
+     * Convert TNF to String for user friendly display
+     *
+     */
+    tnfToString: function (tnf) {
+        var value = tnf;
+
+        switch (tnf) {
+            case ndef.TNF_EMPTY:
+                value = "Empty";
+                break;
+            case ndef.TNF_WELL_KNOWN:
+                value = "Well Known";
+                break;
+            case ndef.TNF_MIME_MEDIA:
+                value = "Mime Media";
+                break;
+            case ndef.TNF_ABSOLUTE_URI:
+                value = "Absolute URI";
+                break;
+            case ndef.TNF_EXTERNAL_TYPE:
+                value = "External";
+                break;
+            case ndef.TNF_UNKNOWN:
+                value = "Unknown";
+                break;
+            case ndef.TNF_UNCHANGED:
+                value = "Unchanged";
+                break;
+            case ndef.TNF_RESERVED:
+                value = "Reserved";
+                break;
+        }
         return value;
     }
 
