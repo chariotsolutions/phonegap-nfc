@@ -426,18 +426,22 @@ Function `nfc.stopHandover` stops sharing data via peer-to-peer.
 
 Check if NFC is available and enabled on this device.
 
-nfc.enabled([onSuccess], [onFailure]);
+nfc.enabled(onSuccess, onFailure);
 
 ### Parameters
 
-- __onSuccess__: (Optional) The callback that is called when NFC is enabled.
-- __onFailure__: (Optional) The callback that is called when NFC is disabled or missing.
+- __onSuccess__: The callback that is called when NFC is enabled.
+- __onFailure__: The callback that is called when NFC is disabled or missing.
 
 ### Description
 
-Function `nfc.enabled` checks to see if the phone has NFC and if NFC is enabled. If
+Function `nfc.enabled` explicitly checks to see if the phone has NFC and if NFC is enabled. If
 everything is OK, the success callback is called. If there is a problem, the failure callback
-will be called. The reason code is passed to the failure function. The reason will be *NO_NFC* if the device doesn't support NFC and *NFC_DISABLED* if the user has disabled NFC.
+will be called with a reason code.
+
+The reason will be **NO_NFC** if the device doesn't support NFC and **NFC_DISABLED** if the user has disabled NFC.
+
+Note: that on Android the NFC status is checked before every API call **NO_NFC** or **NFC_DISABLED** can be returned in **any** failure funtion.
 
 ### Supported Platforms
 
