@@ -56,7 +56,7 @@ Note: BlackBerry 7 support is only available for Cordova 2.x. For applications t
 - [nfc.erase](#nfcerase)
 - [nfc.handover](#nfchandover)
 - [nfc.stopHandover](#nfcstophandover)
-- [nfc.enabled](#enabled)
+- [nfc.enabled](#nfcenabled)
 
 ## nfc.addNdefListener
 
