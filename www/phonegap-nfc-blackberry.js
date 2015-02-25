@@ -17,20 +17,27 @@
 nfc.share = function(ndefMessage, success, failure) {
     "use strict";
     var byteArray = ndef.encodeMessage(ndefMessage),
-        data = "",
+        dataString = "",
+        data,
         query;
 
     for (var i=0; i< byteArray.length; ++i) {
-        data += String.fromCharCode(byteArray[i]);
+        dataString += String.fromCharCode(byteArray[i]);
     }
+    data = btoa(dataString);
 
     query = {
         "action": "bb.action.SHARE",
         "type": "application/vnd.rim.nfc.ndef",
+        "target": "sys.NFCViewer",
         "data": data
     };
 
-    blackberry.invoke.invoke(query, success, failure);
+    // previously we used the invoke plugin, but now it encodes improperly
+    // blackberry.invoke.invoke(query, success, failure);
+    
+    // call native invoke directly
+    cordova.exec(success, failure, "com.blackberry.invoke", "invoke", {request: query});
 };
 
 // clobber existing unshare function
