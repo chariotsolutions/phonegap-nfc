@@ -1,8 +1,19 @@
-var ndef = {
+
+"use strict";
+
+var ndefUtils = {
+    toArray: function (bytes) {
+        var output = [], i = 0;
+        for (; i < bytes.length; i += 1) {
+            output.push(bytes[i]);
+        }
+
+        return output;
+    },
 	parse: function (bytes) {
 		var records = [],
 			index = 0,
-			tnf_byte, mb, me, cf, sr, il, tnf, typeLength, idLength, payloadLength;
+			tnf_byte, mb, me, cf, sr, il, tnf, typeLength, idLength, payloadLength, type, id, payload, record;
 
 		while (index <= bytes.length) {
 			tnf_byte = bytes[index];
@@ -39,13 +50,13 @@ var ndef = {
             }
 
             index++;
-            type = bytes.slice(index, typeLength);
+            type = ndefUtils.toArray(bytes.subarray(index, typeLength + index));
             index += typeLength;
 
-            id = bytes.slice(index, idLength);
+            id = ndefUtils.toArray(bytes.subarray(index, idLength + index));
             index += idLength;
 
-            payload = bytes.slice(index, payloadLength);
+            payload = ndefUtils.toArray(bytes.subarray(index, payloadLength + index));
             index += payloadLength;
 
             record = ndefRecord();
@@ -212,7 +223,7 @@ var self = module.exports = {
 
         try {
             var records = args[0];
-            var bytes = ndef.toBytes(records);
+            var bytes = ndefUtils.toBytes(records);
 
             self.stopPublishing();
 
@@ -220,7 +231,7 @@ var self = module.exports = {
             dataWriter.unicodeEncoding = Windows.Storage.Streams.UnicodeEncoding.utf16LE;
             dataWriter.writeBytes(bytes);
 
-            self.publishedMessageId = self.proximityDevice.publishBinaryMessage("LaunchApp:WriteTag",
+            self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF:WriteTag",
                 dataWriter.detachBuffer(),
                 self.nfcWriteTagCallback);
 
@@ -237,7 +248,7 @@ var self = module.exports = {
 
         try {
             var records = args[0];
-            var bytes = ndef.toBytes(records);
+            var bytes = ndefUtils.toBytes(records);
 
             self.stopPublishing();
 
@@ -257,7 +268,7 @@ var self = module.exports = {
     unshareTag: function(win, fail, args) {
         self.init();
 
-        console.log("Share Tag");
+        console.log("Unshare Tag");
 
         try {
             self.stopPublishing();
@@ -269,7 +280,7 @@ var self = module.exports = {
     },
     stopPublishing: function() {
         if (self.publishedMessageId !== -1) {
-            self.proximityDevice.stopPublishingMessage();
+            self.proximityDevice.stopPublishingMessage(self.publishedMessageId);
             self.publishedMessageId = -1;
         }
     },
@@ -279,11 +290,16 @@ var self = module.exports = {
         self.stopPublishing();
     },
     messageReceivedHandler: function (sender, message) {
-        var bytes = message.Data;
-        var json = ndef.parse(bytes);
+        var bytes = new Uint8Array(message.data.length);
+        var dataReader = Windows.Storage.Streams.DataReader.fromBuffer(message.data);
+        dataReader.readBytes(bytes);
+        dataReader.close();
+
+        var json = ndefUtils.parse(bytes);
 
         fireNfcTagEvent("ndef", JSON.stringify(json));
     }
 }; // exports
     
 require("cordova/exec/proxy").add("NfcPlugin", module.exports);
+
