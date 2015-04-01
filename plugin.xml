@@ -69,6 +69,30 @@
 
     </platform>
 
+    <!-- windows -->
+    <platform name="windows">
+        <js-module src="www/phonegap-nfc.js" name="NFC">
+            <runs />
+        </js-module>
+
+        <config-file target="config.xml" parent="/*">
+            <feature name="NfcPlugin">
+                <param name="wp-package" value="NfcPlugin"/>
+            </feature>
+        </config-file>
+
+        <config-file target="package.phone.appxmanifest" parent="/Package/Capabilities">
+            <Capability Name="proximity" />
+        </config-file>
+         <config-file target="package.windows.appxmanifest" parent="/Package/Capabilities">
+            <Capability Name="proximity" />
+        </config-file>
+
+        <js-module src="src/windows/nfc-plugin.js" name="NfcPlugin">
+            <merges target="" />
+        </js-module>
+    </platform>
+
     <platform name="blackberry10">
         <js-module src="www/phonegap-nfc.js" name="NFC">
             <runs />
