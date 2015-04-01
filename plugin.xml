@@ -82,9 +82,9 @@
         </config-file>
 
         <config-file target="package.phone.appxmanifest" parent="/Package/Capabilities">
-            <Capability Name="proximity" />
+            <DeviceCapability Name="proximity" />
         </config-file>
-         <config-file target="package.windows.appxmanifest" parent="/Package/Capabilities">
+        <config-file target="package.windows.appxmanifest" parent="/Package/Capabilities">
             <Capability Name="proximity" />
         </config-file>
 
