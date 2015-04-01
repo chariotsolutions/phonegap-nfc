@@ -1,4 +1,4 @@
-cordova.define("com.chariotsolutions.nfc.plugin.NfcPlugin", function(require, exports, module) {
+// cordova.define("com.chariotsolutions.nfc.plugin.NfcPlugin", function(require, exports, module) {
 
 "use strict";
 
@@ -179,4 +179,4 @@ module.exports = {
 }; // exports
 
 require("cordova/exec/proxy").add("NfcPlugin", module.exports);
-});
+// });
