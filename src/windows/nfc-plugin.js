@@ -1,10 +1,10 @@
-cordova.define("com.chariotsolutions.nfc.plugin", function(require, exports, module) {
+cordova.define("com.chariotsolutions.nfc.plugin.NfcPlugin", function(require, exports, module) {
 
 "use strict";
 
 var ndefUtils = {
 	parse: function (bytes) {
-		var records = []
+		var records = [],
 			index = 0,
 			tnf_byte, mb, me, cf, sr, il, tnf, typeLength, idLength, payloadLength;
 
@@ -170,14 +170,13 @@ module.exports = {
 			console.log("WARNING: proximity device is null");
 		}
 	},
-	registerNdef(args) {
+	registerNdef: function(args) {
 		this.subscribedMessageId = this.proximityDevice.subscribeForMessage("NDEF", messageReceivedHandler)
 	},
-	removeNdef(args) {
+	removeNdef: function(args) {
 
 	}
 }; // exports
 
 require("cordova/exec/proxy").add("NfcPlugin", module.exports);
-
 });
