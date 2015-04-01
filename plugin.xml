@@ -85,7 +85,7 @@
             <DeviceCapability Name="proximity" />
         </config-file>
         <config-file target="package.windows.appxmanifest" parent="/Package/Capabilities">
-            <Capability Name="proximity" />
+            <DeviceCapability Name="proximity" />
         </config-file>
 
         <js-module src="src/windows/nfc-plugin.js" name="NfcPlugin">

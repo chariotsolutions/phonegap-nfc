@@ -1,3 +1,5 @@
+cordova.define("com.chariotsolutions.nfc.plugin", function(require, exports, module) {
+
 "use strict";
 
 var ndefUtils = {
@@ -177,3 +179,5 @@ module.exports = {
 }; // exports
 
 require("cordova/exec/proxy").add("NfcPlugin", module.exports);
+
+});
