@@ -233,9 +233,13 @@ var self = module.exports = {
 
             self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF:WriteTag",
                 dataWriter.detachBuffer(),
-                self.nfcWriteTagCallback);
+                function (sender, messageId) {
+                	console.log("Successfully wrote message to the NFC tag.");
+			        self.stopPublishing();
+            		
+            		win();
+                });
 
-            win();
         } catch (e) {
             console.log(e);
             fail(e);
@@ -257,9 +261,14 @@ var self = module.exports = {
             dataWriter.writeBytes(bytes);
 
             self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF",
-                dataWriter.detachBuffer());
+                dataWriter.detachBuffer(), 
+                function (sender, messageId) {
+                	console.log("Successfully shared message over peer-to-peer.");
+			        self.stopPublishing();
 
-            win();
+	                win();
+	            });
+
         } catch (e) {
             console.log(e);
             fail(e);
@@ -283,11 +292,6 @@ var self = module.exports = {
             self.proximityDevice.stopPublishingMessage(self.publishedMessageId);
             self.publishedMessageId = -1;
         }
-    },
-    nfcWriteTagCallback: function(sender, messageId) {
-        console.log("Successfully wrote message to the NFC tag.");
-
-        self.stopPublishing();
     },
     messageReceivedHandler: function (sender, message) {
         var bytes = new Uint8Array(message.data.length);
