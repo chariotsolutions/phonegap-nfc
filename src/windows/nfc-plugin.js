@@ -1,5 +1,3 @@
-// cordova.define("com.chariotsolutions.nfc.plugin.NfcPlugin", function(require, exports, module) {
-
 "use strict";
 
 var ndefUtils = {
@@ -55,7 +53,7 @@ var ndefUtils = {
             record = ndefRecord();
             record.tnf = tnf;
             record.type = typeLength > 0 ? type : [];
-            record.id = idLength > 0 ? id : []];
+            record.id = idLength > 0 ? id : [];
             record.payload = payloadLength > 0 ? payload : [];
 
             records.push(record);
@@ -179,4 +177,3 @@ module.exports = {
 }; // exports
 
 require("cordova/exec/proxy").add("NfcPlugin", module.exports);
-// });
