@@ -1,6 +1,4 @@
-"use strict";
-
-var ndefUtils = {
+var ndef = {
 	parse: function (bytes) {
 		var records = [],
 			index = 0,
@@ -71,18 +69,18 @@ var ndefUtils = {
 
 		for (var i = 0; i < records.length; i += 1) {
 			mb = (i == 0);
-            me = (i == (records.Length - 1));
+			me = (i == (records.length - 1));
             cf = false; // TODO
-            sr = (records[i].payload.Length < 0xFF);
-            il = (records[i].id.Length > 0);
+            sr = (records[i].payload.length < 0xFF);
+            il = (records[i].id.Lenlengthgth > 0);
 
             tnf_byte = this.encodeTnf(mb, me, cf, sr, il, records[i].tnf);
             encoded.push(tnf_byte);
 
-            type_length = records[i].type.Length;
+            type_length = records[i].type.length;
             encoded.push(type_length);
 
-            payload_length = records[i].payload.Length;
+            payload_length = records[i].payload.length;
             if (sr) {
                 encoded.push(payload_length);
             } else {
@@ -95,7 +93,7 @@ var ndefUtils = {
 
             id_length = 0;
             if (il) {
-                id_length = records[i].id.Length;
+                id_length = records[i].id.length;
                 encoded.push(id_length);
             }
 
@@ -153,27 +151,139 @@ function ndefRecord() {
 	};
 }
 
+var self = module.exports = {
+    init: function (win, fail, args) {
+        if (self._initialized) {
+            if (win) {
+                win();
+            }
 
-function messageReceivedHandler(device, message) {
-	var bytes = message.Data;
-}
+            return;
+        }
 
-module.exports = {
-	init: function (args) {
-		this.subscribedMessageId = -1;
-		this.publishedMessageId = -1;
-		this.proximityDevice = Windows.Networking.Proximity.ProximityDevice.getDefault();
+        self.subscribedMessageId = -1;
+        self.publishedMessageId = -1;
+        self.proximityDevice = Windows.Networking.Proximity.ProximityDevice.getDefault();
 
-		if (!this.proximityDevice) {
-			console.log("WARNING: proximity device is null");
+        if (!self.proximityDevice) {
+            console.log("WARNING: proximity device is null");
+
+            if (fail) {
+                fail();
+            }
 		}
-	},
-	registerNdef: function(args) {
-		this.subscribedMessageId = this.proximityDevice.subscribeForMessage("NDEF", messageReceivedHandler)
-	},
-	removeNdef: function(args) {
 
-	}
+        self._initialized = true;
+    },
+    registerNdef: function (win, fail, args) {
+        self.init();
+
+        console.log("Registering for NDEF");
+
+        try {
+            self.subscribedMessageId = self.proximityDevice.subscribeForMessage("NDEF", self.messageReceivedHandler);
+            win();
+        } catch (e) {
+            console.log(e);
+            fail(e);
+        } 
+    },
+    removeNdef: function (win, fail, args) {
+        self.init();
+
+        console.log("Removing NDEF");
+
+        try {
+            if (self.subscribedMessageId !== -1) {
+                self.proximityDevice.stopSubscribingForMessage(self.subscribedMessageId);
+                self.subscribedMessageId = -1;
+            }
+
+            win();
+        } catch (e) {
+            console.log(e);
+            fail(e);
+        } 
+    },
+    writeTag: function (win, fail, args) {
+        self.init();
+
+        console.log("Write Tag");
+
+        try {
+            var records = args[0];
+            var bytes = ndef.toBytes(records);
+
+            self.stopPublishing();
+
+            var dataWriter = new Windows.Storage.Streams.DataWriter();
+            dataWriter.unicodeEncoding = Windows.Storage.Streams.UnicodeEncoding.utf16LE;
+            dataWriter.writeBytes(bytes);
+
+            self.publishedMessageId = self.proximityDevice.publishBinaryMessage("LaunchApp:WriteTag",
+                dataWriter.detachBuffer(),
+                self.nfcWriteTagCallback);
+
+            win();
+        } catch (e) {
+            console.log(e);
+            fail(e);
+        }
+    },
+    shareTag: function(win, fail, args) {
+        self.init();
+
+        console.log("Share Tag");
+
+        try {
+            var records = args[0];
+            var bytes = ndef.toBytes(records);
+
+            self.stopPublishing();
+
+            var dataWriter = new Windows.Storage.Streams.DataWriter();
+            dataWriter.unicodeEncoding = Windows.Storage.Streams.UnicodeEncoding.utf16LE;
+            dataWriter.writeBytes(bytes);
+
+            self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF",
+                dataWriter.detachBuffer());
+
+            win();
+        } catch (e) {
+            console.log(e);
+            fail(e);
+        } 
+    },
+    unshareTag: function(win, fail, args) {
+        self.init();
+
+        console.log("Share Tag");
+
+        try {
+            self.stopPublishing();
+            win();
+        } catch (e) {
+            console.log(e);
+            fail(e);
+        }
+    },
+    stopPublishing: function() {
+        if (self.publishedMessageId !== -1) {
+            self.proximityDevice.stopPublishingMessage();
+            self.publishedMessageId = -1;
+        }
+    },
+    nfcWriteTagCallback: function(sender, messageId) {
+        console.log("Successfully wrote message to the NFC tag.");
+
+        self.stopPublishing();
+    },
+    messageReceivedHandler: function (sender, message) {
+        var bytes = message.Data;
+        var json = ndef.parse(bytes);
+
+        fireNfcTagEvent("ndef", JSON.stringify(json));
+    }
 }; // exports
-
+    
 require("cordova/exec/proxy").add("NfcPlugin", module.exports);
