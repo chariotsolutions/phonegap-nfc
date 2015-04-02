@@ -472,7 +472,7 @@ The `ndef` object has a function for creating NdefRecords
 
     var type = "text/pg",
         id = [],
-        payload = ndef.stringToBytes("Hello World"),
+        payload = nfc.stringToBytes("Hello World"),
         record = ndef.record(ndef.TNF_MIME_MEDIA, type, id, payload);
 
 There are also helper functions for some types of records
