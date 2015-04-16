@@ -1,3 +1,10 @@
+= 0.6.2 =
+Add support for Windows Phone 8.1 and Windows 8.1 @jlkalberer #182
+Update share on BlackBerry 10.2 #172
+Fix callback for enabled on Android #169
+Fix documentation @lezardrouge #180
+Fix documentation @JohnMcLear #171
+
 = 0.6.1 =
 Add ndef.tnfToString Fixes #145
 Add ndef.androidApplicationRecord(packageName) Fixes #161
