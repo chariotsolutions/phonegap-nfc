@@ -1,4 +1,3 @@
-
 "use strict";
 
 var ndefUtils = {
@@ -10,14 +9,14 @@ var ndefUtils = {
 
         return output;
     },
-	parse: function (bytes) {
-		var records = [],
-			index = 0,
-			tnf_byte, mb, me, cf, sr, il, tnf, typeLength, idLength, payloadLength, type, id, payload, record;
+    parse: function (bytes) {
+        var records = [],
+            index = 0,
+            tnf_byte, mb, me, cf, sr, il, tnf, typeLength, idLength, payloadLength, type, id, payload, record;
 
-		while (index <= bytes.length) {
-			tnf_byte = bytes[index];
-			mb = (tnf_byte & 0x80) != 0;
+        while (index <= bytes.length) {
+            tnf_byte = bytes[index];
+            mb = (tnf_byte & 0x80) != 0;
             me = (tnf_byte & 0x40) != 0;
             cf = (tnf_byte & 0x20) != 0;
             sr = (tnf_byte & 0x10) != 0;
@@ -68,19 +67,19 @@ var ndefUtils = {
             records.push(record);
 
             if (me) {
-            	break;  // last message
+                break;  // last message
             }
         }
 
         return records;
-	},
-	toBytes: function (records) {
-		var encoded = [],
-			mb, me, cf, sr, il, tnf_byte, type_length, payload_length, id_length;
+    },
+    toBytes: function (records) {
+        var encoded = [],
+            mb, me, cf, sr, il, tnf_byte, type_length, payload_length, id_length;
 
-		for (var i = 0; i < records.length; i += 1) {
-			mb = (i == 0);
-			me = (i == (records.length - 1));
+        for (var i = 0; i < records.length; i += 1) {
+            mb = (i == 0);
+            me = (i == (records.length - 1));
             cf = false; // TODO
             sr = (records[i].payload.length < 0xFF);
             il = (records[i].id.Lenlengthgth > 0);
@@ -115,12 +114,12 @@ var ndefUtils = {
             }
 
             encoded = encoded.concat(records[i].payload);
-		}
+        }
 
-		return encoded;
-	},
-	encodeTnf: function(mb, me, cf, sr, il, tnf) {
-		var value = tnf;
+        return encoded;
+    },
+    encodeTnf: function (mb, me, cf, sr, il, tnf) {
+        var value = tnf;
 
         if (mb) {
             value = (value | 0x80);
@@ -143,24 +142,39 @@ var ndefUtils = {
         }
 
         if (cf) {
-            if (!(tnf == 0x06 && !mb && !me && !il))
-            {
+            if (!(tnf == 0x06 && !mb && !me && !il)) {
                 throw "When cf is true, mb, me and il must be false and tnf must be 0x6";
             }
         }
 
         return value;
-	}
+    }
 };
 
 function ndefRecord() {
-	return {
-		tnf: [],
-		type: [],
-		id: [],
-		payload: []
-	};
+    return {
+        tnf: [],
+        type: [],
+        id: [],
+        payload: []
+    };
 }
+
+// This will handle launch events.  This way if you register for NDEF
+// messages it will fire after the promise resolves.
+var registerNdefComplete;
+var promise = new WinJS.Promise(function (complete) {
+    registerNdefComplete = complete;
+});
+
+WinJS.Application.addEventListener("activated", function (eventArgs) {
+    if (eventArgs.detail.kind == Windows.ApplicationModel.Activation.ActivationKind.protocol) {
+        promise.then(function () {
+            var record = ndef.uriRecord(eventArgs.detail.uri.rawUri);
+            fireNfcTagEvent("ndef", JSON.stringify([record]));
+        });
+    }
+}, false);
 
 var self = module.exports = {
     init: function (win, fail, args) {
@@ -182,7 +196,7 @@ var self = module.exports = {
             if (fail) {
                 fail();
             }
-		}
+        }
 
         self._initialized = true;
     },
@@ -194,10 +208,11 @@ var self = module.exports = {
         try {
             self.subscribedMessageId = self.proximityDevice.subscribeForMessage("NDEF", self.messageReceivedHandler);
             win();
+            registerNdefComplete();
         } catch (e) {
             console.log(e);
             fail(e);
-        } 
+        }
     },
     removeNdef: function (win, fail, args) {
         self.init();
@@ -214,7 +229,7 @@ var self = module.exports = {
         } catch (e) {
             console.log(e);
             fail(e);
-        } 
+        }
     },
     writeTag: function (win, fail, args) {
         self.init();
@@ -234,10 +249,10 @@ var self = module.exports = {
             self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF:WriteTag",
                 dataWriter.detachBuffer(),
                 function (sender, messageId) {
-                	console.log("Successfully wrote message to the NFC tag.");
-			        self.stopPublishing();
-            		
-            		win();
+                    console.log("Successfully wrote message to the NFC tag.");
+                    self.stopPublishing();
+
+                    win();
                 });
 
         } catch (e) {
@@ -245,7 +260,7 @@ var self = module.exports = {
             fail(e);
         }
     },
-    shareTag: function(win, fail, args) {
+    shareTag: function (win, fail, args) {
         self.init();
 
         console.log("Share Tag");
@@ -261,20 +276,20 @@ var self = module.exports = {
             dataWriter.writeBytes(bytes);
 
             self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF",
-                dataWriter.detachBuffer(), 
+                dataWriter.detachBuffer(),
                 function (sender, messageId) {
-                	console.log("Successfully shared message over peer-to-peer.");
-			        self.stopPublishing();
+                    console.log("Successfully shared message over peer-to-peer.");
+                    self.stopPublishing();
 
-	                win();
-	            });
+                    win();
+                });
 
         } catch (e) {
             console.log(e);
             fail(e);
-        } 
+        }
     },
-    unshareTag: function(win, fail, args) {
+    unshareTag: function (win, fail, args) {
         self.init();
 
         console.log("Unshare Tag");
@@ -287,7 +302,7 @@ var self = module.exports = {
             fail(e);
         }
     },
-    stopPublishing: function() {
+    stopPublishing: function () {
         if (self.publishedMessageId !== -1) {
             self.proximityDevice.stopPublishingMessage(self.publishedMessageId);
             self.publishedMessageId = -1;
@@ -304,6 +319,5 @@ var self = module.exports = {
         fireNfcTagEvent("ndef", JSON.stringify(json));
     }
 }; // exports
-    
-require("cordova/exec/proxy").add("NfcPlugin", module.exports);
 
+require("cordova/exec/proxy").add("NfcPlugin", module.exports);
