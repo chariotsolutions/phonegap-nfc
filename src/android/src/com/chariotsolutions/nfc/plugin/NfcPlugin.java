@@ -6,9 +6,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-// using wildcard imports so we can support Cordova 3.x and Cordova 2.9
+// using wildcard imports so we can support Cordova 3.x
 import org.apache.cordova.*; // Cordova 3.x
-import org.apache.cordova.api.*;  // Cordova 2.9
 
 import org.json.JSONArray;
 import org.json.JSONException;
