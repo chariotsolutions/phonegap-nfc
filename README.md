@@ -28,11 +28,9 @@ Supported Platforms
 
 # Installing
 
-**Cordova 3.1+ is the recommended way to use phonegap-nfc, see [Getting Started Cordova CLI](https://github.com/chariotsolutions/phonegap-nfc/blob/master/doc/GettingStartedCLI.md).**
+    $ cordova plugin add phonegap-nfc
 
-[INSTALL.md](INSTALL.md) has **older** instructions for installing the nfc-plugin into your PhoneGap project.
-
-See the [doc](doc) directory for additional documentation.
+see [Getting Started](https://github.com/chariotsolutions/phonegap-nfc/blob/master/doc/GettingStartedCLI.md) for more details.
 
 Note: BlackBerry 7 support is only available for Cordova 2.x. For applications targeting BlackBerry 7, you may need to use an older version of phonegap-nfc.
 

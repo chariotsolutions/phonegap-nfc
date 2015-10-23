@@ -1,3 +1,7 @@
+= 0.6.3 =
+Drop support for Cordova 2.9 #192
+Move plugin to NPM #194
+
 = 0.6.2 =
 Add support for Windows Phone 8.1 and Windows 8.1 @jlkalberer #182
 Update share on BlackBerry 10.2 #172
