@@ -48,6 +48,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String STOP_HANDOVER = "stopHandover";
     private static final String ENABLED = "enabled";
     private static final String INIT = "init";
+    private static final String SHOW_SETTINGS = "showSettings";
 
     private static final String NDEF = "ndef";
     private static final String NDEF_MIME = "ndef-mime";
@@ -75,6 +76,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
 
         Log.d(TAG, "execute " + action);
+
+        // showSettings can be called if NFC is disabled
+        // might want to skip this if NO_NFC
+        if (action.equalsIgnoreCase(SHOW_SETTINGS)) {
+            showSettings(callbackContext);
+            return true;
+        }
 
         if (!getNfcStatus().equals(STATUS_NFC_OK)) {
             callbackContext.error(getNfcStatus());
@@ -361,6 +369,17 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private void stopHandover(CallbackContext callbackContext) throws JSONException {
         stopNdefBeam();
         handoverCallback = null;
+        callbackContext.success();
+    }
+
+    private void showSettings(CallbackContext callbackContext) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            Intent intent = new Intent(android.provider.Settings.ACTION_NFC_SETTINGS);
+            getActivity().startActivity(intent);
+        } else {
+            Intent intent = new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS);
+            getActivity().startActivity(intent);
+        }
         callbackContext.success();
     }
 

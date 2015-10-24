@@ -55,6 +55,7 @@ Note: BlackBerry 7 support is only available for Cordova 2.x. For applications t
 - [nfc.handover](#nfchandover)
 - [nfc.stopHandover](#nfcstophandover)
 - [nfc.enabled](#nfcenabled)
+- [nfc.showSettings](#nfcshowsettings)
 
 ## nfc.addNdefListener
 
@@ -419,6 +420,29 @@ Function `nfc.stopHandover` stops sharing data via peer-to-peer.
 ### Supported Platforms
 
 - Android
+
+## showSettings
+
+Show the NFC settings on the device.
+
+    nfc.showSettings(success, failure);
+
+### Description
+
+Function `showSettings` opens the NFC settings for the operating system.
+
+### Parameters
+
+- __success__: Success callback function [optional]
+- __failure__: Error callback function, invoked when error occurs. [optional]
+
+### Quick Example
+
+    nfc.showSettings();
+
+### Supported Platforms
+
+    - Android
 
 ## nfc.enabled
 
