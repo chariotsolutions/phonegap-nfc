@@ -1,3 +1,7 @@
+= 0.6.5 =
+Add nfc.showSettings for Android and BlackBerry 10 #147
+Fix package name for Blackberry 10
+
 = 0.6.4 =
 Fix Android compile issue #192
 
