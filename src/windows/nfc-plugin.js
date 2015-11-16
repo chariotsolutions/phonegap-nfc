@@ -85,10 +85,10 @@ var self = module.exports = {
             self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF:WriteTag",
                 dataWriter.detachBuffer(),
                 function (sender, messageId) {
-                	  console.log("Successfully wrote message to the NFC tag.");
-			              self.stopPublishing();
+                      console.log("Successfully wrote message to the NFC tag.");
+                          self.stopPublishing();
 
-            		    win();
+                        win();
                 }
             );
 
