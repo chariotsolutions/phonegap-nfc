@@ -10,14 +10,14 @@ var ndefUtils = {
 
         return output;
     },
-	parse: function (bytes) {
-		var records = [],
-			index = 0,
-			tnf_byte, mb, me, cf, sr, il, tnf, typeLength, idLength, payloadLength, type, id, payload, record;
+    parse: function (bytes) {
+        var records = [],
+            index = 0,
+            tnf_byte, mb, me, cf, sr, il, tnf, typeLength, idLength, payloadLength, type, id, payload, record;
 
-		while (index <= bytes.length) {
-			tnf_byte = bytes[index];
-			mb = (tnf_byte & 0x80) != 0;
+        while (index <= bytes.length) {
+            tnf_byte = bytes[index];
+            mb = (tnf_byte & 0x80) != 0;
             me = (tnf_byte & 0x40) != 0;
             cf = (tnf_byte & 0x20) != 0;
             sr = (tnf_byte & 0x10) != 0;
@@ -68,19 +68,19 @@ var ndefUtils = {
             records.push(record);
 
             if (me) {
-            	break;  // last message
+                break;  // last message
             }
         }
 
         return records;
-	},
-	toBytes: function (records) {
-		var encoded = [],
-			mb, me, cf, sr, il, tnf_byte, type_length, payload_length, id_length;
+    },
+    toBytes: function (records) {
+        var encoded = [],
+            mb, me, cf, sr, il, tnf_byte, type_length, payload_length, id_length;
 
-		for (var i = 0; i < records.length; i += 1) {
-			mb = (i == 0);
-			me = (i == (records.length - 1));
+        for (var i = 0; i < records.length; i += 1) {
+            mb = (i == 0);
+            me = (i == (records.length - 1));
             cf = false; // TODO
             sr = (records[i].payload.length < 0xFF);
             il = (records[i].id.Lenlengthgth > 0);
@@ -115,12 +115,12 @@ var ndefUtils = {
             }
 
             encoded = encoded.concat(records[i].payload);
-		}
+        }
 
-		return encoded;
-	},
-	encodeTnf: function(mb, me, cf, sr, il, tnf) {
-		var value = tnf;
+        return encoded;
+    },
+    encodeTnf: function(mb, me, cf, sr, il, tnf) {
+        var value = tnf;
 
         if (mb) {
             value = (value | 0x80);
@@ -150,16 +150,16 @@ var ndefUtils = {
         }
 
         return value;
-	}
+    }
 };
 
 function ndefRecord() {
-	return {
-		tnf: [],
-		type: [],
-		id: [],
-		payload: []
-	};
+    return {
+        tnf: [],
+        type: [],
+        id: [],
+        payload: []
+    };
 }
 
 var self = module.exports = {
@@ -182,7 +182,7 @@ var self = module.exports = {
             if (fail) {
                 fail();
             }
-		}
+        }
 
         self._initialized = true;
     },
@@ -234,10 +234,10 @@ var self = module.exports = {
             self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF:WriteTag",
                 dataWriter.detachBuffer(),
                 function (sender, messageId) {
-                	console.log("Successfully wrote message to the NFC tag.");
-			        self.stopPublishing();
+                    console.log("Successfully wrote message to the NFC tag.");
+                    self.stopPublishing();
 
-            		win();
+                    win();
                 });
 
         } catch (e) {
@@ -263,11 +263,11 @@ var self = module.exports = {
             self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF",
                 dataWriter.detachBuffer(),
                 function (sender, messageId) {
-                	console.log("Successfully shared message over peer-to-peer.");
-			        self.stopPublishing();
+                    console.log("Successfully shared message over peer-to-peer.");
+                    self.stopPublishing();
 
-	                win();
-	            });
+                    win();
+                });
 
         } catch (e) {
             console.log(e);
