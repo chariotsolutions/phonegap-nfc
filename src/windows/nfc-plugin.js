@@ -287,6 +287,22 @@ var self = module.exports = {
             fail(e);
         }
     },
+    showSettings: function(win, fail, args) {
+
+        // WARNING: this isn't documented, so it might break
+        var nfcSettingsUri = "ms-settings-proximity:";
+        var uri = new Windows.Foundation.Uri(nfcSettingsUri);
+
+        Windows.System.Launcher.launchUriAsync(uri).then(
+            function (success) {
+                if (success) {
+                    win();
+                } else {
+                    fail();
+                }
+            }
+        );
+    },
     stopPublishing: function() {
         if (self.publishedMessageId !== -1) {
             self.proximityDevice.stopPublishingMessage(self.publishedMessageId);
