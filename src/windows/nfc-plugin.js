@@ -197,7 +197,7 @@ var self = module.exports = {
         } catch (e) {
             console.log(e);
             fail(e);
-        } 
+        }
     },
     removeNdef: function (win, fail, args) {
         self.init();
@@ -214,7 +214,7 @@ var self = module.exports = {
         } catch (e) {
             console.log(e);
             fail(e);
-        } 
+        }
     },
     writeTag: function (win, fail, args) {
         self.init();
@@ -236,7 +236,7 @@ var self = module.exports = {
                 function (sender, messageId) {
                 	console.log("Successfully wrote message to the NFC tag.");
 			        self.stopPublishing();
-            		
+
             		win();
                 });
 
@@ -261,7 +261,7 @@ var self = module.exports = {
             dataWriter.writeBytes(bytes);
 
             self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF",
-                dataWriter.detachBuffer(), 
+                dataWriter.detachBuffer(),
                 function (sender, messageId) {
                 	console.log("Successfully shared message over peer-to-peer.");
 			        self.stopPublishing();
@@ -272,7 +272,7 @@ var self = module.exports = {
         } catch (e) {
             console.log(e);
             fail(e);
-        } 
+        }
     },
     unshareTag: function(win, fail, args) {
         self.init();
@@ -299,11 +299,15 @@ var self = module.exports = {
         dataReader.readBytes(bytes);
         dataReader.close();
 
-        var json = ndefUtils.parse(bytes);
+        var ndefMessage = ndefUtils.parse(bytes);
+        // on windows, tag only contains the ndef message
+        // other platforms have tag data
+        var tag = {
+          ndefMessage: ndefMessage
+        };
 
-        fireNfcTagEvent("ndef", JSON.stringify(json));
+        fireNfcTagEvent("ndef", JSON.stringify(tag));
     }
 }; // exports
-    
-require("cordova/exec/proxy").add("NfcPlugin", module.exports);
 
+require("cordova/exec/proxy").add("NfcPlugin", module.exports);
