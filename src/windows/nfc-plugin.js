@@ -33,7 +33,7 @@ var self = module.exports = {
             if (fail) {
                 fail();
             }
-		    }
+        }
 
         self._initialized = true;
     },
@@ -115,12 +115,11 @@ var self = module.exports = {
             self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF",
                 dataWriter.detachBuffer(),
                 function (sender, messageId) {
-                	  console.log("Successfully shared message over peer-to-peer.");
-			              self.stopPublishing();
+                    console.log("Successfully shared message over peer-to-peer.");
+                    self.stopPublishing();
 
-	                  win();
-	              }
-            );
+                    win();
+                });
 
         } catch (e) {
             console.log(e);
