@@ -1,3 +1,4 @@
+/* globals:  export, module, console, document, ndef, Windows, Uint8Array */
 
 "use strict";
 
@@ -14,10 +15,10 @@ var ndefUtils = {
 };
 
 var self = module.exports = {
-    init: function (win, fail, args) {
+    init: function (success, failure, args) {
         if (self._initialized) {
-            if (win) {
-                win();
+            if (success) {
+                success();
             }
 
             return;
@@ -30,27 +31,28 @@ var self = module.exports = {
         if (!self.proximityDevice) {
             console.log("WARNING: proximity device is null");
 
-            if (fail) {
-                fail();
+            if (failure) {
+                failure();
             }
         }
 
+        // TODO this never calls success on the first time
         self._initialized = true;
     },
-    registerNdef: function (win, fail, args) {
+    registerNdef: function (success, failure, args) {
         self.init();
 
         console.log("Registering for NDEF");
 
         try {
             self.subscribedMessageId = self.proximityDevice.subscribeForMessage("NDEF", self.messageReceivedHandler);
-            win();
+            success();
         } catch (e) {
             console.log(e);
-            fail(e);
+            failure(e);
         }
     },
-    removeNdef: function (win, fail, args) {
+    removeNdef: function (success, failure, args) {
         self.init();
 
         console.log("Removing NDEF");
@@ -61,13 +63,13 @@ var self = module.exports = {
                 self.subscribedMessageId = -1;
             }
 
-            win();
+            success();
         } catch (e) {
             console.log(e);
-            fail(e);
+            failure(e);
         }
     },
-    writeTag: function (win, fail, args) {
+    writeTag: function (success, failure, args) {
         self.init();
 
         console.log("Write Tag");
@@ -86,18 +88,18 @@ var self = module.exports = {
                 dataWriter.detachBuffer(),
                 function (sender, messageId) {
                       console.log("Successfully wrote message to the NFC tag.");
-                          self.stopPublishing();
+                      self.stopPublishing();
 
-                        win();
+                      success();
                 }
             );
 
         } catch (e) {
             console.log(e);
-            fail(e);
+            failure(e);
         }
     },
-    shareTag: function(win, fail, args) {
+    shareTag: function(success, failure, args) {
         self.init();
 
         console.log("Share Tag");
@@ -118,39 +120,39 @@ var self = module.exports = {
                     console.log("Successfully shared message over peer-to-peer.");
                     self.stopPublishing();
 
-                    win();
+                    success();
                 });
 
         } catch (e) {
             console.log(e);
-            fail(e);
+            failure(e);
         }
     },
-    unshareTag: function(win, fail, args) {
+    unshareTag: function(success, failure, args) {
         self.init();
 
         console.log("Unshare Tag");
 
         try {
             self.stopPublishing();
-            win();
+            success();
         } catch (e) {
             console.log(e);
-            fail(e);
+            failure(e);
         }
     },
-    showSettings: function(win, fail, args) {
+    showSettings: function(success, failure, args) {
 
         // WARNING: this isn't documented, so it might break
         var nfcSettingsUri = "ms-settings-proximity:";
         var uri = new Windows.Foundation.Uri(nfcSettingsUri);
 
         Windows.System.Launcher.launchUriAsync(uri).then(
-            function (success) {
-                if (success) {
-                    win();
+            function (settingsAppeared) {
+                if (settingsAppeared) {
+                    success();
                 } else {
-                    fail();
+                    failure();
                 }
             }
         );
@@ -169,14 +171,19 @@ var self = module.exports = {
 
         var byteArray = ndefUtils.toArray(bytes);
         var ndefMessage = ndef.decodeMessage(byteArray);
+        console.log(JSON.stringify(ndefMessage));
+
         // on windows, tag only contains the ndef message
         // other platforms have tag data
         var tag = {
             ndefMessage: ndefMessage
         };
 
-        // TODO fire event from here
-        fireNfcTagEvent("ndef", JSON.stringify(tag));
+        // fire JavaScript event with NDEF data
+        var e = document.createEvent('Events');
+        e.initEvent("ndef", true, false);
+        e.tag = tag;
+        document.dispatchEvent(e);
     }
 }; // exports
 
