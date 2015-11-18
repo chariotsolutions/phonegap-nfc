@@ -2,6 +2,13 @@
 
 "use strict";
 
+var STATUS_NFC_OK = "NFC_OK";
+var STATUS_NO_NFC = "NO_NFC";
+var STATUS_NFC_DISABLED = "NFC_DISABLED";
+// I don't think there is a Windows API to determine if NFC exists
+var STATUS_NO_NFC_OR_NFC_DISABLED = "NO_NFC_OR_NFC_DISABLED";
+var STATUS_NDEF_PUSH_DISABLED = "NDEF_PUSH_DISABLED";
+
 var ndefUtils = {
     // convert Uint8Array to []
     toArray: function (bytes) {
@@ -15,34 +22,58 @@ var ndefUtils = {
 };
 
 var self = module.exports = {
-    init: function (success, failure, args) {
-        if (self._initialized) {
-            if (success) {
-                success();
+    subscribedMessageId: -1,
+    publishedMessageId: -1,
+    proximityDeviceStatus: STATUS_NO_NFC_OR_NFC_DISABLED,
+    initializeProximityDevice: function() {
+        if (self.proximityDevice) {
+            // TODO Is there an API to tell if the user disabled NFC?
+            try {
+                // KLUDGE this call fails when the user has disabled the device
+                var kludge = self.proximityDevice.maxMessageBytes;
+                self.proximityDeviceStatus = STATUS_NFC_OK;
+            } catch (e) {
+                console.log(e);
+                self.proximityDeviceStatus = STATUS_NFC_DISABLED;
             }
-
-            return;
+            return self.proximityDeviceStatus === STATUS_NFC_OK;
         }
 
-        self.subscribedMessageId = -1;
-        self.publishedMessageId = -1;
+        // try to get device again because user might have re-enabled the device
         self.proximityDevice = Windows.Networking.Proximity.ProximityDevice.getDefault();
+
+        // TODO use these events to implement nfc.addTagDiscoveredListener
+        if (self.proximityDevice) {
+            self.proximityDevice.ondevicearrived = function (eventArgs) {
+                console.log("NFC tag detected");
+            };
+
+            self.proximityDevice.ondevicedeparted = function (eventArgs) {
+                console.log("NFC tag is gone");
+            };
+        } else {
+            self.proximityDeviceStatus = STATUS_NO_NFC_OR_NFC_DISABLED;
+        }
+
+        return self.proximityDeviceStatus === STATUS_NFC_OK;
+    },
+    init: function (success, failure, args) {
+
+        self.initializeProximityDevice();
 
         if (!self.proximityDevice) {
             console.log("WARNING: proximity device is null");
-
-            if (failure) {
-                failure();
-            }
         }
 
-        // TODO this never calls success on the first time
-        self._initialized = true;
+        success();
     },
     registerNdef: function (success, failure, args) {
-        self.init();
+        console.log("Listening for NFC tags with NDEF messages.");
 
-        console.log("Registering for NDEF");
+        if (!self.initializeProximityDevice()) {
+            failure(self.proximityDeviceStatus);
+            return;
+        }
 
         try {
             self.subscribedMessageId = self.proximityDevice.subscribeForMessage("NDEF", self.messageReceivedHandler);
@@ -53,9 +84,13 @@ var self = module.exports = {
         }
     },
     removeNdef: function (success, failure, args) {
-        self.init();
 
-        console.log("Removing NDEF");
+        console.log("Removing NDEF Listener");
+
+        if (!self.initializeProximityDevice()) {
+            failure(self.proximityDeviceStatus);
+            return;
+        }
 
         try {
             if (self.subscribedMessageId !== -1) {
@@ -66,13 +101,17 @@ var self = module.exports = {
             success();
         } catch (e) {
             console.log(e);
-            failure(e);
+            failure(e.message);
         }
     },
     writeTag: function (success, failure, args) {
-        self.init();
 
         console.log("Write Tag");
+
+        if (!self.initializeProximityDevice()) {
+            failure(self.proximityDeviceStatus);
+            return;
+        }
 
         try {
             var records = args[0];
@@ -96,13 +135,17 @@ var self = module.exports = {
 
         } catch (e) {
             console.log(e);
-            failure(e);
+            failure(e.message);
         }
     },
     shareTag: function(success, failure, args) {
-        self.init();
 
         console.log("Share Tag");
+
+        if (!self.initializeProximityDevice()) {
+            failure(self.proximityDeviceStatus);
+            return;
+        }
 
         try {
             var records = args[0];
@@ -125,21 +168,34 @@ var self = module.exports = {
 
         } catch (e) {
             console.log(e);
-            failure(e);
+            failure(e.message);
         }
     },
     unshareTag: function(success, failure, args) {
-        self.init();
-
         console.log("Unshare Tag");
+
+        if (!self.initializeProximityDevice()) {
+            failure(self.proximityDeviceStatus);
+            return;
+        }
 
         try {
             self.stopPublishing();
             success();
         } catch (e) {
             console.log(e);
-            failure(e);
+            failure(e.message);
         }
+    },
+    enabled: function(success, failure, args) {
+        self.initializeProximityDevice();
+
+        if (self.initializeProximityDevice()) {
+            success();
+        } else {
+            failure(self.proximityDeviceStatus);
+        }
+
     },
     showSettings: function(success, failure, args) {
 
@@ -157,6 +213,7 @@ var self = module.exports = {
             }
         );
     },
+    // functions below this line should NOT be exported
     stopPublishing: function() {
         if (self.publishedMessageId !== -1) {
             self.proximityDevice.stopPublishingMessage(self.publishedMessageId);
