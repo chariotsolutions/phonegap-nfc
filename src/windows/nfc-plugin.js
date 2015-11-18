@@ -25,6 +25,7 @@ var self = {
     subscribedMessageId: -1,
     publishedMessageId: -1,
     proximityDeviceStatus: STATUS_NO_NFC_OR_NFC_DISABLED,
+    listeningForNonNDEFTags: false,
     initializeProximityDevice: function() {
         if (self.proximityDevice) {
             // TODO Is there an API to tell if the user disabled NFC?
@@ -46,6 +47,9 @@ var self = {
         if (self.proximityDevice) {
             self.proximityDevice.ondevicearrived = function (eventArgs) {
                 console.log("NFC tag detected");
+                if (self.listeningForNonNDEFTags) {
+                    self.fireTagEvent();
+                }
             };
 
             self.proximityDevice.ondevicedeparted = function (eventArgs) {
@@ -103,6 +107,14 @@ var self = {
             console.log(e);
             failure(e.message);
         }
+    },
+    addTagDiscoveredListener: function(success, failure, args) {
+        self.listeningForNonNDEFTags = true;
+        success();
+    },
+    remoteTagDiscoveredListener: function(success, failure, args) {
+        self.listeningForNonNDEFTags = false;
+        success();
     },
     writeTag: function (success, failure, args) {
 
@@ -240,6 +252,13 @@ var self = {
         e.initEvent("ndef", true, false);
         e.tag = tag;
         document.dispatchEvent(e);
+    },
+    fireTagEvent: function() {
+        var e = document.createEvent('Events');
+        e.initEvent("tag", true, false);
+        // unfortunately we don't have any tag metadata
+        e.tag = {};
+        document.dispatchEvent(e);
     }
 };
 
@@ -247,6 +266,8 @@ module.exports = {
     init: self.init,
     registerNdef: self.registerNdef,
     removeNdef: self.removeNdef,
+    registerTag: self.addTagDiscoveredListener,
+    remoteTag: self.removeTagDiscoveredListener,
     writeTag: self.writeTag,
     shareTag: self.shareTag,
     unshareTag: self.unshareTag,
