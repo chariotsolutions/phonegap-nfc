@@ -37,9 +37,9 @@ Supported Platforms
 
     $ phonegap plugin add phonegap-nfc
 
-### [PhoneGap Build](http://build.phonegap.com)
+### PhoneGap Build
 
-Edit config.xml to install the plugin
+Edit config.xml to install the plugin for [PhoneGap Build](http://build.phonegap.com).
 
     <gap:plugin name="phonegap-nfc" source="npm" />
 
