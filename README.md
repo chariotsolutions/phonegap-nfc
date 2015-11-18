@@ -431,7 +431,7 @@ Function `nfc.stopHandover` stops sharing data via peer-to-peer.
 
 - Android
 
-## showSettings
+## nfc.showSettings
 
 Show the NFC settings on the device.
 
@@ -475,7 +475,9 @@ will be called with a reason code.
 
 The reason will be **NO_NFC** if the device doesn't support NFC and **NFC_DISABLED** if the user has disabled NFC.
 
-Note: that on Android the NFC status is checked before every API call **NO_NFC** or **NFC_DISABLED** can be returned in **any** failure funtion.
+Note: that on Android the NFC status is checked before every API call **NO_NFC** or **NFC_DISABLED** can be returned in **any** failure function.
+
+Windows will return **NO_NFC_OR_NFC_DISABLED** when NFC is not present or disabled. If the user disabled NFC after the application started, Windows may return **NFC_DISABLED**. Windows checks the NFC status before most API calls, but there are some cases when the NFC state can not be determined.
 
 ### Supported Platforms
 
