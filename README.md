@@ -1,7 +1,7 @@
 PhoneGap NFC Plugin
 ==========================
 
-The NFC plugin allows you to read and write  NFC tags. You can also send and receive data with other NFC devices.
+The NFC plugin allows you to read and write  NFC tags. You can also beam to, and receive from, other NFC enabled devices.
 
 * Read data from NFC tags
 * Write data to NFC tags
@@ -824,7 +824,7 @@ License
 
 The MIT License
 
-Copyright (c) 2011-2014 Chariot Solutions
+Copyright (c) 2011-2015 Chariot Solutions
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
