@@ -6,8 +6,9 @@ Near Field Communication (NFC) Plugin. Read and write NDEF messages to tags or s
 Supported Platforms
 -------------------
 * Android
-* Windows Phone 8
+* Windows (includes Windows Phone 8.1, Windows 8.1, Windows 10)
 * BlackBerry 10
+* Windows Phone 8
 * BlackBerry 7
 
 ## Contents
@@ -82,6 +83,7 @@ On Android registered [mimeTypeListeners](#nfcaddmimetypelistener) takes precede
 ### Supported Platforms
 
 - Android
+- Windows
 - BlackBerry 7
 - BlackBerry 10
 - Windows Phone 8
@@ -101,6 +103,7 @@ Removes the previously registered event listener for NDEF tags added via `nfc.ad
 ### Supported Platforms
 
 - Android
+- Windows
 - BlackBerry 7
 
 ## nfc.addTagDiscoveredListener
@@ -124,6 +127,7 @@ This event occurs when any tag is detected by the phone.
 ### Supported Platforms
 
 - Android
+- Windows
 - BlackBerry 7
 
 ## nfc.removeTagDiscoveredListener
@@ -141,6 +145,7 @@ Removes the previously registered event listener added via `nfc.addTagDiscovered
 ### Supported Platforms
 
 - Android
+- Windows
 - BlackBerry 7
 
 ## nfc.addMimeTypeListener
@@ -172,6 +177,7 @@ On Android, MIME types for filtering should always be lower case. (See [IntentFi
 ### Supported Platforms
 
 - Android
+- Windows
 - BlackBerry 7
 
 ## nfc.removeMimeTypeListener
@@ -238,12 +244,14 @@ A NDEF Message is an array of one or more NDEF Records
 Function `nfc.write` writes an NdefMessage to a NFC tag.
 
 On **Android** this method *must* be called from within an NDEF Event Handler.
+On **Windows** this method *may* be called from within the NDEF Event Handler.
 
-On **Windows Phone** this method should be called outside the NDEF Event Handler, otherwise Windows tries to read the tag contents as you are writing to the tag.
+On **Windows Phone 8.1** this method should be called outside the NDEF Event Handler, otherwise Windows tries to read the tag contents as you are writing to the tag.
 
 ### Supported Platforms
 
 - Android
+- Windows
 - BlackBerry 7
 - Windows Phone 8
 
@@ -317,6 +325,7 @@ Function `nfc.share` writes an NdefMessage via peer-to-peer.  This should appear
 ### Supported Platforms
 
 - Android
+- Windows
 - BlackBerry 7
 - BlackBerry 10
 - Windows Phone 8
@@ -345,6 +354,7 @@ Function `nfc.unshare` stops sharing data via peer-to-peer.
 ### Supported Platforms
 
 - Android
+- Windows
 - BlackBerry 7
 - BlackBerry 10
 
@@ -442,7 +452,9 @@ Function `showSettings` opens the NFC settings for the operating system.
 
 ### Supported Platforms
 
-    - Android
+- Android
+- Windows
+- BlackBerry 10
 
 ## nfc.enabled
 
@@ -468,6 +480,7 @@ Note: that on Android the NFC status is checked before every API call **NO_NFC**
 ### Supported Platforms
 
 - Android
+- Windows
 
 # NDEF
 
@@ -551,7 +564,7 @@ The tag contents are platform dependent.
 
 `id` and `serialNumber` are different names for the same value.  `id` is typically displayed as a hex string `ndef.bytesToHexString(tag.id)`.
 
-Windows Phone 8 and BlackBerry 10 read the NDEF information from a tag, but do not have access to the tag id or other meta data like capacity, read-only status or tag technologies.
+Windows, Windows Phone 8, and BlackBerry 10 read the NDEF information from a tag, but do not have access to the tag id or other meta data like capacity, read-only status or tag technologies.
 
 Assuming the following NDEF message is written to a tag, it will produce the following events when read.
 
@@ -579,7 +592,6 @@ Assuming the following NDEF message is written to a tag, it will produce the fol
         }
     }
 
-
 #### Sample Event on BlackBerry 7
 
     {
@@ -601,7 +613,7 @@ Assuming the following NDEF message is written to a tag, it will produce the fol
         }
     }
 
-#### Sample Event on BlackBerry 10 or Windows Phone 8
+#### Sample Event on Windows, BlackBerry 10, or Windows Phone 8
 
     {
         type: 'ndef',
@@ -615,7 +627,6 @@ Assuming the following NDEF message is written to a tag, it will produce the fol
         }
     }
 
-
 ## Getting Details about Events
 
 The raw contents of the scanned tags are written to the log before the event is fired.  Use `adb logcat` on Android and Event Log (hold alt + lglg) on BlackBerry.
@@ -626,21 +637,23 @@ You can also log the tag contents in your event handlers.  `console.log(JSON.str
 
 ## Non-NDEF Tags
 
-Only Android and BlackBerry 7 can read Non-NDEF NFC tags.
+Only Android and BlackBerry 7 can read data from non-NDEF NFC tags.
 
 ## Mifare Classic Tags
 
-BlackBerry 7, BlackBerry 10 and many newer Android phones will not read Mifare Classic tags.  Mifare Ultralight tags will work since they are NFC Forum Type 2 tags.
+BlackBerry 7, BlackBerry 10 and many newer Android phones will not read Mifare Classic tags.  Mifare Ultralight tags will work since they are NFC Forum Type 2 tags. Newer Windows 8.1 phones (Lumia 640) can read Mifare Classic tags.
 
 ## Tag Id and Meta Data
 
-Windows Phone 8 and BlackBerry 10 read the NDEF information from a tag, but do not have access to the tag id or other meta data like capacity, read-only status or tag technologies.
+Windows Phone 8, BlackBerry 10, and Windows read the NDEF information from a tag, but do not have access to the tag id or other meta data like capacity, read-only status or tag technologies.
 
 ## Multiple Listeners
 
 Multiple listeners can be registered in JavaScript. e.g. addNdefListener, addTagDiscoveredListener, addMimeTypeListener.
 
 On Android, only the most specific event will fire.  If a Mime Media Tag is scanned, only the addMimeTypeListener callback is called and not the callback defined in addNdefListener. You can use the same event handler for multiple listeners.
+
+For Windows, this plugin mimics the Android behavior. If an ndef event is fired, a tag event will not be fired. You should receive one event per tag.
 
 On BlackBerry 7, all the events fire if a Mime Media Tag is scanned.
 
@@ -668,6 +681,14 @@ On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks
         tag: {
             "id": [4, 96, 117, 74, -17, 34, -128],
             "techTypes": ["android.nfc.tech.IsoDep", "android.nfc.tech.NfcA", "android.nfc.tech.Ndef"]
+        }
+    }
+
+### Non-NDEF tag scanned with addTagDiscoveredListener on *Windows*
+
+    {
+        type: 'tag',
+        tag: {
         }
     }
 
