@@ -25,7 +25,8 @@ var self = {
     subscribedMessageId: -1,
     publishedMessageId: -1,
     proximityDeviceStatus: STATUS_NO_NFC_OR_NFC_DISABLED,
-    listeningForNonNDEFTags: false,
+    listeningForNonNdefTags: false,
+    tagEventTimeoutId: -1,
     initializeProximityDevice: function() {
         if (self.proximityDevice) {
             // TODO Is there an API to tell if the user disabled NFC?
@@ -47,8 +48,10 @@ var self = {
         if (self.proximityDevice) {
             self.proximityDevice.ondevicearrived = function (eventArgs) {
                 console.log("NFC tag detected");
-                if (self.listeningForNonNDEFTags) {
-                    self.fireTagEvent();
+                if (self.listeningForNonNdefTags) {
+                    // set a timeout so NDEF tags can cancel this event
+                    // we want one event to mimic the Android behavior
+                    self.tagEventTimeoutId = setTimeout(self.fireTagEvent, 100);
                 }
             };
 
@@ -109,11 +112,11 @@ var self = {
         }
     },
     addTagDiscoveredListener: function(success, failure, args) {
-        self.listeningForNonNDEFTags = true;
+        self.listeningForNonNdefTags = true;
         success();
     },
     remoteTagDiscoveredListener: function(success, failure, args) {
-        self.listeningForNonNDEFTags = false;
+        self.listeningForNonNdefTags = false;
         success();
     },
     writeTag: function (success, failure, args) {
@@ -232,6 +235,10 @@ var self = {
         }
     },
     messageReceivedHandler: function (sender, message) {
+
+        // this is an NDEF message so cancel the tag event before it fires
+        clearTimeout(self.tagEventTimeoutId);
+
         var bytes = new Uint8Array(message.data.length);
         var dataReader = Windows.Storage.Streams.DataReader.fromBuffer(message.data);
         dataReader.readBytes(bytes);
