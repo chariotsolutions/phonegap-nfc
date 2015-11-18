@@ -21,7 +21,7 @@ var ndefUtils = {
     }
 };
 
-var self = module.exports = {
+var self = {
     subscribedMessageId: -1,
     publishedMessageId: -1,
     proximityDeviceStatus: STATUS_NO_NFC_OR_NFC_DISABLED,
@@ -213,7 +213,6 @@ var self = module.exports = {
             }
         );
     },
-    // functions below this line should NOT be exported
     stopPublishing: function() {
         if (self.publishedMessageId !== -1) {
             self.proximityDevice.stopPublishingMessage(self.publishedMessageId);
@@ -242,6 +241,17 @@ var self = module.exports = {
         e.tag = tag;
         document.dispatchEvent(e);
     }
-}; // exports
+};
+
+module.exports = {
+    init: self.init,
+    registerNdef: self.registerNdef,
+    removeNdef: self.removeNdef,
+    writeTag: self.writeTag,
+    shareTag: self.shareTag,
+    unshareTag: self.unshareTag,
+    enabled: self.enabled,
+    showSettings: self.showSettings
+}
 
 require("cordova/exec/proxy").add("NfcPlugin", module.exports);
