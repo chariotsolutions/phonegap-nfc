@@ -3,11 +3,11 @@
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="phonegap-nfc"
-    version="0.6.5">
+    version="0.6.6">
 
     <name>NFC</name>
 
-    <description>Near Field Communication (NFC) Plugin. Read and write NDEF messages to tags or share NDEF messages with peers.</description>
+    <description>Near Field Communication (NFC) Plugin. Read and write NDEF messages to NFC tags and share NDEF messages with peers.</description>
 
     <license>MIT</license>
     <keywords>nfc, NFC, NDEF</keywords>

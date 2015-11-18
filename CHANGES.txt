@@ -5,6 +5,7 @@ Update Windows platforms (includes Windows Phone 8.1)
  * implement showSettings #147
  * better error messages when NFC is disabled #213
  * use NDEF parsing and encoding code from www/phonegap-nfc.js (remove duplication)
+ * update documentation
 
 = 0.6.5 =
 Add nfc.showSettings for Android and BlackBerry 10 #147
