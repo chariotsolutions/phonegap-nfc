@@ -19,8 +19,7 @@
             <runs />
         </js-module>
 
-        <!-- requires Cordova-2.8.0 -->
-        <config-file target="res/xml/config.xml" parent="/widget">
+        <config-file target="res/xml/config.xml" parent="/*">
             <feature name="NfcPlugin">
                 <param name="android-package" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
                 <param name="onload" value="true" />
