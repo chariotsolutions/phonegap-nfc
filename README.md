@@ -29,11 +29,26 @@ Supported Platforms
 
 # Installing
 
+### Cordova
+
     $ cordova plugin add phonegap-nfc
 
-see [Getting Started](https://github.com/chariotsolutions/phonegap-nfc/blob/master/doc/GettingStartedCLI.md) for more details.
+### PhoneGap
 
-Note: BlackBerry 7 support is only available for Cordova 2.x. For applications targeting BlackBerry 7, you may need to use an older version of phonegap-nfc.
+    $ phonegap plugin add phonegap-nfc
+
+### [PhoneGap Build](http://build.phonegap.com)
+
+Edit config.xml to install the plugin
+
+    <gap:plugin name="phonegap-nfc" source="npm" />
+
+
+Windows Phone 8.1 should use the **windows** platform. The Silverlight based Windows Phone 8 code is no longer being maintained.
+
+BlackBerry 7 support is only available for Cordova 2.x. For applications targeting BlackBerry 7, you may need to use an older version of phonegap-nfc.
+
+See [Getting Started](https://github.com/chariotsolutions/phonegap-nfc/blob/master/doc/GettingStartedCLI.md) and [Getting Started BlackBerry 10](https://github.com/chariotsolutions/phonegap-nfc/blob/master/doc/GettingStartedBlackberry10.md)for more details.
 
 # NFC
 
