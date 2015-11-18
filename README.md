@@ -686,6 +686,8 @@ On BlackBerry 7, all the events fire if a Mime Media Tag is scanned.
 
 On Android, addTagDiscoveredListener scans non-NDEF tags and NDEF tags. The tag event does NOT contain an ndefMessage even if there are NDEF messages on the tag.  Use addNdefListener or addMimeTypeListener to get the NDEF information.
 
+Windows can scan non-NDEF (unformatted) tags using addTagDiscoveredListener. The tag event will not include any data.
+
 On BlackBerry 7, addTagDiscoveredListener does NOT scan non-NDEF tags.  Webworks returns the ndefMessage in the event.
 
 ### Non-NDEF tag scanned with addTagDiscoveredListener on *Android*
