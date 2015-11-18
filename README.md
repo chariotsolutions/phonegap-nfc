@@ -1,7 +1,14 @@
 PhoneGap NFC Plugin
 ==========================
 
-Near Field Communication (NFC) Plugin. Read and write NDEF messages to tags or share NDEF messages with peers.
+The NFC plugin allows you to read and write  NFC tags. You can also send and receive data with other NFC devices.
+
+* Read data from NFC tags
+* Write data to NFC tags
+* Send data to other NFC enabled devices
+* Receive data from other NFC devices
+
+This plugin uses NDEF (NFC Data Exchange Format) for maximum compatibilty between NFC devices, tag types, and operating systems.
 
 Supported Platforms
 -------------------
