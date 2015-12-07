@@ -32,6 +32,7 @@ Supported Platforms
 * [Launching Application when Scanning a Tag](#launching-your-android-application-when-scanning-a-tag)
 * [Testing](#testing)
 * [Sample Projects](#sample-projects)
+* [Host Card Emulation (HCE)](#hce)
 * [Book](#book)
 * [License](#license)
 
@@ -814,6 +815,11 @@ Sample Projects
 - [NFC Peer to Peer](https://github.com/don/phonegap-p2p)
 - [ApacheCon 2014 Demos](https://github.com/don/apachecon-nfc-demos)
 - [Rock Paper Scissors](https://github.com/don/rockpaperscissors) *Android 2.x only*
+
+HCE
+=======
+
+For Host Card Emulation (HCE), try the [Cordova HCE Plugin](https://github.com/don/cordova-plugin-hce).
 
 Book
 =======
