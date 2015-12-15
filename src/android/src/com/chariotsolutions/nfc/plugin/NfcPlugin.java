@@ -617,7 +617,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 if (action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
                     Ndef ndef = Ndef.get(tag);
                     fireNdefEvent(NDEF_MIME, ndef, messages);
-
+                    fireNdefEvent(NDEF, ndef, messages); //MIME records are a subtype of NDEF records, so fire the NDEF event as well.
                 } else if (action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
                     for (String tagTech : tag.getTechList()) {
                         Log.d(TAG, tagTech);
