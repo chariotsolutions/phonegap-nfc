@@ -66,7 +66,7 @@ Log into http://build.phonegap.com with your phone.
 
 Download and install the app.
 
-Run the app
+Run the app.
 
 ### Scan a NDEF tag
 
