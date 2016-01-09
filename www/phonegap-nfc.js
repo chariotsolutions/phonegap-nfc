@@ -440,6 +440,22 @@ var nfc = {
         cordova.exec(win, fail, "NfcPlugin", "makeReadOnly", []);
     },
 
+    readerMode: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "readerMode", []);
+    },
+
+    stopReaderMode: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "stopReaderMode", []);
+    },
+
+    silentMode: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "silentMode", []);
+    },
+
+    stopSilentMode: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "stopSilentMode", []);
+    },
+
     share: function (ndefMessage, win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "shareTag", [ndefMessage]);
     },

@@ -79,6 +79,11 @@ See [Getting Started](https://github.com/chariotsolutions/phonegap-nfc/blob/mast
 - [nfc.erase](#nfcerase)
 - [nfc.handover](#nfchandover)
 - [nfc.stopHandover](#nfcstophandover)
+- [nfc.readerMode](#nfcreadermode)
+- [nfc.stopReaderMode](#nfcstopreadermode)
+- [nfc.silentMode](#nfcsilentmode)
+- [nfc.stopsilentMode](#nfcstopsilentmode)
+
 - [nfc.enabled](#nfcenabled)
 - [nfc.showSettings](#nfcshowsettings)
 

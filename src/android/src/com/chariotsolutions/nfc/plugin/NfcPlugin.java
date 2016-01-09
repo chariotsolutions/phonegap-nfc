@@ -23,6 +23,7 @@ import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.NfcAdapter.ReaderCallback;
 import android.nfc.NfcEvent;
 import android.nfc.Tag;
 import android.nfc.TagLostException;
@@ -31,7 +32,7 @@ import android.nfc.tech.NdefFormatable;
 import android.os.Parcelable;
 import android.util.Log;
 
-public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCompleteCallback {
+public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCompleteCallback, ReaderCallback {
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
     private static final String REMOVE_MIME_TYPE = "removeMimeType";
     private static final String REGISTER_NDEF = "registerNdef";
@@ -46,6 +47,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String UNSHARE_TAG = "unshareTag";
     private static final String HANDOVER = "handover"; // Android Beam
     private static final String STOP_HANDOVER = "stopHandover";
+    private static final String READER_MODE = "readerMode"; // Android reader mode
+    private static final String STOP_READER_MODE = "stopReaderMode";
+    private static final String SILENT_MODE = "silentMode"; // Android no platform sounds
+    private static final String STOP_SILENT_MODE = "stopSilentMode";
     private static final String ENABLED = "enabled";
     private static final String INIT = "init";
     private static final String SHOW_SETTINGS = "showSettings";
@@ -68,6 +73,9 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private PendingIntent pendingIntent = null;
 
     private Intent savedIntent = null;
+    private Tag savedTag = null;
+    private boolean inReaderMode = false;
+    private boolean inSilentMode = false;
 
     private CallbackContext shareTagCallback;
     private CallbackContext handoverCallback;
@@ -133,6 +141,18 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         } else if (action.equalsIgnoreCase(STOP_HANDOVER)) {
             stopHandover(callbackContext);
 
+        } else if (action.equalsIgnoreCase(READER_MODE)) {
+            readerMode(callbackContext);
+
+        } else if (action.equalsIgnoreCase(STOP_READER_MODE)) {
+            stopReaderMode(callbackContext);
+
+        } else if (action.equalsIgnoreCase(SILENT_MODE)) {
+            silentMode(callbackContext);
+
+        } else if (action.equalsIgnoreCase(STOP_SILENT_MODE)) {
+            stopSilentMode(callbackContext);
+
         } else if (action.equalsIgnoreCase(INIT)) {
             init(callbackContext);
 
@@ -196,7 +216,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         Log.d(TAG, "Enabling plugin " + getIntent());
 
         startNfc();
-        if (!recycledIntent()) {
+        if (inReaderMode) {
+            if (savedTag) {
+                handleTag();
+            }
+        } else if (!recycledIntent()) {
             parseMessage();
         }
         callbackContext.success();
@@ -226,7 +250,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     // Cheating and writing an empty record. We may actually be able to erase some tag types.
     private void eraseTag(CallbackContext callbackContext) throws JSONException {
-        Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        if (inReaderMode) {
+            Tag tag = savedTag;
+        } else {
+            Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        }
         NdefRecord[] records = {
             new NdefRecord(NdefRecord.TNF_EMPTY, new byte[0], new byte[0], new byte[0])
         };
@@ -238,7 +266,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             callbackContext.error("Failed to write tag, received null intent");
         }
 
-        Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        if (inReaderMode) {
+            Tag tag = savedTag;
+        } else {
+            Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        }
         NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
         writeNdefMessage(new NdefMessage(records), tag, callbackContext);
     }
@@ -294,7 +326,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             return;
         }
 
-        final Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        if (inReaderMode) {
+            final Tag tag = savedTag;
+        } else {
+            final Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        }
         if (tag == null) {
             callbackContext.error("Failed to make tag read only, tag is null");
             return;
@@ -445,8 +481,16 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
                 if (nfcAdapter != null && !getActivity().isFinishing()) {
                     try {
-                        nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
-
+                        if (inReaderMode):
+                            if (inSilentMode) {
+                                int flags = NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK | NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS;
+                            } else {
+                                int flags = NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
+                            }
+                            nfcAdapter.enableReaderMode(getActivity(), this,  flags, null);
+                        } else {
+                            nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
+                        }
                         if (p2pMessage != null) {
                             nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
                         }
@@ -460,6 +504,45 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         });
     }
 
+    private void silentMode(CallbackContext callbackContext) {
+        if (!inReaderMode) {
+            Log.w(TAG, "Not in reader mode, silent mode will be ignored.");
+        }
+        if (!inSilentMode) {
+            stopNfc();
+            inSilentMode = true;
+            startNfc();
+        }
+        callbackContext.success();
+    }
+
+    private void stopSilentMode(CallbackContext callbackContext) {
+        if (inSilentMode) {
+            stopNfc();
+            inSilentMode = false;
+            startNfc();
+        }
+        callbackContext.success();
+    }
+
+    private void readerMode(CallbackContext callbackContext) {
+        if (!inReaderMode) {
+            stopNfc();
+            inReaderMode = true;
+            startNfc();
+        }
+        callbackContext.success();
+    }
+
+    private void stopReaderMode(CallbackContext callbackContext) {
+        if (inReaderMode) {
+            stopNfc();
+            inReaderMode = false;
+            startNfc();
+        }
+        callbackContext.success();
+    }
+
     private void stopNfc() {
         Log.d(TAG, "stopNfc");
         getActivity().runOnUiThread(new Runnable() {
@@ -469,7 +552,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
                 if (nfcAdapter != null) {
                     try {
-                        nfcAdapter.disableForegroundDispatch(getActivity());
+                        if (inReaderMode) {
+                            nfcAdapter.disableReaderMode(getActivity());
+                        } else {
+                            nfcAdapter.disableForegroundDispatch(getActivity());
+                        }
                     } catch (IllegalStateException e) {
                         // issue 125 - user exits app with back button while nfc
                         Log.w(TAG, "Illegal State Exception stopping NFC. Assuming application is terminating.");
@@ -597,6 +684,16 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private String[][] getTechLists() {
         //noinspection ToArrayCallWithZeroLengthArrayArgument
         return techLists.toArray(new String[0][0]);
+    }
+
+    void handleTag() {
+        cordova.getThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "handleTag " + savedTag);
+                fireTagEvent(tag);
+            }
+        });
     }
 
     void parseMessage() {
@@ -728,6 +825,14 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         setIntent(intent);
         savedIntent = intent;
         parseMessage();
+    }
+
+    @Override
+    public void onTagDiscovered(Tag tag) {
+        Log.i(TAG, "onTagDiscovered " + tag);
+        super.onTagDiscovered(tag);
+        savedTag = tag;
+        handleTag();
     }
 
     private Activity getActivity() {
