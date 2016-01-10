@@ -217,7 +217,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
         startNfc();
         if (inReaderMode) {
-            if (savedTag) {
+            if (savedTag != null) {
                 handleTag();
             }
         } else if (!recycledIntent()) {
@@ -250,10 +250,9 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     // Cheating and writing an empty record. We may actually be able to erase some tag types.
     private void eraseTag(CallbackContext callbackContext) throws JSONException {
-        if (inReaderMode) {
-            Tag tag = savedTag;
-        } else {
-            Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        Tag tag = savedTag;
+        if (!inReaderMode) {
+            tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         }
         NdefRecord[] records = {
             new NdefRecord(NdefRecord.TNF_EMPTY, new byte[0], new byte[0], new byte[0])
@@ -266,10 +265,9 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             callbackContext.error("Failed to write tag, received null intent");
         }
 
-        if (inReaderMode) {
-            Tag tag = savedTag;
-        } else {
-            Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        Tag tag = savedTag;
+        if (!inReaderMode) {
+            tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         }
         NdefRecord[] records = Util.jsonToNdefRecords(data.getString(0));
         writeNdefMessage(new NdefMessage(records), tag, callbackContext);
@@ -326,11 +324,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             return;
         }
 
-        if (inReaderMode) {
-            final Tag tag = savedTag;
-        } else {
-            final Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+        Tag readOnlyTag = savedTag;
+        if (!inReaderMode) {
+            readOnlyTag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         }
+        final Tag tag = readOnlyTag;
         if (tag == null) {
             callbackContext.error("Failed to make tag read only, tag is null");
             return;
@@ -481,13 +479,12 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
                 if (nfcAdapter != null && !getActivity().isFinishing()) {
                     try {
-                        if (inReaderMode):
+                        if (inReaderMode) {
+                            int flags = NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
                             if (inSilentMode) {
-                                int flags = NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK | NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS;
-                            } else {
-                                int flags = NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
+                                flags = flags | NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS;
                             }
-                            nfcAdapter.enableReaderMode(getActivity(), this,  flags, null);
+                            nfcAdapter.enableReaderMode(getActivity(), NfcPlugin.this, flags, null);
                         } else {
                             nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
                         }
@@ -691,7 +688,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             @Override
             public void run() {
                 Log.d(TAG, "handleTag " + savedTag);
-                fireTagEvent(tag);
+                fireTagEvent(savedTag);
             }
         });
     }
@@ -830,7 +827,6 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     @Override
     public void onTagDiscovered(Tag tag) {
         Log.i(TAG, "onTagDiscovered " + tag);
-        super.onTagDiscovered(tag);
         savedTag = tag;
         handleTag();
     }
