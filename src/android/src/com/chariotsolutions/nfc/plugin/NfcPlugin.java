@@ -803,21 +803,21 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                     }
                 }
 
-            try
-            {
-                if(out.size() > 0)
+                try
                 {
-                    tagJSON.put("data", Util.byteArrayToJSON(out.toByteArray()));
+                    if(out.size() > 0)
+                    {
+                        tagJSON.put("data", Util.byteArrayToJSON(out.toByteArray()));
+                    }
                 }
-            }
-            catch (JSONException e)
-            {
-                e.printStackTrace();
-            }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
 
-            String command = MessageFormat.format(javaScriptEventTemplate, MIFARE_CLASSIC, tagJSON);
-            Log.v(TAG, command);
-            return command;
+                String command = MessageFormat.format(javaScriptEventTemplate, MIFARE_CLASSIC, tagJSON);
+                Log.v(TAG, command);
+                return command;
             }
 
             @Override
