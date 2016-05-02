@@ -427,6 +427,16 @@ var nfc = {
         cordova.exec(win, fail, "NfcPlugin", "registerNdef", []);
     },
 
+    addMifareUltralightListener: function (callback, win, fail) {
+        document.addEventListener("mf-ultralight", callback, false);
+        cordova.exec(win, fail, "NfcPlugin", "registerMifareUltralight", []);
+    },
+
+    addMifareClassicListener: function (callback, win, fail) {
+        document.addEventListener("mf-classic", callback, false);
+        cordova.exec(win, fail, "NfcPlugin", "registerMifareClassic", []);
+    },
+
     addNdefFormatableListener: function (callback, win, fail) {
         document.addEventListener("ndef-formatable", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "registerNdefFormatable", []);
