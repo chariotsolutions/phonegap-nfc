@@ -9,7 +9,7 @@ Use to
 * send data to other NFC enabled devices
 * receive data from NFC devices
 
-This plugin uses NDEF (NFC Data Exchange Format) for maximum compatibilty between NFC devices, tag types, and operating systems.
+This plugin uses NDEF (NFC Data Exchange Format) for maximum compatibility between NFC devices, tag types, and operating systems.
 
 Supported Platforms
 -------------------
@@ -81,8 +81,6 @@ See [Getting Started](https://github.com/chariotsolutions/phonegap-nfc/blob/mast
 - [nfc.stopHandover](#nfcstophandover)
 - [nfc.readerMode](#nfcreadermode)
 - [nfc.stopReaderMode](#nfcstopreadermode)
-- [nfc.silentMode](#nfcsilentmode)
-- [nfc.stopsilentMode](#nfcstopsilentmode)
 
 - [nfc.enabled](#nfcenabled)
 - [nfc.showSettings](#nfcshowsettings)

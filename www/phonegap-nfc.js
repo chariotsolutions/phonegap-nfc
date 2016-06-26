@@ -440,20 +440,14 @@ var nfc = {
         cordova.exec(win, fail, "NfcPlugin", "makeReadOnly", []);
     },
 
-    readerMode: function (win, fail) {
-        cordova.exec(win, fail, "NfcPlugin", "readerMode", []);
+    readerMode: function (settings, win, fail) {
+        var platformSounds = typeof settings.platformSounds !== 'undefined' ? settings.platformSounds : true;
+        var skipNdefCheck = settings.skipNdefCheck || false;
+        cordova.exec(win, fail, "NfcPlugin", "readerMode", [platformSounds, skipNdefCheck]);
     },
 
     stopReaderMode: function (win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "stopReaderMode", []);
-    },
-
-    silentMode: function (win, fail) {
-        cordova.exec(win, fail, "NfcPlugin", "silentMode", []);
-    },
-
-    stopSilentMode: function (win, fail) {
-        cordova.exec(win, fail, "NfcPlugin", "stopSilentMode", []);
     },
 
     share: function (ndefMessage, win, fail) {

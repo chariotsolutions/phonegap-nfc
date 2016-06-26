@@ -49,8 +49,6 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String STOP_HANDOVER = "stopHandover";
     private static final String READER_MODE = "readerMode"; // Android reader mode
     private static final String STOP_READER_MODE = "stopReaderMode";
-    private static final String SILENT_MODE = "silentMode"; // Android no platform sounds
-    private static final String STOP_SILENT_MODE = "stopSilentMode";
     private static final String ENABLED = "enabled";
     private static final String INIT = "init";
     private static final String SHOW_SETTINGS = "showSettings";
@@ -75,7 +73,8 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private Intent savedIntent = null;
     private Tag savedTag = null;
     private boolean inReaderMode = false;
-    private boolean inSilentMode = false;
+    private boolean skipNdefCheck = false;
+    private boolean platformSounds = true;
 
     private CallbackContext shareTagCallback;
     private CallbackContext handoverCallback;
@@ -142,16 +141,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             stopHandover(callbackContext);
 
         } else if (action.equalsIgnoreCase(READER_MODE)) {
-            readerMode(callbackContext);
+            readerMode(data, callbackContext);
 
         } else if (action.equalsIgnoreCase(STOP_READER_MODE)) {
             stopReaderMode(callbackContext);
-
-        } else if (action.equalsIgnoreCase(SILENT_MODE)) {
-            silentMode(callbackContext);
-
-        } else if (action.equalsIgnoreCase(STOP_SILENT_MODE)) {
-            stopSilentMode(callbackContext);
 
         } else if (action.equalsIgnoreCase(INIT)) {
             init(callbackContext);
@@ -480,8 +473,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 if (nfcAdapter != null && !getActivity().isFinishing()) {
                     try {
                         if (inReaderMode) {
-                            int flags = NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
-                            if (inSilentMode) {
+                            int flags = NfcAdapter.FLAG_READER_NFC_A;
+                            if (skipNdefCheck) {
+                                flags = flags | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK;
+                            }
+                            if (!platformSounds) {
                                 flags = flags | NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS;
                             }
                             nfcAdapter.enableReaderMode(getActivity(), NfcPlugin.this, flags, null);
@@ -501,30 +497,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         });
     }
 
-    private void silentMode(CallbackContext callbackContext) {
-        if (!inReaderMode) {
-            Log.w(TAG, "Not in reader mode, silent mode will be ignored.");
-        }
-        if (!inSilentMode) {
-            stopNfc();
-            inSilentMode = true;
-            startNfc();
-        }
-        callbackContext.success();
-    }
-
-    private void stopSilentMode(CallbackContext callbackContext) {
-        if (inSilentMode) {
-            stopNfc();
-            inSilentMode = false;
-            startNfc();
-        }
-        callbackContext.success();
-    }
-
-    private void readerMode(CallbackContext callbackContext) {
+    private void readerMode(JSONArray data, CallbackContext callbackContext) throws JSONException {
         if (!inReaderMode) {
             stopNfc();
+            platformSounds = data.getBoolean(0);
+            skipNdefCheck = data.getBoolean(1);
             inReaderMode = true;
             startNfc();
         }
@@ -534,6 +511,8 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private void stopReaderMode(CallbackContext callbackContext) {
         if (inReaderMode) {
             stopNfc();
+            platformSounds = true;
+            skipNdefCheck = false;
             inReaderMode = false;
             startNfc();
         }
