@@ -458,6 +458,57 @@ Function `nfc.stopHandover` stops sharing data via peer-to-peer.
 
 - Android
 
+## nfc.readerMode
+
+Start the reader mode which will disable any peer-to-peer (Android Beam) and
+card-emulation modes of the NFC adapter on this device but allows turning off
+the NFC platform sounds or NDEF checks by passing in the optional setting.
+
+    nfc.readerMode([settings], [onSuccess], [onFailure]);
+
+### Parameters
+
+- __settings__: (Optional) The settings with
+- __onSuccess__: (Optional) The callback that is called when sharing stops.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+### Settings
+
+- __platformSounds__: (Optional) Whether the reader mode should disable platform sounds (defaults to `true`)
+- __skipNdefCheck__: (Optional) Whether NDEF checks should be performed on found tags (if `true` disables NDEF enumeration and dispatching, defaults to `false`)
+
+### Quick Example
+
+    // silent NFC tag reading:
+    nfc.readerMode({platformSounds: false}, [onSuccess], [onFailure]);
+
+### Description
+
+Function `nfc.readerMode` starts the reader mode.
+
+### Supported Platforms
+
+- Android
+
+## nfc.stopReaderMode
+
+Stop reader mode.
+
+    nfc.stopReaderMode([onSuccess], [onFailure]);
+
+### Parameters
+
+- __onSuccess__: (Optional) The callback that is called when reader mode stops.
+- __onFailure__: (Optional) The callback that is called if there was an error.
+
+### Description
+
+Function `nfc.stopReaderMode` stops .
+
+### Supported Platforms
+
+- Android
+
 ## nfc.showSettings
 
 Show the NFC settings on the device.
