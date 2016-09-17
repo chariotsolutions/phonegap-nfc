@@ -588,7 +588,7 @@ The tag contents are platform dependent.
 
 `id` and `techTypes` may be included when scanning a tag on Android.  `serialNumber` may be included on BlackBerry 7.
 
-`id` and `serialNumber` are different names for the same value.  `id` is typically displayed as a hex string `ndef.bytesToHexString(tag.id)`.
+`id` and `serialNumber` are different names for the same value.  `id` is typically displayed as a hex string `nfc.bytesToHexString(tag.id)`.
 
 Windows, Windows Phone 8, and BlackBerry 10 read the NDEF information from a tag, but do not have access to the tag id or other meta data like capacity, read-only status or tag technologies.
 
