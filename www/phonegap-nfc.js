@@ -641,7 +641,7 @@ var textHelper = {
 
     decodePayload: function (data) {
 
-        var languageCodeLength = (data[0] & 0x1F), // 5 bits
+        var languageCodeLength = (data[0] & 0x3F), // 6 LSBs
             languageCode = data.slice(1, 1 + languageCodeLength),
             utf16 = (data[0] & 0x80) !== 0; // assuming UTF-16BE
 
