@@ -18,7 +18,7 @@
                                     console.log(m.message);
                                     break;
                                 case "event":
-                                    cordovaIncomingEvent(m.type, m.data);
+                                	fireNfcTagObjectEvent(m.type, m.data);
                                     break;
                                 };
                             };
@@ -763,23 +763,6 @@ function cordovaRemoveListener(listernerType, callback, win, fail, data)
     if (lt.unregister)
     {
         cordova.exec(win, fail, "NfcPlugin", lt.unregister, data);
-    }
-}
-
-function cordovaIncomingEvent(type, data)
-{
-    var lt = nfcListeners[type];
-    var cb = lt.callbacks;
-    var i  = cb.length;
-
-    while (i--)
-    {
-        var c = cb[i];
-
-        if (c.type == 'event')
-        {
-            fireNfcTagObjectEvent(type, data);
-        }
     }
 }
 
