@@ -71,6 +71,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private CallbackContext shareTagCallback;
     private CallbackContext handoverCallback;
+    private CallbackContext handleEventCallback;
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
@@ -95,7 +96,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             registerMimeType(data, callbackContext);
 
         } else if (action.equalsIgnoreCase(REMOVE_MIME_TYPE)) {
-          removeMimeType(data, callbackContext);
+            removeMimeType(data, callbackContext);
 
         } else if (action.equalsIgnoreCase(REGISTER_NDEF)) {
           registerNdef(callbackContext);
@@ -195,11 +196,26 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private void init(CallbackContext callbackContext) {
         Log.d(TAG, "Enabling plugin " + getIntent());
 
+        handleEventCallback = callbackContext;
+
         startNfc();
         if (!recycledIntent()) {
             parseMessage();
         }
-        callbackContext.success();
+
+        JSONObject jsonMessage = new JSONObject();
+
+        try
+        {
+            jsonMessage.put("class","log");
+            jsonMessage.put("message","Initialized the NfcPlugin");
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+
+        sendData(jsonMessage);
     }
 
     private void removeMimeType(JSONArray data, CallbackContext callbackContext) throws JSONException {
@@ -445,7 +461,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
                 if (nfcAdapter != null && !getActivity().isFinishing()) {
                     try {
-                        nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
+                            nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
 
                         if (p2pMessage != null) {
                             nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
@@ -469,7 +485,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
                 if (nfcAdapter != null) {
                     try {
-                        nfcAdapter.disableForegroundDispatch(getActivity());
+                            nfcAdapter.disableForegroundDispatch(getActivity());
                     } catch (IllegalStateException e) {
                         // issue 125 - user exits app with back button while nfc
                         Log.w(TAG, "Illegal State Exception stopping NFC. Assuming application is terminating.");
@@ -640,28 +656,15 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     private void fireNdefEvent(String type, Ndef ndef, Parcelable[] messages) {
-
-        JSONObject jsonObject = buildNdefJSON(ndef, messages);
-        String tag = jsonObject.toString();
-
-        String command = MessageFormat.format(javaScriptEventTemplate, type, tag);
-        Log.v(TAG, command);
-        this.webView.sendJavascript(command);
-
+        sendEventData(type, buildNdefJSON(ndef, messages));
     }
 
     private void fireNdefFormatableEvent (Tag tag) {
-
-        String command = MessageFormat.format(javaScriptEventTemplate, NDEF_FORMATABLE, Util.tagToJSON(tag));
-        Log.v(TAG, command);
-        this.webView.sendJavascript(command);
+        sendEventData(NDEF_FORMATABLE, tag);
     }
 
     private void fireTagEvent (Tag tag) {
-
-        String command = MessageFormat.format(javaScriptEventTemplate, TAG_DEFAULT, Util.tagToJSON(tag));
-        Log.v(TAG, command);
-        this.webView.sendJavascript(command);
+        sendEventData(TAG_DEFAULT, tag);
     }
 
     JSONObject buildNdefJSON(Ndef ndef, Parcelable[] messages) {
@@ -742,12 +745,6 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         getActivity().setIntent(intent);
     }
 
-    String javaScriptEventTemplate =
-        "var e = document.createEvent(''Events'');\n" +
-        "e.initEvent(''{0}'');\n" +
-        "e.tag = {1};\n" +
-        "document.dispatchEvent(e);";
-
     @Override
     public void onNdefPushComplete(NfcEvent event) {
 
@@ -762,5 +759,41 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             shareTagCallback.sendPluginResult(result);
         }
 
+    }
+
+    //CordovaWebView.sendJavascript is deprecated and no longer works in Cordova 5 with pre KitKat devices.
+    private void sendEventData(final String type, Tag tag) {
+
+        sendEventData(type, Util.tagToJSON(tag));
+
+    }
+
+    private void sendEventData(final String type, JSONObject data) {
+
+        JSONObject jsonMessage = new JSONObject();
+
+        try
+        {
+            jsonMessage.put("class","event");
+            jsonMessage.put("type",type);
+            jsonMessage.put("data", data);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+
+        sendData(jsonMessage);
+    }
+
+    private void sendData(JSONObject data) {
+
+        String message = data.toString();
+
+        Log.v(TAG, message);
+
+        PluginResult dataResult = new PluginResult(PluginResult.Status.OK, message);
+        dataResult.setKeepCallback(true);
+        handleEventCallback.sendPluginResult(dataResult);
     }
 }
