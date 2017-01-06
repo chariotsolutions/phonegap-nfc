@@ -201,7 +201,6 @@ On Android, MIME types for filtering should always be lower case. (See [IntentFi
 ### Supported Platforms
 
 - Android
-- Windows
 - BlackBerry 7
 
 ## nfc.removeMimeTypeListener
