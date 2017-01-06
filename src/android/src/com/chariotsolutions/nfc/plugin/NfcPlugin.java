@@ -74,8 +74,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
-
-        Log.d(TAG, "execute " + action);
+        
+        if (BuildConfig.DEBUG) {
+          Log.d(TAG, "execute " + action);
+        }
 
         // showSettings can be called if NFC is disabled
         // might want to skip this if NO_NFC
