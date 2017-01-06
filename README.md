@@ -154,6 +154,8 @@ This event occurs when any tag is detected by the phone.
 - Windows
 - BlackBerry 7
 
+Note that Windows Phones need the newere NXP PN427 chipset to read non-NDEF tags. That tag will be read, but no tag meta-data is available.
+
 ## nfc.removeTagDiscoveredListener
 
 Removes the previously registered event listener added via `nfc.addTagDiscoveredListener`.
@@ -662,7 +664,7 @@ You can also log the tag contents in your event handlers.  `console.log(JSON.str
 
 ## Non-NDEF Tags
 
-Only Android and BlackBerry 7 can read data from non-NDEF NFC tags.
+Only Android and BlackBerry 7 can read data from non-NDEF NFC tags. Newer Windows Phones with NXP PN427 chipset can read non-NDEF tags, but can not get any tag meta data.
 
 ## Mifare Classic Tags
 
