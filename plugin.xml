@@ -2,8 +2,8 @@
 <plugin
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="phonegap-nfc-rombit"
-    version="1.0.3">
+    id="phonegap-nfc"
+    version="0.6.6">
 
     <name>NFC</name>
 
@@ -11,8 +11,8 @@
 
     <license>MIT</license>
     <keywords>nfc, NFC, NDEF</keywords>
-    <repo>https://github.com/rombit/phonegap-nfc.git</repo>
-    <issue>https://github.com/rombit/phonegap-nfc/issues</issue>
+    <repo>https://github.com/chariotsolutions/phonegap-nfc.git</repo>
+    <issue>https://github.com/chariotsolutions/phonegap-nfc/issues</issue>
 
     <platform name="android">
         <js-module src="www/phonegap-nfc.js" name="NFC">
@@ -21,15 +21,15 @@
 
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="NfcPlugin">
-                <param name="android-package" value="com.rombit.nfc.plugin.NfcPlugin"/>
+                <param name="android-package" value="com.chariotsolutions.nfc.plugin.NfcPlugin"/>
                 <param name="onload" value="true" />
             </feature>
         </config-file>
 
-        <source-file src="src/android/src/com/rombit/nfc/plugin/NfcPlugin.java"
-            target-dir="src/com/rombit/nfc/plugin"/>
-        <source-file src="src/android/src/com/rombit/nfc/plugin/Util.java"
-            target-dir="src/com/rombit/nfc/plugin"/>
+        <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/NfcPlugin.java"
+            target-dir="src/com/chariotsolutions/nfc/plugin"/>
+        <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/Util.java"
+            target-dir="src/com/chariotsolutions/nfc/plugin"/>
 
         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.NFC"/>
@@ -99,7 +99,7 @@
 
         <config-file target="www/config.xml" parent="/widget">
             <!-- Note: mapping is broken in Cordova 3.1.0-0.2.0 -->
-            <feature name="NfcPlugin" value="com.rombit.nfc.plugin" />
+            <feature name="NfcPlugin" value="com.chariotsolutions.nfc.plugin" />
         </config-file>
     </platform>
 

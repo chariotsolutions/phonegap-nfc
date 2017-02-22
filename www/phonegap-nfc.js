@@ -429,7 +429,6 @@ cordova.define('phonegap-nfc.NFC', function (require, exports, module) {
 
         removeMifareUltralightListener: function (callback, win, fail) {
             document.removeEventListener('mf-ultralight', callback, false);
-            console.log('TESTTTTTTTT');
             cordova.exec(win, fail, 'NfcPlugin', 'removeMifareUltralight', []);
         },
 
