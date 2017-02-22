@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Collections;
 
-using ChariotSolutions.NFC.NDEF;
+using rombit.NFC.NDEF;
 
 // 
 // http://www.nfc-forum.org/specs/spec_list/

@@ -57,7 +57,7 @@ Windows Phone 8.1 should use the **windows** platform. The Silverlight based Win
 
 BlackBerry 7 support is only available for Cordova 2.x. For applications targeting BlackBerry 7, you may need to use an older version of phonegap-nfc.
 
-See [Getting Started](https://github.com/chariotsolutions/phonegap-nfc/blob/master/doc/GettingStartedCLI.md) and [Getting Started BlackBerry 10](https://github.com/chariotsolutions/phonegap-nfc/blob/master/doc/GettingStartedBlackberry10.md)for more details.
+See [Getting Started](https://github.com/rombit/phonegap-nfc/blob/master/doc/GettingStartedCLI.md) and [Getting Started BlackBerry 10](https://github.com/rombit/phonegap-nfc/blob/master/doc/GettingStartedBlackberry10.md)for more details.
 
 # NFC
 
@@ -253,7 +253,7 @@ A NDEF Message is an array of one or more NDEF Records
 
     var message = [
         ndef.textRecord("hello, world"),
-        ndef.uriRecord("http://github.com/chariotsolutions/phonegap-nfc")
+        ndef.uriRecord("http://github.com/rombit/phonegap-nfc")
     ];
 
     nfc.write(message, [onSuccess], [onFailure]);
@@ -541,7 +541,7 @@ There are also helper functions for some types of records
 
 Create a URI record
 
-    var record = ndef.uriRecord("http://chariotsolutions.com");
+    var record = ndef.uriRecord("http://rombit.com");
 
 Create a plain text record
 
@@ -565,7 +565,7 @@ See `ndef.record`, `ndef.textRecord`, `ndef.mimeMediaRecord`, and `ndef.uriRecor
 
 The Ndef object has functions to convert some data types to and from byte arrays.
 
-See the [phonegap-nfc.js](https://github.com/chariotsolutions/phonegap-nfc/blob/master/www/phonegap-nfc.js) source for more documentation.
+See the [phonegap-nfc.js](https://github.com/rombit/phonegap-nfc/blob/master/www/phonegap-nfc.js) source for more documentation.
 
 # Events
 
@@ -790,7 +790,7 @@ Tests require the [Cordova Plugin Test Framework](https://github.com/apache/cord
 
 Create a new project
 
-    git clone https://github.com/chariotsolutions/phonegap-nfc
+    git clone https://github.com/rombit/phonegap-nfc
     cordova create nfc-test com.example.nfc.test NfcTest
     cd nfc-test
     cordova platform add android

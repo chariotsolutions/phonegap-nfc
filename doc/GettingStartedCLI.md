@@ -1,6 +1,6 @@
 ## Quickstart for PhoneGap NFC - Cordova CLI
 
-These instructions use [Cordova](http://cordova.apache.org/) to generate a default PhoneGap app and modify it to read NFC tags. BlackBerry users should refer to [Getting Started with BlackBerry 10](https://github.com/chariotsolutions/phonegap-nfc/blob/master/doc/GettingStartedBlackBerry10.md).
+These instructions use [Cordova](http://cordova.apache.org/) to generate a default PhoneGap app and modify it to read NFC tags. BlackBerry users should refer to [Getting Started with BlackBerry 10](https://github.com/rombit/phonegap-nfc/blob/master/doc/GettingStartedBlackBerry10.md).
 
 ### Cordova Command Line Interface (CLI)
 

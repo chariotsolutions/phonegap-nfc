@@ -10,7 +10,7 @@ using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Storage.Streams;
 
-namespace ChariotSolutions.NFC.NDEF
+namespace rombit.NFC.NDEF
 {
     public class Ndef
     {

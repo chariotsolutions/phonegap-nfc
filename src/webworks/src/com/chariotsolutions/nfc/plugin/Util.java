@@ -1,4 +1,4 @@
-package com.chariotsolutions.nfc.plugin;
+package com.rombit.nfc.plugin;
 
 import net.rim.device.api.io.nfc.NFCException;
 import net.rim.device.api.io.nfc.ndef.NDEFMessage;
