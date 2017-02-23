@@ -4,7 +4,7 @@
 // blackberry requires the com.blackberry.invoke plugin installed
 
 // you need to edit config.xml for your app and add an invoke-target
-// <rim:invoke-target id="com.rombit.nfc.demo.reader.target">
+// <rim:invoke-target id="com.chariotsolutions.nfc.demo.reader.target">
 //     <type>APPLICATION</type>
 //     <filter>
 //         <action>bb.action.OPEN</action>

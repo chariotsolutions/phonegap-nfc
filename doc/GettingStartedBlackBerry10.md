@@ -44,7 +44,7 @@ edit `www/js/index.js` and replace `onDeviceReady` with
         );
     },
 
-Edit `config.xml` and `<rim:invoke-target>` just before `</widget>`. (See docs for more info about [invoke-target](https://github.com/rombit/phonegap-nfc#blackberry-10-invoke-target
+Edit `config.xml` and `<rim:invoke-target>` just before `</widget>`. (See docs for more info about [invoke-target](https://github.com/chariotsolutions/phonegap-nfc#blackberry-10-invoke-target
 ).)
 
     <rim:invoke-target id="your.unique.id.here">

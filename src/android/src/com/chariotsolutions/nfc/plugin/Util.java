@@ -1,4 +1,4 @@
-package com.rombit.nfc.plugin;
+package com.chariotsolutions.nfc.plugin;
 
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
