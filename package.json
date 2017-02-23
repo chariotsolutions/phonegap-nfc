@@ -1,9 +1,9 @@
 {
-  "name": "phonegap-nfc-chariotsolutions",
+  "name": "phonegap-nfc",
   "version": "1.0.5",
   "description": "Near Field Communication (NFC) Plugin. Read and write NDEF messages to NFC tags and share NDEF messages with peers.",
   "cordova": {
-    "id": "phonegap-nfc-chariotsolutions",
+    "id": "phonegap-nfc",
     "platforms": [
       "android",
       "wp8",
@@ -26,7 +26,7 @@
     "cordova-blackberry10"
   ],
   "author": "Don Coleman <don.coleman@gmail.com>",
-  "author": "Wesley Van De Voorde <wesley@chariotsolutions.be>",
+  "author": "Wesley Van De Voorde <wesley@rombit.be>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/chariotsolutions/phonegap-nfc/issues"
