@@ -702,7 +702,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         try {
             mifare.connect();
             final byte[] payload = mifare.readPages(144);
-            final String sigfoxId = new String(payload).substring(4, 13);
+            final String sigfoxId = new String(payload).substring(5, 13);
             tagJSON.put("type", mifare.getType());
             tagJSON.put("sigfox", sigfoxId);
             mifare.close();
