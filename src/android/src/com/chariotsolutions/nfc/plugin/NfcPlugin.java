@@ -1,10 +1,8 @@
 package com.chariotsolutions.nfc.plugin;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -440,7 +438,6 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         Iterator<IntentFilter> iter = intentFilters.iterator();
         while (iter.hasNext()) {
             IntentFilter intentFilter = iter.next();
-
             if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intentFilter.getAction(0))) {
                 iter.remove();
                 removed = true;
