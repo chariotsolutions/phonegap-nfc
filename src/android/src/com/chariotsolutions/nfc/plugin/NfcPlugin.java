@@ -593,7 +593,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     private void removeFromTechList(String[] techs) {
-        techLists.remove(listItem);
+        techLists.remove(techs);
     }
 
     private boolean removeIntentFilter(String mimeType) throws MalformedMimeTypeException {
