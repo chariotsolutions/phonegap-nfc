@@ -442,6 +442,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             IntentFilter intentFilter = iter.next();
 
             if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intentFilter.getAction(0))) {
+                iter.remove();
                 removed = true;
             }
         }
@@ -458,7 +459,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         while (iter.hasNext()) {
             IntentFilter intentFilter = iter.next();
             if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intentFilter.getAction(0))) {
-                intentFilters.remove(intentFilter);
+                iter.remove();
                 removed = true;
             }
         }
@@ -588,32 +589,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     private void addToTechList(String[] techs) {
-        boolean found = false;
-        Iterator<String[]> iter = techLists.iterator();
-        while (iter.hasNext()) {
-            String[] listItem = iter.next();
-            if (listItem[0].equals(techs[0])) {
-                found = true;
-            }
-        }
-
-        if (!found) {
-            techLists.add(techs);
-        }
+        techLists.add(techs);
     }
 
     private void removeFromTechList(String[] techs) {
-        Log.d(TAG, "Before remove Size :  " + techLists.size());
-
-        Iterator<String[]> iter = techLists.iterator();
-        while (iter.hasNext()) {
-            String[] listItem = iter.next();
-
-            if (listItem[0].equals(techs[0])) {
-                techLists.remove(listItem);
-            }
-        }
-        Log.d(TAG, "After remove Size :  " + techLists.size());
+        techLists.remove(listItem);
     }
 
     private boolean removeIntentFilter(String mimeType) throws MalformedMimeTypeException {
@@ -623,7 +603,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             IntentFilter intentFilter = iter.next();
             String mt = intentFilter.getDataType(0);
             if (mimeType.equals(mt)) {
-                intentFilters.remove(intentFilter);
+                iter.remove();
                 removed = true;
             }
         }
