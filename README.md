@@ -64,6 +64,10 @@ See [Getting Started](https://github.com/chariotsolutions/phonegap-nfc/blob/mast
 
 Reading NFC NDEF tags is supported on iPhone 7 and iPhone 7 Plus running iOS 11. To enable your app to detect NFC tags, turn on the Near Field Communication Tag Reading capability in your Xcode project. Build your application with XCode 9 beta. See the [Apple Documentation](http://help.apple.com/xcode/mac/current/#/dev88ff319e7) for more info.
 
+For iOS support, install the plugin from the [ios branch](https://github.com/chariotsolutions/phonegap-nfc/tree/ios)
+
+    cordova plugin add https://github.com/chariotsolutions/phonegap-nfc#ios
+
 Use [nfc.addNdefListener](#nfcaddndeflistener) to read NDEF NFC tags with iOS. Unfortunately, iOS also requires you to begin a session before scanning NFC tag. The JavaScript API contains two new iOS specific functions [nfc.beginSession](#nfcbeginsession) and [nfc.invalidateSession](#nfcinvalidatesession).
 
 You must call [nfc.beginSession](#nfcbeginsession) before every scan. 
