@@ -14,6 +14,7 @@ This plugin uses NDEF (NFC Data Exchange Format) for maximum compatibilty betwee
 Supported Platforms
 -------------------
 * Android
+* iOS 11
 * Windows (includes Windows Phone 8.1, Windows 8.1, Windows 10)
 * BlackBerry 10
 * Windows Phone 8
@@ -59,6 +60,16 @@ BlackBerry 7 support is only available for Cordova 2.x. For applications targeti
 
 See [Getting Started](https://github.com/chariotsolutions/phonegap-nfc/blob/master/doc/GettingStartedCLI.md) and [Getting Started BlackBerry 10](https://github.com/chariotsolutions/phonegap-nfc/blob/master/doc/GettingStartedBlackberry10.md)for more details.
 
+## iOS Notes
+
+Reading NFC NDEF tags is supported on iPhone 7 and iPhone 7 Plus running iOS 11. To enable your app to detect NFC tags, turn on the Near Field Communication Tag Reading capability in your Xcode project. Build your application with XCode 9 beta. See the [Apple Documentation](http://help.apple.com/xcode/mac/current/#/dev88ff319e7) for more info.
+
+Use [nfc.addNdefListener](#nfcaddndeflistener) to read NDEF NFC tags with iOS. Unfortunately, iOS also requires you to begin a session before scanning NFC tag. The JavaScript API contains two new iOS specific functions [nfc.beginSession](#nfcbeginsession) and [nfc.invalidateSession](#nfcinvalidatesession).
+
+You must call [nfc.beginSession](#nfcbeginsession) before every scan. 
+
+The initial iOS version plugin does not support scanning multiple tags (invalidateAfterFirstRead:FALSE) or setting the alertMessage. If you have use cases or suggestions on the best way to support multi-read or alert messages, open a ticket for discussion.
+
 # NFC
 
 > The nfc object provides access to the device's NFC sensor.
@@ -81,6 +92,8 @@ See [Getting Started](https://github.com/chariotsolutions/phonegap-nfc/blob/mast
 - [nfc.stopHandover](#nfcstophandover)
 - [nfc.enabled](#nfcenabled)
 - [nfc.showSettings](#nfcshowsettings)
+- [nfc.beginSession](#nfcbeginsession)
+- [nfc.invalidateSession](#nfcinvalidatesession)
 
 ## nfc.addNdefListener
 
@@ -104,9 +117,12 @@ For BlackBerry 10, you must configure the type of tags your application will rea
 
 On Android registered [mimeTypeListeners](#nfcaddmimetypelistener) takes precedence over this more generic NDEF listener.
 
+On iOS you must call [beingSession](#nfcbeginsession) before scanning a tag.
+
 ### Supported Platforms
 
 - Android
+- iOS
 - Windows
 - BlackBerry 7
 - BlackBerry 10
@@ -127,6 +143,7 @@ Removes the previously registered event listener for NDEF tags added via `nfc.ad
 ### Supported Platforms
 
 - Android
+- iOS
 - Windows
 - BlackBerry 7
 
@@ -507,7 +524,55 @@ Windows will return **NO_NFC_OR_NFC_DISABLED** when NFC is not present or disabl
 ### Supported Platforms
 
 - Android
+- iOS
 - Windows
+
+## nfc.beginSession
+
+iOS requires you to begin a session before scanning a NFC tag.
+
+    nfc.beginSession(success, failure);
+
+### Description
+
+Function `beginSession` starts the [NFCNDEFReaderSession](https://developer.apple.com/documentation/corenfc/nfcndefreadersession) allowing iOS to scan NFC tags.
+
+### Parameters
+
+- __success__: Success callback function called when the session begins [optional]
+- __failure__: Error callback function, invoked when error occurs. [optional]
+
+### Quick Example
+
+    nfc.beginSession();
+
+### Supported Platforms
+
+- iOS
+
+## nfc.invalidateSession
+
+Invalidate the NFC session.
+
+    nfc.invalidateSession(success, failure);
+
+### Description
+
+Function `invalidateSession` stops the [NFCNDEFReaderSession](https://developer.apple.com/documentation/corenfc/nfcndefreadersession) returning control to your app.
+
+### Parameters
+
+- __success__: Success callback function called when the session in invalidated [optional]
+- __failure__: Error callback function, invoked when error occurs. [optional]
+
+### Quick Example
+
+    nfc.invalidateSession();
+
+### Supported Platforms
+
+- iOS
+
 
 # NDEF
 

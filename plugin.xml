@@ -3,7 +3,7 @@
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="phonegap-nfc"
-    version="0.6.6">
+    version="0.7.0">
 
     <name>NFC</name>
 
@@ -100,6 +100,32 @@
         <config-file target="www/config.xml" parent="/widget">
             <!-- Note: mapping is broken in Cordova 3.1.0-0.2.0 -->
             <feature name="NfcPlugin" value="com.chariotsolutions.nfc.plugin" />
+        </config-file>
+    </platform>
+
+    <platform name="ios">
+        <js-module src="www/phonegap-nfc.js" name="NFC">
+            <runs />
+        </js-module>
+
+        <config-file parent="/*" target="config.xml">
+            <feature name="NfcPlugin">
+                <param name="ios-package" value="NfcPlugin" />
+            </feature>
+        </config-file>
+
+        <header-file src="src/ios/NfcPlugin.h" />
+        <source-file src="src/ios/NfcPlugin.m" />
+
+        <!-- TODO what type should this be? -->
+        <header-file src="src/ios/nfc.entitlements" />
+
+        <!-- frameworks -->
+        <framework src="CoreNFC.framework" />
+
+        <preference name="NFC_USAGE_DESCRIPTION" default="Read NFC Tags" />
+        <config-file target="*-Info.plist" parent="NFCReaderUsageDescription">
+            <string>$NFC_USAGE_DESCRIPTION</string>
         </config-file>
     </platform>
 
