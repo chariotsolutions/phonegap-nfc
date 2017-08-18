@@ -35,7 +35,7 @@ import java.util.Hashtable;
 public class NfcPlugin extends Plugin {
 
     private static final String TAG = "NfcPlugin: ";
-    
+
     // supported actions
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
     private static final String REGISTER_NDEF = "registerNdef";
@@ -48,7 +48,7 @@ public class NfcPlugin extends Plugin {
     private static final String SHARE_TAG = "shareTag";
     private static final String UNSHARE_TAG = "unshareTag";
     private static final String INIT = "init";
-    
+
     private static final String REMOVE_MIME_TYPE = "removeMimeType";
     private static final String REMOVE_NDEF = "removeNdef";
     private static final String REMOVE_DEFAULT_TAG = "removeTag";
