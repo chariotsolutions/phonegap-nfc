@@ -14,7 +14,7 @@ This plugin uses NDEF (NFC Data Exchange Format) for maximum compatibilty betwee
 Supported Platforms
 -------------------
 * Android
-* iOS 11
+* [iOS 11](#ios-notes)
 * Windows (includes Windows Phone 8.1, Windows 8.1, Windows 10)
 * BlackBerry 10
 * Windows Phone 8
