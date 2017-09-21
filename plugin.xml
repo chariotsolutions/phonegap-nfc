@@ -117,9 +117,6 @@
         <header-file src="src/ios/NfcPlugin.h" />
         <source-file src="src/ios/NfcPlugin.m" />
 
-        <!-- TODO what type should this be? -->
-        <header-file src="src/ios/nfc.entitlements" />
-
         <!-- frameworks -->
         <framework src="CoreNFC.framework" />
 
