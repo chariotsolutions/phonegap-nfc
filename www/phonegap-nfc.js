@@ -485,6 +485,16 @@ var nfc = {
 
     showSettings: function (win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "showSettings", []);
+    },
+
+    // iOS only
+    beginSession: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "beginSession", []);
+    },
+
+    // iOS only
+    invalidateSession: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "invalidateSession", []);
     }
 
 };
@@ -712,7 +722,7 @@ var uriHelper = {
     }
 };
 
-// added since WP8 must call a named function
+// added since WP8 must call a named function, also used by iOS
 // TODO consider switching NFC events from JS events to using the PG callbacks
 function fireNfcTagEvent(eventType, tagAsJson) {
     setTimeout(function () {
