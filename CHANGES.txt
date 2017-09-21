@@ -1,3 +1,9 @@
+= 0.7.0 =
+Add iOS support #139
+Fixed language code field length detection #219 Thanks homer-jay
+Fixed java.util.ConcurrentModificationException #231 Thanks João Gonçalves (Chuckytuh)
+Documentation fixes #224 Thanks Tom Brückner (derwaldgeist)
+
 = 0.6.6 =
 Update Windows platforms (includes Windows Phone 8.1)
  * tag event contains nested ndefMessage object #215
