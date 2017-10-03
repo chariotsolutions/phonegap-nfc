@@ -114,6 +114,18 @@
             </feature>
         </config-file>
 
+        <config-file platform="ios" target="*-Debug.plist" parent="com.apple.developer.nfc.readersession.formats">
+            <array>
+                <string>NDEF</string>
+            </array>
+        </config-file>
+
+        <config-file platform="ios" target="*-Release.plist" parent="com.apple.developer.nfc.readersession.formats">
+            <array>
+                <string>NDEF</string>
+            </array>
+        </config-file>
+        
         <header-file src="src/ios/NfcPlugin.h" />
         <source-file src="src/ios/NfcPlugin.m" />
 
