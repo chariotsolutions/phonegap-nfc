@@ -77,9 +77,9 @@
 
 - (void) readerSession:(NFCNDEFReaderSession *)session didDetectNDEFs:(NSArray<NFCNDEFMessage *> *)messages {
     NSLog(@"NFCNDEFReaderSession didDetectNDEFs");
-    
+    NSArray *tagId = [self getTagIdFromSession:session];
     for (NFCNDEFMessage *message in messages) {
-        [self fireNdefEvent: message];
+        [self fireNdefEvent: message withTagId:tagId];
     }
 }
 
@@ -108,10 +108,10 @@
 // The event handler registered by addNdefListener will handle the JavaScript event fired by fireNfcTagEvent().
 // This is a bit convoluted and based on how PhoneGap 0.9 worked. A new implementation would send the data
 // in a success callback.
--(void) fireNdefEvent:(NFCNDEFMessage *) ndefMessage {
-    NSString *ndefMessageAsJSONString = [self ndefMessagetoJSONString:ndefMessage];
+-(void) fireNdefEvent:(NFCNDEFMessage *) ndefMessage withTagId:(NSArray *)tagId {
+    NSString *ndefMessageAsJSONString = [self ndefMessagetoJSONString:ndefMessage withTagId: tagId];
     NSLog(@"%@", ndefMessageAsJSONString);
-
+    
     // construct string to call JavaScript function fireNfcTagEvent(eventType, tagAsJson);
     NSString *function = [NSString stringWithFormat:@"fireNfcTagEvent('ndef', '%@')", ndefMessageAsJSONString];
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -119,7 +119,7 @@
     });
 }
 
--(NSString *) ndefMessagetoJSONString:(NFCNDEFMessage *) ndefMessage {
+-(NSString *) ndefMessagetoJSONString:(NFCNDEFMessage *) ndefMessage withTagId:(NSArray *)tagId {
     
     NSMutableArray *array = [NSMutableArray new];
     for (NFCNDEFPayload *record in ndefMessage.records){
@@ -130,6 +130,7 @@
     // The JavaScript tag object expects a key with ndefMessage
     NSMutableDictionary *wrapper = [NSMutableDictionary new];
     [wrapper setObject:array forKey:@"ndefMessage"];
+    [wrapper setObject:tagId forKey:@"id"];
     return dictionaryAsJSONString(wrapper);
 }
 
@@ -167,4 +168,24 @@ NSString* dictionaryAsJSONString(NSDictionary *dict) {
     return jsonString;
 }
 
+- (NSArray *)getTagIdFromSession:(NFCNDEFReaderSession *)session {
+    NSArray *uuid = [NSArray array];
+    NSData *uuidData = [NSData data];
+    if ([session valueForKey:@"_foundTags"]){
+        NSArray *foundTags = [session valueForKey:@"_foundTags"];
+        if ([foundTags count] != 0){
+            NSObject *tag = foundTags.firstObject;
+            if ([tag valueForKey:@"_tagID"]){
+                NSData *uuidPadded = [tag valueForKey:@"_tagID"];
+                uuidData = [NSData dataWithBytes:[uuidPadded bytes] length:7];
+            }
+        }
+    }
+    if (uuidData) {
+        uuid = uint8ArrayFromNSData(uuidData);
+    }
+    return uuid;
+}
+
 @end
+
