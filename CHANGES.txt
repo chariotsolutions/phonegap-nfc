@@ -1,3 +1,6 @@
+= 0.7.1 =
+Automatically Add NFC entitlement for iOS #285 Thanks andreamaioli
+
 = 0.7.0 =
 Add iOS support #139
 Fixed language code field length detection #219 Thanks homer-jay
