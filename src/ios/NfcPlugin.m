@@ -5,6 +5,7 @@
 //  (c) 2107 Don Coleman
 
 #import "NfcPlugin.h"
+#import <WebKit/WebKit.h>
 
 @interface NfcPlugin() {
     NSString* ndefStartSessionCallbackId;
@@ -115,18 +116,21 @@
     // construct string to call JavaScript function fireNfcTagEvent(eventType, tagAsJson);
     NSString *function = [NSString stringWithFormat:@"fireNfcTagEvent('ndef', '%@')", ndefMessageAsJSONString];
     dispatch_async(dispatch_get_main_queue(), ^{
-        [(UIWebView*)[self webView] stringByEvaluatingJavaScriptFromString: function];
+        if ([[self webView] isKindOfClass:WKWebView.class])
+            [(WKWebView*)[self webView] evaluateJavaScript:function completionHandler:^(id result, NSError *error) {}];
+        else
+            [(UIWebView*)[self webView] stringByEvaluatingJavaScriptFromString: function];
     });
 }
 
 -(NSString *) ndefMessagetoJSONString:(NFCNDEFMessage *) ndefMessage {
-    
+
     NSMutableArray *array = [NSMutableArray new];
     for (NFCNDEFPayload *record in ndefMessage.records){
         NSDictionary* recordDictionary = [self ndefRecordToNSDictionary:record];
         [array addObject:recordDictionary];
     }
-    
+
     // The JavaScript tag object expects a key with ndefMessage
     NSMutableDictionary *wrapper = [NSMutableDictionary new];
     [wrapper setObject:array forKey:@"ndefMessage"];
