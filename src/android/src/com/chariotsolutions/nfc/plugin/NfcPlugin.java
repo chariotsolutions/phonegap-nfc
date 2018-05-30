@@ -846,10 +846,12 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         }
     }
 
+    // TODO remove this use ArrayBuffers
     private byte[] hex2Byte(final String hex) {
         return new BigInteger(hex, 16).toByteArray();
     }
 
+    // TODO remove this use ArrayBuffers
     private String byte2Hex(final byte[] b) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < b.length; i++) {
@@ -859,40 +861,32 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     class NfcConnect
-            implements Runnable
-    {
+            implements Runnable {
 
         NfcPlugin nfcPlugin;
         CallbackContext callbackContext;
 
-        NfcConnect(NfcPlugin nfcPlugin, CallbackContext callbackContext)
-        {
+        NfcConnect(NfcPlugin nfcPlugin, CallbackContext callbackContext) {
             this.nfcPlugin = nfcPlugin;
             this.callbackContext = callbackContext;
         }
 
         @Override
-        public void run()
-        {
-            try
-            {
-                if (nfcPlugin.tag == null)
-                {
+        public void run() {
+            try {
+                if (nfcPlugin.tag == null) {
                     nfcPlugin.tag = (Tag) getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
                 }
-                if (nfcPlugin.tag == null)
-                {
+                if (nfcPlugin.tag == null) {
                     nfcPlugin.tag = (Tag) nfcPlugin.savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                 }
-                if (nfcPlugin.tag == null)
-                {
+                if (nfcPlugin.tag == null) {
                     Log.e(TAG, "No Tag");
                     callbackContext.error("No Tag");
                 }
 
                 nfcPlugin.isoDep = IsoDep.get(tag);
-                if (nfcPlugin.isoDep == null)
-                {
+                if (nfcPlugin.isoDep == null) {
                     Log.e(TAG, "No Tech");
                     callbackContext.error("No Tech");
                 }
@@ -905,40 +899,32 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 nfcPlugin.fireConnected(nfcPlugin.tag);
 
                 callbackContext.success();
-            }
-            catch (IOException ex)
-            {
+            } catch (IOException ex) {
                 Log.e(TAG, "Can't connect to IsoDep", ex);
             }
         }
     }
 
     class NfcClose
-            implements Runnable
-    {
+            implements Runnable {
 
         NfcPlugin nfcPlugin;
         CallbackContext callbackContext;
 
-        NfcClose(NfcPlugin nfcPlugin, CallbackContext callbackContext)
-        {
+        NfcClose(NfcPlugin nfcPlugin, CallbackContext callbackContext) {
             this.nfcPlugin = nfcPlugin;
             this.callbackContext = callbackContext;
         }
 
         @Override
-        public void run()
-        {
-            try
-            {
-                if (nfcPlugin.isoDep == null)
-                {
+        public void run() {
+            try {
+                if (nfcPlugin.isoDep == null) {
                     // TODO: no error - just return
                     Log.e(TAG, "No Tech");
                     callbackContext.error("No Tech");
                 }
-                if (!isoDep.isConnected())
-                {
+                if (!isoDep.isConnected()) {
                     // TODO: no error - just return
                     Log.e(TAG, "Not connected");
                     callbackContext.error("Not connected");
@@ -951,41 +937,33 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
 //                nfcPlugin.fireClosed(nfcPlugin.tag);
                 callbackContext.success();
-            }
-            catch (IOException ex)
-            {
+            } catch (IOException ex) {
                 Log.e(TAG, "Can't connect to IsoDep", ex);
             }
         }
     }
 
     class NfcTransceive
-            implements Runnable
-    {
+            implements Runnable {
 
         NfcPlugin nfcPlugin;
         JSONArray data;
         CallbackContext callbackContext;
 
-        NfcTransceive(NfcPlugin nfcPlugin, JSONArray data, CallbackContext callbackContext)
-        {
+        NfcTransceive(NfcPlugin nfcPlugin, JSONArray data, CallbackContext callbackContext) {
             this.nfcPlugin = nfcPlugin;
             this.data = data;
             this.callbackContext = callbackContext;
         }
 
         @Override
-        public void run()
-        {
-            try
-            {
-                if (nfcPlugin.isoDep == null)
-                {
+        public void run() {
+            try {
+                if (nfcPlugin.isoDep == null) {
                     Log.e(TAG, "No Tech");
                     callbackContext.error("No Tech");
                 }
-                if (!nfcPlugin.isoDep.isConnected())
-                {
+                if (!nfcPlugin.isoDep.isConnected()) {
                     Log.e(TAG, "Not connected");
                     callbackContext.error("Not connected");
                 }
@@ -998,20 +976,16 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 callbackContext.success(nfcPlugin.byte2Hex(responseAPDU));
 
                 callbackContext.success();
-            }
-            catch (IOException ex)
-            {
+            } catch (IOException ex) {
                 Log.e(TAG, "Can't connect to IsoDep", ex);
-            }
-            catch (JSONException ex)
-            {
+            } catch (JSONException ex) {
                 Log.e(TAG, "Can't get data", ex);
             }
         }
     }
 
-    private void fireConnected(Tag tag)
-    {
+    // TODO remove this and only use callbacks
+    private void fireConnected(Tag tag) {
         Log.e(TAG, "fireConnected" + tag);
         String command = MessageFormat.format(javaScriptEventTemplate, "nfc-connected", Util.tagToJSON(tag));
         Log.e(TAG, command);
