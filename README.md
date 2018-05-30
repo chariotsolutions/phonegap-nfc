@@ -8,6 +8,7 @@ Use to
 * write data to NFC tags
 * send data to other NFC enabled devices
 * receive data from NFC devices
+* send ISO-DEP (ISO 14443-4) commands to compatible devices
 
 This plugin uses NDEF (NFC Data Exchange Format) for maximum compatibilty between NFC devices, tag types, and operating systems.
 
@@ -631,8 +632,6 @@ The IsoDep functions provide access to ISO-DEP (ISO 14443-4) I/O operations on a
 
     document.addEventListener('deviceready', onDeviceReady, false);
 
-
-
 ## nfc.connect
 
 Connect to the IsoDep tag and enable I/O operations to the tag from this TagTechnology object.
@@ -641,9 +640,9 @@ Connect to the IsoDep tag and enable I/O operations to the tag from this TagTech
 
 ### Description
 
-Function `connect` ensables I/O operations to the tag from this TagTechnology object. `nfc.connect` should be called after receiving a nfcEvent from the `addTagDiscoveredListener`.
+Function `connect` enables I/O operations to the tag from this TagTechnology object. `nfc.connect` should be called after receiving a nfcEvent from the `addTagDiscoveredListener`.
 
-See [IsoDep.connect](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#connect()).
+See Android's [IsoDep.connect()](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#connect()) for more info.
 
 ### Parameters
 
@@ -675,9 +674,9 @@ Send raw IsoDep data to the tag and receive the response.
 
 ### Description
 
-Function `transceive`. Send raw ISO-DEP data to the tag and receives the response. `nfc.connect` must be called before calling `transceive`. Data passed to transcieve can be a hex string representation of byte or an ArrayBuffer. The response is returned as an ArrayBuffer in the promise. 
+Function `transceive` sends raw ISO-DEP (ISO 14443-4) data to the tag and receives the response. `nfc.connect` must be called before calling `transceive`. Data passed to transceive can be a hex string representation of bytes or an ArrayBuffer. The response is returned as an ArrayBuffer in the promise. 
 
-See [IsoDep.transceive](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#transceive(byte[])).
+See Android's [IsoDep.transceive()](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#transceive(byte[])) for more info.
 
 ### Parameters
 
@@ -711,9 +710,9 @@ Close IsoDep connection.
 
 ### Description
 
-Function `close`. Disable I/O operations to the tag from this TagTechnology object, and release resources.
+Function `close` disabled I/O operations to the tag from this TagTechnology object, and releases resources.
 
-See [IsoDep.close](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#close())
+See Android's [IsoDep.close()](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#close()) for more info.
 
 ### Parameters
 
