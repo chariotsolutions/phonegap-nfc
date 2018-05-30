@@ -95,6 +95,12 @@ The initial iOS version plugin does not support scanning multiple tags (invalida
 - [nfc.beginSession](#nfcbeginsession)
 - [nfc.invalidateSession](#nfcinvalidatesession)
 
+## ISO-DEP (ISO 14443-4) methods
+
+- [nfc.connect](#nfcconnect)
+- [nfc.transceive](#nfctransceive)
+- [nfc.close](#nfcclose)
+
 ## nfc.addNdefListener
 
 Registers an event listener for any NDEF tag.
@@ -573,6 +579,160 @@ Function `invalidateSession` stops the [NFCNDEFReaderSession](https://developer.
 
 - iOS
 
+# IsoDep (ISO 14443-4) functions
+
+The IsoDep functions provide access to ISO-DEP (ISO 14443-4) I/O operations on a Tag. Connect to a tag, send commands with tranceive, close the tag. See the [Android IsoDep documentation](https://developer.android.com/reference/android/nfc/tech/IsoDep) for more details. These new APIs are promise based rather than using callbacks.
+
+#### IsoDep Example
+
+    const DESFIRE_SELECT_PICC = '00 A4 04 00 07 D2 76 00 00 85 01 00';
+    const DESFIRE_SELECT_AID = '90 5A 00 00 03 AA AA AA 00'
+
+    async function handleDesfire(nfcEvent) {
+        
+        const tagId = nfc.bytesToHexString(nfcEvent.tag.id);
+        console.log('Processing', tagId);
+
+        try {
+            await nfc.connect();
+            console.log('connected to', tagId);
+            
+            let response = await nfc.transceive(DESFIRE_SELECT_PICC);
+            ensureResponseIs('9000', response);
+            
+            response = await nfc.transceive(DESFIRE_SELECT_AID);
+            ensureResponseIs('9100', response);
+
+            console.log('Selected application AA AA AA'); 
+
+            // more transcieve commands go here
+            
+        } catch (error) {
+            alert(error)
+        } finally {
+            await nfc.close();
+            console.log('closed');
+        }
+
+    }
+
+    function ensureResponseIs(expectedResponse, buffer) {
+        const responseString = util.arrayBufferToHexString(buffer);
+        if (expectedResponse !== responseString) {
+            const error = 'Expecting ' + expectedResponse + ' but received ' + responseString;
+            throw error;
+        }
+    }
+
+
+    function onDeviceReady() {
+        nfc.addTagDiscoveredListener(handleDesfire);
+    }
+
+    document.addEventListener('deviceready', onDeviceReady, false);
+
+
+
+## nfc.connect
+
+Connect to the IsoDep tag and enable I/O operations to the tag from this TagTechnology object.
+
+    nfc.connect();
+
+### Description
+
+Function `connect` ensables I/O operations to the tag from this TagTechnology object. `nfc.connect` should be called after receiving a nfcEvent from the `addTagDiscoveredListener`.
+
+See [IsoDep.connect](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#connect()).
+
+### Parameters
+
+ - none
+
+### Returns
+
+ - Promise when the connection is successful
+
+### Quick Example
+
+    nfc.addTagDiscoveredListener(function(nfcEvent) {
+        nfc.connect().then(
+            () => console.log('connected to', nfc.bytesToHexString(nfcEvent.tag.id)),
+            (error) => console.log('connection failed', error)
+        );
+    })
+
+### Supported Platforms
+
+- Android
+
+## nfc.transceive
+
+Send raw IsoDep data to the tag and receive the response.
+
+
+    nfc.transceive(message);
+
+### Description
+
+Function `transceive`. Send raw ISO-DEP data to the tag and receives the response. `nfc.connect` must be called before calling `transceive`. Data passed to transcieve can be a hex string representation of byte or an ArrayBuffer. The response is returned as an ArrayBuffer in the promise. 
+
+See [IsoDep.transceive](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#transceive(byte[])).
+
+### Parameters
+
+- __data__: a string of hex data or an ArrayBuffer
+
+### Returns
+
+ - Promise with the response data as an ArrayBuffer
+
+### Quick Example
+
+    // Promise style
+    nfc.transceive('90 5A 00 00 03 AA AA AA 00').then(
+        response => console.log(util.arrayBufferToString(response)),
+        error => console.log('Error selecting DESFire application')
+    )
+
+    // async await
+    const response = await nfc.transceive('90 5A 00 00 03 AA AA AA 00');
+    console.log('response =',util.arrayBufferToString(response));
+
+### Supported Platforms
+
+- Android
+
+## nfc.close (ISO-DEP function)
+
+Close IsoDep connection.
+
+    nfc.close();
+
+### Description
+
+Function `close`. Disable I/O operations to the tag from this TagTechnology object, and release resources.
+
+See [IsoDep.close](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#close())
+
+### Parameters
+
+ - none
+
+### Returns
+
+ - Promise when the connection is successful
+
+### Quick Example
+
+    nfc.transceive().then(
+        () => console.log('connection closed'),
+        (error) => console.log('error closing connection', error);
+    )
+
+### Supported Platforms
+
+- Android
 
 # NDEF
 
