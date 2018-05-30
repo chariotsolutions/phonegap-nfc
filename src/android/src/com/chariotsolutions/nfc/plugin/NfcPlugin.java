@@ -67,7 +67,6 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String CLOSE = "close";
     private static final String TRANSCEIVE = "transceive";
     private IsoDep isoDep = null;
-    private Tag tag = null;
 
     private static final String TAG = "NfcPlugin";
     private final List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
@@ -874,44 +873,40 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
         @Override
         public void run() {
-            // TODO who uses nfcPlugin.tag?
             try {
-                if (nfcPlugin.tag == null) {
-                    nfcPlugin.tag = (Tag) getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
+
+                // TODO why are we checking both here?
+                Tag tag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                if (tag == null) {
+                    tag = nfcPlugin.savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                 }
-                if (nfcPlugin.tag == null) {
-                    nfcPlugin.tag = (Tag) nfcPlugin.savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                }
-                if (nfcPlugin.tag == null) {
+
+                if (tag == null) {
                     Log.e(TAG, "No Tag");
                     callbackContext.error("No Tag");
-                    // TODO stop execution here
+                    return;
                 }
 
                 nfcPlugin.isoDep = IsoDep.get(tag);
                 if (nfcPlugin.isoDep == null) {
                     Log.e(TAG, "No Tech");
                     callbackContext.error("No Tech");
-                    // TODO stop execution here
+                    return;
                 }
 
-                Log.e(TAG, "## connect... ");
                 nfcPlugin.isoDep.connect();
                 nfcPlugin.isoDep.setTimeout(3000);  // TODO timeout should be configurable
-                Log.e(TAG, "## connected ");
-
-                nfcPlugin.fireConnected(nfcPlugin.tag);
-
                 callbackContext.success();
+
             } catch (IOException ex) {
                 Log.e(TAG, "Can't connect to IsoDep", ex);
-                // TODO call callback error function here
+                callbackContext.error("Error connected to IsoDep " + ex.getLocalizedMessage());
             }
         }
     }
 
-    class NfcClose
-            implements Runnable {
+    // TODO can this be inline?
+    class NfcClose implements Runnable {
 
         NfcPlugin nfcPlugin;
         CallbackContext callbackContext;
@@ -924,26 +919,19 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         @Override
         public void run() {
             try {
-                if (nfcPlugin.isoDep == null) {
-                    // TODO: no error - just return
-                    Log.e(TAG, "No Tech");
-                    callbackContext.error("No Tech");
-                }
-                if (!isoDep.isConnected()) {
-                    // TODO: no error - just return
-                    Log.e(TAG, "Not connected");
-                    callbackContext.error("Not connected");
+
+                if (nfcPlugin.isoDep != null && isoDep.isConnected()) {
+                    nfcPlugin.isoDep.close();
+                    nfcPlugin.isoDep = null;
+                    callbackContext.success();
+                } else {
+                    // connection already gone
+                    callbackContext.success();
                 }
 
-                Log.e(TAG, "## close... ");
-                nfcPlugin.isoDep.close();
-                nfcPlugin.isoDep = null;
-                Log.e(TAG, "## closed ");
-
-//                nfcPlugin.fireClosed(nfcPlugin.tag);
-                callbackContext.success();
             } catch (IOException ex) {
-                Log.e(TAG, "Can't connect to IsoDep", ex);
+                Log.e(TAG, "Error closing nfc connection", ex);
+                callbackContext.error("Error closing nfc connection " + ex.getLocalizedMessage());
             }
         }
     }
@@ -990,13 +978,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 //        }
 //    }
 
-    // TODO remove this and only use callbacks
-    private void fireConnected(Tag tag) {
-        Log.e(TAG, "fireConnected" + tag);
-        String command = MessageFormat.format(javaScriptEventTemplate, "nfc-connected", Util.tagToJSON(tag));
-        Log.e(TAG, command);
-        this.webView.sendJavascript(command);
-    }
+//    // TODO remove this and only use callbacks
+//    private void fireConnected(Tag tag) {
+//        Log.e(TAG, "fireConnected" + tag);
+//        String command = MessageFormat.format(javaScriptEventTemplate, "nfc-connected", Util.tagToJSON(tag));
+//        Log.e(TAG, command);
+//        this.webView.sendJavascript(command);
+//    }
 
 
 }
