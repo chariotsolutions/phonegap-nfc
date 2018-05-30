@@ -1,7 +1,6 @@
 package com.chariotsolutions.nfc.plugin;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -800,15 +799,24 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     /**
      * APDU
      */
-    private void close(CallbackContext callbackContext)
-            throws JSONException {
-        Log.e(TAG, "## close ");
-        try {
-            this.cordova.getThreadPool().execute(new NfcClose(this, callbackContext));
-        } catch (Throwable e) {
-            Log.e(TAG, "## EXCEPTION ", e);
-            callbackContext.error("Ups " + e.getMessage());
-        }
+    private void close(CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(() -> {
+            try {
+
+                if (isoDep != null && isoDep.isConnected()) {
+                    isoDep.close();
+                    isoDep = null;
+                    callbackContext.success();
+                } else {
+                    // connection already gone
+                    callbackContext.success();
+                }
+
+            } catch (IOException ex) {
+                Log.e(TAG, "Error closing nfc connection", ex);
+                callbackContext.error("Error closing nfc connection " + ex.getLocalizedMessage());
+            }
+        });
     }
 
     /**
