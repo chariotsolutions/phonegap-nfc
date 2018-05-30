@@ -1,6 +1,7 @@
 package com.chariotsolutions.nfc.plugin;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,6 +27,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.nfc.Tag;
 import android.nfc.TagLostException;
+import android.nfc.tech.IsoDep;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.os.Parcelable;
@@ -59,6 +61,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String STATUS_NO_NFC = "NO_NFC";
     private static final String STATUS_NFC_DISABLED = "NFC_DISABLED";
     private static final String STATUS_NDEF_PUSH_DISABLED = "NDEF_PUSH_DISABLED";
+
+    // isodep
+    private static final String CONNECT = "connect";
+    private static final String CLOSE = "close";
+    private static final String TRANSCEIVE = "transceive";
+    private IsoDep isoDep = null;
+    private Tag tag = null;
 
     private static final String TAG = "NfcPlugin";
     private final List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
@@ -140,6 +149,15 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             // status is checked before every call
             // if code made it here, NFC is enabled
             callbackContext.success(STATUS_NFC_OK);
+
+        } else if (action.equalsIgnoreCase(CONNECT)) {
+            connect(callbackContext);
+
+        } else if (action.equalsIgnoreCase(TRANSCEIVE)) {
+            transceive(data, callbackContext);
+
+        } else if (action.equalsIgnoreCase(CLOSE)) {
+            close(callbackContext);
 
         } else {
             // invalid action
@@ -763,4 +781,242 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         }
 
     }
+
+    // isodep
+
+    /**
+     * APDU
+     */
+    private void connect(final CallbackContext callbackContext)
+            throws JSONException {
+        Log.e(TAG, "## connect ");
+        try {
+            this.cordova.getThreadPool().execute(new NfcConnect(this, callbackContext));
+        } catch (Throwable e) {
+            Log.e(TAG, "## EXCEPTION ", e);
+            callbackContext.error("Ups " + e.getMessage());
+        }
+    }
+
+    /**
+     * APDU
+     */
+    private void close(CallbackContext callbackContext)
+            throws JSONException {
+        Log.e(TAG, "## close ");
+        try {
+            this.cordova.getThreadPool().execute(new NfcClose(this, callbackContext));
+        } catch (Throwable e) {
+            Log.e(TAG, "## EXCEPTION ", e);
+            callbackContext.error("Ups " + e.getMessage());
+        }
+    }
+
+    /**
+     * APDU
+     */
+    private void transceive(final JSONArray data, final CallbackContext callbackContext)
+            throws JSONException {
+        Log.e(TAG, "## transceive < " + data.getString(0));
+        try {
+            if (1 == 2) {
+                this.cordova.getThreadPool().execute(new NfcTransceive(this, data, callbackContext));
+            } else {
+                if (isoDep == null) {
+                    Log.e(TAG, "No Tech");
+                    callbackContext.error("No Tech");
+                    return;
+                }
+                if (!isoDep.isConnected()) {
+                    Log.e(TAG, "Not connected");
+                    callbackContext.error("Not connected");
+                    return;
+                }
+
+                byte[] commandAPDU = hex2Byte(data.getString(0));
+                byte[] responseAPDU = isoDep.transceive(commandAPDU);
+
+                Log.e(TAG, "## transceive > " + byte2Hex(responseAPDU));
+
+                callbackContext.success(byte2Hex(responseAPDU));
+            }
+        } catch (Throwable e) {
+            Log.e(TAG, "## EXCEPTION ", e);
+            callbackContext.error("Ups " + e.getMessage());
+        }
+    }
+
+    private byte[] hex2Byte(final String hex) {
+        return new BigInteger(hex, 16).toByteArray();
+    }
+
+    private String byte2Hex(final byte[] b) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < b.length; i++) {
+            sb.append(Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        return sb.toString();
+    }
+
+    class NfcConnect
+            implements Runnable
+    {
+
+        NfcPlugin nfcPlugin;
+        CallbackContext callbackContext;
+
+        NfcConnect(NfcPlugin nfcPlugin, CallbackContext callbackContext)
+        {
+            this.nfcPlugin = nfcPlugin;
+            this.callbackContext = callbackContext;
+        }
+
+        @Override
+        public void run()
+        {
+            try
+            {
+                if (nfcPlugin.tag == null)
+                {
+                    nfcPlugin.tag = (Tag) getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                }
+                if (nfcPlugin.tag == null)
+                {
+                    nfcPlugin.tag = (Tag) nfcPlugin.savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                }
+                if (nfcPlugin.tag == null)
+                {
+                    Log.e(TAG, "No Tag");
+                    callbackContext.error("No Tag");
+                }
+
+                nfcPlugin.isoDep = IsoDep.get(tag);
+                if (nfcPlugin.isoDep == null)
+                {
+                    Log.e(TAG, "No Tech");
+                    callbackContext.error("No Tech");
+                }
+
+                Log.e(TAG, "## connect... ");
+                nfcPlugin.isoDep.connect();
+                nfcPlugin.isoDep.setTimeout(3000);
+                Log.e(TAG, "## connected ");
+
+                nfcPlugin.fireConnected(nfcPlugin.tag);
+
+                callbackContext.success();
+            }
+            catch (IOException ex)
+            {
+                Log.e(TAG, "Can't connect to IsoDep", ex);
+            }
+        }
+    }
+
+    class NfcClose
+            implements Runnable
+    {
+
+        NfcPlugin nfcPlugin;
+        CallbackContext callbackContext;
+
+        NfcClose(NfcPlugin nfcPlugin, CallbackContext callbackContext)
+        {
+            this.nfcPlugin = nfcPlugin;
+            this.callbackContext = callbackContext;
+        }
+
+        @Override
+        public void run()
+        {
+            try
+            {
+                if (nfcPlugin.isoDep == null)
+                {
+                    // TODO: no error - just return
+                    Log.e(TAG, "No Tech");
+                    callbackContext.error("No Tech");
+                }
+                if (!isoDep.isConnected())
+                {
+                    // TODO: no error - just return
+                    Log.e(TAG, "Not connected");
+                    callbackContext.error("Not connected");
+                }
+
+                Log.e(TAG, "## close... ");
+                nfcPlugin.isoDep.close();
+                nfcPlugin.isoDep = null;
+                Log.e(TAG, "## closed ");
+
+//                nfcPlugin.fireClosed(nfcPlugin.tag);
+                callbackContext.success();
+            }
+            catch (IOException ex)
+            {
+                Log.e(TAG, "Can't connect to IsoDep", ex);
+            }
+        }
+    }
+
+    class NfcTransceive
+            implements Runnable
+    {
+
+        NfcPlugin nfcPlugin;
+        JSONArray data;
+        CallbackContext callbackContext;
+
+        NfcTransceive(NfcPlugin nfcPlugin, JSONArray data, CallbackContext callbackContext)
+        {
+            this.nfcPlugin = nfcPlugin;
+            this.data = data;
+            this.callbackContext = callbackContext;
+        }
+
+        @Override
+        public void run()
+        {
+            try
+            {
+                if (nfcPlugin.isoDep == null)
+                {
+                    Log.e(TAG, "No Tech");
+                    callbackContext.error("No Tech");
+                }
+                if (!nfcPlugin.isoDep.isConnected())
+                {
+                    Log.e(TAG, "Not connected");
+                    callbackContext.error("Not connected");
+                }
+
+                byte[] commandAPDU = nfcPlugin.hex2Byte(data.getString(0));
+                byte[] responseAPDU = nfcPlugin.isoDep.transceive(commandAPDU);
+
+                Log.e(TAG, "## transceive > " + nfcPlugin.byte2Hex(responseAPDU));
+
+                callbackContext.success(nfcPlugin.byte2Hex(responseAPDU));
+
+                callbackContext.success();
+            }
+            catch (IOException ex)
+            {
+                Log.e(TAG, "Can't connect to IsoDep", ex);
+            }
+            catch (JSONException ex)
+            {
+                Log.e(TAG, "Can't get data", ex);
+            }
+        }
+    }
+
+    private void fireConnected(Tag tag)
+    {
+        Log.e(TAG, "fireConnected" + tag);
+        String command = MessageFormat.format(javaScriptEventTemplate, "nfc-connected", Util.tagToJSON(tag));
+        Log.e(TAG, command);
+        this.webView.sendJavascript(command);
+    }
+
+
 }
