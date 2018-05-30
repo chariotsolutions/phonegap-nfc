@@ -495,6 +495,41 @@ var nfc = {
     // iOS only
     invalidateSession: function (win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "invalidateSession", []);
+    },
+
+    // IsoDep (Android only)
+    connect: function() {
+        return new Promise(function(resolve, reject) {
+            cordova.exec(resolve, reject, 'NfcPlugin', 'connect', []);
+        });
+    },
+
+    // IsoDep (Android only)
+    close: function() {
+        return new Promise(function(resolve, reject) {
+            cordova.exec(resolve, reject, 'NfcPlugin', 'close', []);
+        });
+    },
+
+    // IsoDep (Android only)
+    // data - ArrayBuffer or string of hex data for transcieve
+    // the results of transcieve are returned in the promise success as an ArrayBuffer
+    transceive: function(data) {
+        return new Promise(function(resolve, reject) {
+
+            let buffer;
+            if (typeof data === 'string') {
+                buffer = util.hexStringToArrayBuffer(data);
+            } else if (data instanceof ArrayBuffer) {
+                buffer = data;
+            } else if (data instanceof Uint8Array) {
+                buffer = data.buffer;
+            } else {
+                reject("Expecing an ArrayBuffer or String");
+            }
+
+            cordova.exec(resolve, reject, 'NfcPlugin', 'transceive', [buffer]);
+        });
     }
 
 };
@@ -642,6 +677,57 @@ var util = {
             return (nfc.bytesToString(record.type) === recordType);
         }
         return false;
+    },
+
+    /**
+     * Convert an ArrayBuffer to a hex string
+     *
+     * @param {ArrayBuffer} buffer
+     * @returns {srting} - hex representation of bytes e.g. 000407AF 
+     */
+    arrayBufferToHexString: function(buffer) {
+        function toHexString(byte) {
+            return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+        }
+        const typedArray = new Uint8Array(buffer);
+        var array = Array.from(typedArray);  // need to convert to [] so our map result is not typed
+        const parts = array.map(i => toHexString(i));
+        return parts.join('');
+    },
+
+    /**
+     * Convert a hex string to an ArrayBuffer.
+     *
+     * @param {string} hexString - hex representation of bytes
+     * @return {ArrayBuffer} - The bytes in an ArrayBuffer.
+     */
+    hexStringToArrayBuffer: function(hexString) {
+
+        // remove any delimiters - space, dash, or colon
+        hexString = hexString.replace(/[\s-:]/g, '');
+
+        // remove the leading 0x
+        hexString = hexString.replace(/^0x/, '');
+
+        // ensure even number of characters
+        if (hexString.length % 2 != 0) {
+            console.log('WARNING: expecting an even number of characters in the hexString');
+        }
+
+        // check for some non-hex characters
+        const bad = hexString.match(/[G-Z\s]/i);
+        if (bad) {
+            console.log('WARNING: found non-hex characters', bad);
+        }
+
+        // split the string into pairs of octets
+        const pairs = hexString.match(/[\dA-F]{2}/gi);
+
+        // convert the octets to integers
+        const ints = pairs.map(s => parseInt(s, 16));
+
+        var array = new Uint8Array(ints);
+        return array.buffer;
     }
 
 };
