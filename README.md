@@ -101,7 +101,7 @@ The initial iOS version plugin does not support scanning multiple tags (invalida
 - [nfc.connect](#nfcconnect)
 - [nfc.transceive](#nfctransceive)
 - [nfc.close](#nfcclose)
-- [ISO-DEP example](#tag-technology-functions)
+- [ISO-DEP example](#tag-technology-functions-1)
 
 ## nfc.addNdefListener
 
