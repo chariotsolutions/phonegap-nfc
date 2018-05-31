@@ -192,6 +192,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private void removeDefaultTag(CallbackContext callbackContext) {
         removeTagFilter();
+        restartNfc();
         callbackContext.success();
     }
 
@@ -207,6 +208,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private void removeNdef(CallbackContext callbackContext) {
         removeTechList(new String[]{Ndef.class.getName()});
+        restartNfc();
         callbackContext.success();
     }
 
@@ -230,6 +232,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private void removeMimeType(JSONArray data, CallbackContext callbackContext) throws JSONException {
         String mimeType = data.getString(0);
         removeIntentFilter(mimeType);
+        restartNfc();
         callbackContext.success();
     }
 
@@ -444,6 +447,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         }
     }
 
+    private void restartNfc() {
+        stopNfc();
+        startNfc();
+    }
+
     private void startNfc() {
         createPendingIntent(); // onResume can call startNfc before execute
 
@@ -559,7 +567,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     private void removeFromTechList(String[] techs) {
-        techLists.remove(techs);
+        Iterator<String[]> iterator = techLists.iterator();
+        while (iterator.hasNext()) {
+            String[] list = iterator.next();
+            if (Arrays.equals(list, techs)) {
+                iterator.remove();
+            }
+        }
     }
 
     private void removeIntentFilter(String mimeType) {
