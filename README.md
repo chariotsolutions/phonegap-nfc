@@ -583,7 +583,7 @@ Function `invalidateSession` stops the [NFCNDEFReaderSession](https://developer.
 
 # Tag Technology Functions
 
-The tag technology functions provide access to I/O operations on a tag. Connect to a tag, send commands with tranceive, close the tag. See the [Android TagTechnology](https://developer.android.com/reference/android/nfc/tech/TagTechnology) and implementations like [IsoDep](https://developer.android.com/reference/android/nfc/tech/IsoDep) and [NfcV](https://developer.android.com/reference/android/nfc/tech/NfcV) for more details. These new APIs are promise based rather than using callbacks.
+The tag technology functions provide access to I/O operations on a tag. Connect to a tag, send commands with transceive, close the tag. See the [Android TagTechnology](https://developer.android.com/reference/android/nfc/tech/TagTechnology) and implementations like [IsoDep](https://developer.android.com/reference/android/nfc/tech/IsoDep) and [NfcV](https://developer.android.com/reference/android/nfc/tech/NfcV) for more details. These new APIs are promise based rather than using callbacks.
 
 #### ISO-DEP (ISO 14443-4) Example
 
