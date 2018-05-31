@@ -853,27 +853,32 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
      * @param data arg0 is the APDU command as byte[]
      * @param callbackContext Cordova callback context
      */
-    private void transceive(final JSONArray data, final CallbackContext callbackContext) throws JSONException {
-        try {
-            if (isoDep == null) {
-                Log.e(TAG, "No Tech");
-                callbackContext.error("No Tech");
-                return;
-            }
-            if (!isoDep.isConnected()) {
-                Log.e(TAG, "Not connected");
-                callbackContext.error("Not connected");
-                return;
-            }
+    private void transceive(final JSONArray data, final CallbackContext callbackContext)  {
+        cordova.getThreadPool().execute(() -> {
+            try {
+                if (isoDep == null) {
+                    Log.e(TAG, "No Tech");
+                    callbackContext.error("No Tech"); // TODO fix this message
+                    return;
+                }
+                if (!isoDep.isConnected()) {
+                    Log.e(TAG, "Not connected");
+                    callbackContext.error("Not connected");
+                    return;
+                }
 
-            CordovaArgs cordovaArgs = new CordovaArgs(data); // execute is using the old signature with JSON data
-            byte[] commandAPDU = cordovaArgs.getArrayBuffer(0);
-            byte[] responseAPDU = isoDep.transceive(commandAPDU);
-            callbackContext.success(responseAPDU);
-        } catch (IOException e) {
-            Log.e(TAG, "nfc.transceive() error", e);
-            callbackContext.error(e.getMessage());
-        }
+                CordovaArgs cordovaArgs = new CordovaArgs(data); // execute is using the old signature with JSON data
+                byte[] commandAPDU = cordovaArgs.getArrayBuffer(0);
+                byte[] responseAPDU = isoDep.transceive(commandAPDU);
+                callbackContext.success(responseAPDU);
+            } catch (IOException e) {
+                Log.e(TAG, "nfc.transceive() error", e);
+                callbackContext.error(e.getMessage());
+            } catch (JSONException e) {
+                Log.e(TAG, "`nfc.transceive() JSON error", e);
+                callbackContext.error(e.getMessage());
+            }
+        });
     }
 
 }
