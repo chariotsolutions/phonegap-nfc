@@ -106,22 +106,22 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             registerMimeType(data, callbackContext);
 
         } else if (action.equalsIgnoreCase(REMOVE_MIME_TYPE)) {
-          removeMimeType(data, callbackContext);
+            removeMimeType(data, callbackContext);
 
         } else if (action.equalsIgnoreCase(REGISTER_NDEF)) {
-          registerNdef(callbackContext);
+            registerNdef(callbackContext);
 
         } else if (action.equalsIgnoreCase(REMOVE_NDEF)) {
-          removeNdef(callbackContext);
+            removeNdef(callbackContext);
 
         } else if (action.equalsIgnoreCase(REGISTER_NDEF_FORMATABLE)) {
             registerNdefFormatable(callbackContext);
 
-        }  else if (action.equals(REGISTER_DEFAULT_TAG)) {
-          registerDefaultTag(callbackContext);
+        } else if (action.equals(REGISTER_DEFAULT_TAG)) {
+            registerDefaultTag(callbackContext);
 
-        }  else if (action.equals(REMOVE_DEFAULT_TAG)) {
-          removeDefaultTag(callbackContext);
+        } else if (action.equals(REMOVE_DEFAULT_TAG)) {
+            removeDefaultTag(callbackContext);
 
         } else if (action.equalsIgnoreCase(WRITE_TAG)) {
             writeTag(data, callbackContext);
@@ -186,14 +186,14 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     private void registerDefaultTag(CallbackContext callbackContext) {
-      addTagFilter();
-      callbackContext.success();
-  }
+        addTagFilter();
+        callbackContext.success();
+    }
 
     private void removeDefaultTag(CallbackContext callbackContext) {
-      removeTagFilter();
-      callbackContext.success();
-  }
+        removeTagFilter();
+        callbackContext.success();
+    }
 
     private void registerNdefFormatable(CallbackContext callbackContext) {
         addTechList(new String[]{NdefFormatable.class.getName()});
@@ -201,14 +201,14 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     private void registerNdef(CallbackContext callbackContext) {
-      addTechList(new String[]{Ndef.class.getName()});
-      callbackContext.success();
-  }
+        addTechList(new String[]{Ndef.class.getName()});
+        callbackContext.success();
+    }
 
     private void removeNdef(CallbackContext callbackContext) {
-      removeTechList(new String[]{Ndef.class.getName()});
-      callbackContext.success();
-  }
+        removeTechList(new String[]{Ndef.class.getName()});
+        callbackContext.success();
+    }
 
     private void unshareTag(CallbackContext callbackContext) {
         p2pMessage = null;
@@ -231,7 +231,8 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         String mimeType = "";
         try {
             mimeType = data.getString(0);
-            /*boolean removed =*/ removeIntentFilter(mimeType);
+            /*boolean removed =*/
+            removeIntentFilter(mimeType);
             callbackContext.success();
         } catch (MalformedMimeTypeException e) {
             callbackContext.error("Invalid MIME Type " + mimeType);
@@ -253,7 +254,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private void eraseTag(CallbackContext callbackContext) throws JSONException {
         Tag tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
         NdefRecord[] records = {
-            new NdefRecord(NdefRecord.TNF_EMPTY, new byte[0], new byte[0], new byte[0])
+                new NdefRecord(NdefRecord.TNF_EMPTY, new byte[0], new byte[0], new byte[0])
         };
         writeNdefMessage(new NdefMessage(records), tag, callbackContext);
     }
@@ -418,48 +419,48 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     private void addTechList(String[] list) {
-      this.addTechFilter();
-      this.addToTechList(list);
+        this.addTechFilter();
+        this.addToTechList(list);
     }
 
     private void removeTechList(String[] list) {
-      this.removeTechFilter();
-      this.removeFromTechList(list);
+        this.removeTechFilter();
+        this.removeFromTechList(list);
     }
 
     private void addTechFilter() {
-      intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED));
+        intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED));
     }
 
     private boolean removeTechFilter() {
-      boolean removed = false;
-      Iterator<IntentFilter> iter = intentFilters.iterator();
-      while (iter.hasNext()) {
-        IntentFilter intentFilter = iter.next();
-        if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intentFilter.getAction(0))) {
-          iter.remove();
-          removed = true;
+        boolean removed = false;
+        Iterator<IntentFilter> iter = intentFilters.iterator();
+        while (iter.hasNext()) {
+            IntentFilter intentFilter = iter.next();
+            if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intentFilter.getAction(0))) {
+                iter.remove();
+                removed = true;
+            }
         }
-      }
-      return removed;
+        return removed;
     }
 
     private void addTagFilter() {
-      intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED));
-  }
+        intentFilters.add(new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED));
+    }
 
     private boolean removeTagFilter() {
-      boolean removed = false;
-      Iterator<IntentFilter> iter = intentFilters.iterator();
-      while (iter.hasNext()) {
-        IntentFilter intentFilter = iter.next();
-        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intentFilter.getAction(0))) {
-          iter.remove();
-          removed = true;
+        boolean removed = false;
+        Iterator<IntentFilter> iter = intentFilters.iterator();
+        while (iter.hasNext()) {
+            IntentFilter intentFilter = iter.next();
+            if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(intentFilter.getAction(0))) {
+                iter.remove();
+                removed = true;
+            }
         }
-      }
-      return removed;
-  }
+        return removed;
+    }
 
     private void startNfc() {
         createPendingIntent(); // onResume can call startNfc before execute
@@ -584,25 +585,25 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     private void addToTechList(String[] techs) {
-      techLists.add(techs);
-  }
+        techLists.add(techs);
+    }
 
     private void removeFromTechList(String[] techs) {
-      techLists.remove(techs);
-  }
+        techLists.remove(techs);
+    }
 
     private boolean removeIntentFilter(String mimeType) throws MalformedMimeTypeException {
-      boolean removed = false;
-      Iterator<IntentFilter> iter = intentFilters.iterator();
-      while (iter.hasNext()) {
-        IntentFilter intentFilter = iter.next();
-        String mt = intentFilter.getDataType(0);
-        if (mimeType.equals(mt)) {
-          iter.remove();
-          removed = true;
+        boolean removed = false;
+        Iterator<IntentFilter> iter = intentFilters.iterator();
+        while (iter.hasNext()) {
+            IntentFilter intentFilter = iter.next();
+            String mt = intentFilter.getDataType(0);
+            if (mimeType.equals(mt)) {
+                iter.remove();
+                removed = true;
+            }
         }
-      }
-      return removed;
+        return removed;
     }
 
     private IntentFilter createIntentFilter(String mimeType) throws MalformedMimeTypeException {
@@ -675,14 +676,14 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     }
 
-    private void fireNdefFormatableEvent (Tag tag) {
+    private void fireNdefFormatableEvent(Tag tag) {
 
         String command = MessageFormat.format(javaScriptEventTemplate, NDEF_FORMATABLE, Util.tagToJSON(tag));
         Log.v(TAG, command);
         this.webView.sendJavascript(command);
     }
 
-    private void fireTagEvent (Tag tag) {
+    private void fireTagEvent(Tag tag) {
 
         String command = MessageFormat.format(javaScriptEventTemplate, TAG_DEFAULT, Util.tagToJSON(tag));
         Log.v(TAG, command);
@@ -768,10 +769,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     String javaScriptEventTemplate =
-        "var e = document.createEvent(''Events'');\n" +
-        "e.initEvent(''{0}'');\n" +
-        "e.tag = {1};\n" +
-        "document.dispatchEvent(e);";
+            "var e = document.createEvent(''Events'');\n" +
+                    "e.initEvent(''{0}'');\n" +
+                    "e.tag = {1};\n" +
+                    "document.dispatchEvent(e);";
 
     @Override
     public void onNdefPushComplete(NfcEvent event) {
@@ -791,9 +792,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     /**
      * Enable I/O operations to the tag from this TagTechnology object.
-     **
-     * @param tech TagTechnology class name e.g. 'android.nfc.tech.IsoDep' or 'android.nfc.tech.NfcV'
-     * @param timeout tag timeout
+     * *
+     *
+     * @param tech            TagTechnology class name e.g. 'android.nfc.tech.IsoDep' or 'android.nfc.tech.NfcV'
+     * @param timeout         tag timeout
      * @param callbackContext Cordova callback context
      */
     private void connect(final String tech, final int timeout, final CallbackContext callbackContext) {
@@ -833,8 +835,8 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 Log.e(TAG, "Tag connection failed", ex);
                 callbackContext.error("Tag connection failed");
 
-            // Users should never get these reflection errors
-            }  catch (ClassNotFoundException e) {
+                // Users should never get these reflection errors
+            } catch (ClassNotFoundException e) {
                 Log.e(TAG, e.getMessage(), e);
                 callbackContext.error(e.getMessage());
             } catch (NoSuchMethodException e) {
@@ -852,7 +854,9 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     // Call tagTech setTimeout with reflection or fail silently
     private void setTimeout(int timeout) {
-        if (timeout < 0) { return; }
+        if (timeout < 0) {
+            return;
+        }
         try {
             Method setTimeout = tagTechnologyClass.getMethod("setTimeout", int.class);
             setTimeout.invoke(tagTechnology, timeout);
@@ -893,10 +897,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     /**
      * Send raw commands to the tag and receive the response.
      *
-     * @param data byte[] command to be passed to the tag
+     * @param data            byte[] command to be passed to the tag
      * @param callbackContext Cordova callback context
      */
-    private void transceive(final byte[] data, final CallbackContext callbackContext)  {
+    private void transceive(final byte[] data, final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(() -> {
             try {
                 if (tagTechnology == null) {
@@ -912,7 +916,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
                 // Use reflection so we can support many tag types
                 Method transceiveMethod = tagTechnologyClass.getMethod("transceive", byte[].class);
-                byte[] response = (byte[])transceiveMethod.invoke(tagTechnology, data);
+                byte[] response = (byte[]) transceiveMethod.invoke(tagTechnology, data);
 
                 callbackContext.success(response);
 
