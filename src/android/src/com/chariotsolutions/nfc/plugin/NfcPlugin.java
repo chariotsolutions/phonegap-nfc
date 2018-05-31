@@ -26,6 +26,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.nfc.Tag;
 import android.nfc.TagLostException;
+import android.nfc.tech.IsoDep;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.os.Parcelable;
@@ -59,6 +60,12 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String STATUS_NO_NFC = "NO_NFC";
     private static final String STATUS_NFC_DISABLED = "NFC_DISABLED";
     private static final String STATUS_NDEF_PUSH_DISABLED = "NDEF_PUSH_DISABLED";
+
+    // isodep
+    private static final String CONNECT = "connect";
+    private static final String CLOSE = "close";
+    private static final String TRANSCEIVE = "transceive";
+    private IsoDep isoDep = null;
 
     private static final String TAG = "NfcPlugin";
     private final List<IntentFilter> intentFilters = new ArrayList<IntentFilter>();
@@ -140,6 +147,15 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             // status is checked before every call
             // if code made it here, NFC is enabled
             callbackContext.success(STATUS_NFC_OK);
+
+        } else if (action.equalsIgnoreCase(CONNECT)) {
+            connect(callbackContext);
+
+        } else if (action.equalsIgnoreCase(TRANSCEIVE)) {
+            transceive(data, callbackContext);
+
+        } else if (action.equalsIgnoreCase(CLOSE)) {
+            close(callbackContext);
 
         } else {
             // invalid action
@@ -763,4 +779,106 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         }
 
     }
+
+    /**
+     * IsoDep
+     * Enable I/O operations to the tag from this TagTechnology object.
+     * 
+     * Future versions of this should probably accept TagTechnology parameters so we can support NfcA, NfcB, NfcF, NfcV
+     *
+     * @param callbackContext Cordova callback context
+     */
+    private void connect(final CallbackContext callbackContext) {
+        this.cordova.getThreadPool().execute(() -> {
+            try {
+
+                Tag tag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                if (tag == null) {
+                    tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                }
+
+                if (tag == null) {
+                    Log.e(TAG, "No Tag");
+                    callbackContext.error("No Tag");
+                    return;
+                }
+
+                isoDep = IsoDep.get(tag);
+                if (isoDep == null) {
+                    Log.e(TAG, "No Tech");
+                    callbackContext.error("No Tech");
+                    return;
+                }
+
+                isoDep.connect();
+                isoDep.setTimeout(3000);  // TODO timeout should be configurable
+                callbackContext.success();
+
+            } catch (IOException ex) {
+                Log.e(TAG, "Can't connect to IsoDep", ex);
+                callbackContext.error("Error connected to IsoDep " + ex.getLocalizedMessage());
+            }
+        });
+    }
+
+    /**
+     * IsoDep
+     * Disable I/O operations to the tag from this TagTechnology object, and release resources.
+     *
+     * @param callbackContext Cordova callback context
+     */
+    private void close(CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(() -> {
+            try {
+
+                if (isoDep != null && isoDep.isConnected()) {
+                    isoDep.close();
+                    isoDep = null;
+                    callbackContext.success();
+                } else {
+                    // connection already gone
+                    callbackContext.success();
+                }
+
+            } catch (IOException ex) {
+                Log.e(TAG, "Error closing nfc connection", ex);
+                callbackContext.error("Error closing nfc connection " + ex.getLocalizedMessage());
+            }
+        });
+    }
+
+    /**
+     * Send raw ISO-DEP data to the tag and receive the response.
+     *
+     * @param data arg0 is the APDU command as byte[]
+     * @param callbackContext Cordova callback context
+     */
+    private void transceive(final JSONArray data, final CallbackContext callbackContext)  {
+        cordova.getThreadPool().execute(() -> {
+            try {
+                if (isoDep == null) {
+                    Log.e(TAG, "No Tech");
+                    callbackContext.error("No Tech"); // TODO fix this message
+                    return;
+                }
+                if (!isoDep.isConnected()) {
+                    Log.e(TAG, "Not connected");
+                    callbackContext.error("Not connected");
+                    return;
+                }
+
+                CordovaArgs cordovaArgs = new CordovaArgs(data); // execute is using the old signature with JSON data
+                byte[] commandAPDU = cordovaArgs.getArrayBuffer(0);
+                byte[] responseAPDU = isoDep.transceive(commandAPDU);
+                callbackContext.success(responseAPDU);
+            } catch (IOException e) {
+                Log.e(TAG, "nfc.transceive() error", e);
+                callbackContext.error(e.getMessage());
+            } catch (JSONException e) {
+                Log.e(TAG, "`nfc.transceive() JSON error", e);
+                callbackContext.error(e.getMessage());
+            }
+        });
+    }
+
 }
