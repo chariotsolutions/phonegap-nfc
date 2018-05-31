@@ -8,7 +8,7 @@ Use to
 * write data to NFC tags
 * send data to other NFC enabled devices
 * receive data from NFC devices
-* send ISO-DEP (ISO 14443-4) commands to compatible devices
+* send raw commands (ISO 14443-3A, ISO 14443-3A, ISO 14443-4, JIS 6319-4, ISO 15693) to NFC tags
 
 This plugin uses NDEF (NFC Data Exchange Format) for maximum compatibilty between NFC devices, tag types, and operating systems.
 
@@ -96,12 +96,12 @@ The initial iOS version plugin does not support scanning multiple tags (invalida
 - [nfc.beginSession](#nfcbeginsession)
 - [nfc.invalidateSession](#nfcinvalidatesession)
 
-## ISO-DEP (ISO 14443-4) methods
+## Tag Technology Functions
 
 - [nfc.connect](#nfcconnect)
 - [nfc.transceive](#nfctransceive)
 - [nfc.close](#nfcclose)
-- [ISO-DEP example](#isodep-iso-14443-4-functions)
+- [ISO-DEP example](#tag-technology-functions)
 
 ## nfc.addNdefListener
 
@@ -581,11 +581,11 @@ Function `invalidateSession` stops the [NFCNDEFReaderSession](https://developer.
 
 - iOS
 
-# IsoDep (ISO 14443-4) functions
+# Tag Technology Functions
 
-The IsoDep functions provide access to ISO-DEP (ISO 14443-4) I/O operations on a Tag. Connect to a tag, send commands with tranceive, close the tag. See the [Android IsoDep documentation](https://developer.android.com/reference/android/nfc/tech/IsoDep) for more details. These new APIs are promise based rather than using callbacks.
+The tag technology functions provide access to I/O operations on a tag. Connect to a tag, send commands with tranceive, close the tag. See the [Android TagTechnology](https://developer.android.com/reference/android/nfc/tech/TagTechnology) and implementations like [IsoDep](https://developer.android.com/reference/android/nfc/tech/IsoDep) and [NfcV](https://developer.android.com/reference/android/nfc/tech/NfcV) for more details. These new APIs are promise based rather than using callbacks.
 
-#### IsoDep Example
+#### ISO-DEP (ISO 14443-4) Example
 
     const DESFIRE_SELECT_PICC = '00 A4 04 00 07 D2 76 00 00 85 01 00';
     const DESFIRE_SELECT_AID = '90 5A 00 00 03 AA AA AA 00'
@@ -596,7 +596,7 @@ The IsoDep functions provide access to ISO-DEP (ISO 14443-4) I/O operations on a
         console.log('Processing', tagId);
 
         try {
-            await nfc.connect();
+            await nfc.connect('android.nfc.tech.IsoDep', 500);
             console.log('connected to', tagId);
             
             let response = await nfc.transceive(DESFIRE_SELECT_PICC);
@@ -635,19 +635,22 @@ The IsoDep functions provide access to ISO-DEP (ISO 14443-4) I/O operations on a
 
 ## nfc.connect
 
-Connect to the IsoDep tag and enable I/O operations to the tag from this TagTechnology object.
+Connect to the tag and enable I/O operations to the tag from this TagTechnology object.
 
-    nfc.connect();
+    nfc.connect(tech);
+
+    nfc.connect(tech, timeout);
 
 ### Description
 
-Function `connect` enables I/O operations to the tag from this TagTechnology object. `nfc.connect` should be called after receiving a nfcEvent from the `addTagDiscoveredListener`.
+Function `connect` enables I/O operations to the tag from this TagTechnology object. `nfc.connect` should be called after receiving a nfcEvent from the `addTagDiscoveredListener`. Only one TagTechnology object can be connected to a Tag at a time.
 
-See Android's [IsoDep.connect()](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#connect()) for more info.
+See Android's [TagTechnology.connect()](https://developer.android.com/reference/android/nfc/tech/TagTechnology.html#connect()) for more info.
 
 ### Parameters
 
- - none
+- __tech__: The tag technology e.g. android.nfc.tech.IsoDep
+- __timeout__: The transceive(byte[]) timeout in milliseconds [optional]
 
 ### Returns
 
@@ -656,7 +659,7 @@ See Android's [IsoDep.connect()](https://developer.android.com/reference/android
 ### Quick Example
 
     nfc.addTagDiscoveredListener(function(nfcEvent) {
-        nfc.connect().then(
+        nfc.connect('android.nfc.tech.IsoDep', 500).then(
             () => console.log('connected to', nfc.bytesToHexString(nfcEvent.tag.id)),
             (error) => console.log('connection failed', error)
         );
@@ -668,16 +671,15 @@ See Android's [IsoDep.connect()](https://developer.android.com/reference/android
 
 ## nfc.transceive
 
-Send raw IsoDep data to the tag and receive the response.
+Send raw command to the tag and receive the response.
 
-
-    nfc.transceive(message);
+    nfc.transceive(data);
 
 ### Description
 
-Function `transceive` sends raw ISO-DEP (ISO 14443-4) data to the tag and receives the response. `nfc.connect` must be called before calling `transceive`. Data passed to transceive can be a hex string representation of bytes or an ArrayBuffer. The response is returned as an ArrayBuffer in the promise. 
+Function `transceive` sends raw commands to the tag and receives the response. `nfc.connect` must be called before calling `transceive`. Data passed to transceive can be a hex string representation of bytes or an ArrayBuffer. The response is returned as an ArrayBuffer in the promise. 
 
-See Android's [IsoDep.transceive()](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#transceive(byte[])) for more info.
+See Android's documentation [IsoDep.transceive()](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#transceive(byte[])), [NfcV.transceive()](https://developer.android.com/reference/android/nfc/tech/NfcV.html#transceive(byte[])), [MifareUltralight.transceive()](https://developer.android.com/reference/android/nfc/tech/MifareUltralight.html#transceive(byte[])) for more info.
 
 ### Parameters
 
@@ -703,9 +705,9 @@ See Android's [IsoDep.transceive()](https://developer.android.com/reference/andr
 
 - Android
 
-## nfc.close (ISO-DEP function)
+## nfc.close
 
-Close IsoDep connection.
+Close TagTechnology connection.
 
     nfc.close();
 
@@ -713,7 +715,7 @@ Close IsoDep connection.
 
 Function `close` disabled I/O operations to the tag from this TagTechnology object, and releases resources.
 
-See Android's [IsoDep.close()](https://developer.android.com/reference/android/nfc/tech/IsoDep.html#close()) for more info.
+See Android's [TagTechnology.close()](https://developer.android.com/reference/android/nfc/tech/TagTechnology.html#close()) for more info.
 
 ### Parameters
 
@@ -721,7 +723,7 @@ See Android's [IsoDep.close()](https://developer.android.com/reference/android/n
 
 ### Returns
 
- - Promise when the connection is successful
+ - Promise when the connection is successfully closed
 
 ### Quick Example
 
