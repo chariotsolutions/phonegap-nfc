@@ -604,13 +604,14 @@ The IsoDep functions provide access to ISO-DEP (ISO 14443-4) I/O operations on a
             
             response = await nfc.transceive(DESFIRE_SELECT_AID);
             ensureResponseIs('9100', response);
+            // 91a0 means the requested application not found
 
-            console.log('Selected application AA AA AA'); 
+            alert('Selected application AA AA AA');
 
             // more transcieve commands go here
             
         } catch (error) {
-            alert(error)
+            alert(error);
         } finally {
             await nfc.close();
             console.log('closed');
