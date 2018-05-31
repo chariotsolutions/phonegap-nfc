@@ -1,3 +1,7 @@
+= 1.0.0 =
+Add new commands nfc.connect, nfc.tranceive, nfc.close to support sending raw commands to NFC tags on Android.
+ Support tag types: NfcA (ISO 14443-3A), NfcB (ISO 14443-3B), NfcF (JIS 6319-4), NfcV (ISO 15693), and IsoDep (ISO 14443-4) #320
+
 = 0.7.3 =
 Bump version for npm issues
 
