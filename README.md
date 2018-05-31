@@ -96,12 +96,12 @@ The initial iOS version plugin does not support scanning multiple tags (invalida
 - [nfc.beginSession](#nfcbeginsession)
 - [nfc.invalidateSession](#nfcinvalidatesession)
 
-## TagTechnology functions
+## Tag Technology Functions
 
 - [nfc.connect](#nfcconnect)
 - [nfc.transceive](#nfctransceive)
 - [nfc.close](#nfcclose)
-- [ISO-DEP example](#isodep-iso-14443-4-functions)
+- [ISO-DEP example](#tag-technology-functions)
 
 ## nfc.addNdefListener
 
@@ -581,9 +581,9 @@ Function `invalidateSession` stops the [NFCNDEFReaderSession](https://developer.
 
 - iOS
 
-# Tag Technology functions
+# Tag Technology Functions
 
-The Tag Technology functions provide access to I/O operations on a Tag. Connect to a tag, send commands with tranceive, close the tag. See the [Android TagTechnology](https://developer.android.com/reference/android/nfc/tech/TagTechnology) and implementations like [IsoDep](https://developer.android.com/reference/android/nfc/tech/IsoDep) and [NfcV](https://developer.android.com/reference/android/nfc/tech/NfcV) for more details. These new APIs are promise based rather than using callbacks.
+The tag technology functions provide access to I/O operations on a tag. Connect to a tag, send commands with tranceive, close the tag. See the [Android TagTechnology](https://developer.android.com/reference/android/nfc/tech/TagTechnology) and implementations like [IsoDep](https://developer.android.com/reference/android/nfc/tech/IsoDep) and [NfcV](https://developer.android.com/reference/android/nfc/tech/NfcV) for more details. These new APIs are promise based rather than using callbacks.
 
 #### ISO-DEP (ISO 14443-4) Example
 
@@ -635,7 +635,7 @@ The Tag Technology functions provide access to I/O operations on a Tag. Connect 
 
 ## nfc.connect
 
-Connect to the IsoDep tag and enable I/O operations to the tag from this TagTechnology object.
+Connect to the tag and enable I/O operations to the tag from this TagTechnology object.
 
     nfc.connect(tech);
 
@@ -643,7 +643,7 @@ Connect to the IsoDep tag and enable I/O operations to the tag from this TagTech
 
 ### Description
 
-Function `connect` enables I/O operations to the tag from this TagTechnology object. `nfc.connect` should be called after receiving a nfcEvent from the `addTagDiscoveredListener`.
+Function `connect` enables I/O operations to the tag from this TagTechnology object. `nfc.connect` should be called after receiving a nfcEvent from the `addTagDiscoveredListener`. Only one TagTechnology object can be connected to a Tag at a time.
 
 See Android's [TagTechnology.connect()](https://developer.android.com/reference/android/nfc/tech/TagTechnology.html#connect()) for more info.
 
