@@ -522,7 +522,7 @@ var nfc = {
             } else if (data instanceof Uint8Array) {
                 buffer = data.buffer;
             } else {
-                reject("Expecing an ArrayBuffer or String");
+                reject("Expecting an ArrayBuffer or String");
             }
 
             cordova.exec(resolve, reject, 'NfcPlugin', 'transceive', [buffer]);
