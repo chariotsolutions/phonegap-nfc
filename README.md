@@ -78,11 +78,8 @@ The initial iOS version plugin does not support scanning multiple tags (invalida
 ## Methods
 
 - [nfc.addNdefListener](#nfcaddndeflistener)
-- [nfc.removeNdefListener](#nfcremovendeflistener)
 - [nfc.addTagDiscoveredListener](#nfcaddtagdiscoveredlistener)
-- [nfc.removeTagDiscoveredListener](#nfcremovetagdiscoveredlistener)
 - [nfc.addMimeTypeListener](#nfcaddmimetypelistener)
-- [nfc.removeMimeTypeListener](#nfcremovemimetypelistener)
 - [nfc.addNdefFormatableListener](#nfcaddndefformatablelistener)
 - [nfc.write](#nfcwrite)
 - [nfc.makeReadOnly](#nfcmakereadonly)
@@ -142,6 +139,8 @@ Removes the previously registered event listener for NDEF tags added via `nfc.ad
 
     nfc.removeNdefListener(callback, [onSuccess], [onFailure]);
 
+Removing listeners is not recommended. Instead, consider that your callback can ignore messages you no longer need.
+
 ### Parameters
 
 - __callback__: The previously registered callback.
@@ -186,6 +185,8 @@ Note that Windows Phones need the newere NXP PN427 chipset to read non-NDEF tags
 Removes the previously registered event listener added via `nfc.addTagDiscoveredListener`.
 
     nfc.removeTagDiscoveredListener(callback, [onSuccess], [onFailure]);
+
+Removing listeners is not recommended. Instead, consider that your callback can ignore messages you no longer need.
 
 ### Parameters
 
@@ -235,6 +236,8 @@ On Android, MIME types for filtering should always be lower case. (See [IntentFi
 Removes the previously registered event listener added via `nfc.addMimeTypeListener`.
 
     nfc.removeMimeTypeListener(mimeType, callback, [onSuccess], [onFailure]);
+
+Removing listeners is not recommended. Instead, consider that your callback can ignore messages you no longer need.
 
 ### Parameters
 
