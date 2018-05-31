@@ -781,8 +781,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     /**
-     * IsoDep - TODO support other tag technologies
+     * IsoDep
      * Enable I/O operations to the tag from this TagTechnology object.
+     * 
+     * Future versions of this should probably accept TagTechnology parameters so we can support NfcA, NfcB, NfcF, NfcV
      *
      * @param callbackContext Cordova callback context
      */

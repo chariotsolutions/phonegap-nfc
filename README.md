@@ -101,6 +101,7 @@ The initial iOS version plugin does not support scanning multiple tags (invalida
 - [nfc.connect](#nfcconnect)
 - [nfc.transceive](#nfctransceive)
 - [nfc.close](#nfcclose)
+- [ISO-DEP example](#isodep-iso-14443-4-functions)
 
 ## nfc.addNdefListener
 
@@ -624,7 +625,6 @@ The IsoDep functions provide access to ISO-DEP (ISO 14443-4) I/O operations on a
             throw error;
         }
     }
-
 
     function onDeviceReady() {
         nfc.addTagDiscoveredListener(handleDesfire);
