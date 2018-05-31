@@ -497,21 +497,18 @@ var nfc = {
         cordova.exec(win, fail, "NfcPlugin", "invalidateSession", []);
     },
 
-    // IsoDep (Android only)
-    connect: function() {
+    connect: function(tech, timeout) {
         return new Promise(function(resolve, reject) {
-            cordova.exec(resolve, reject, 'NfcPlugin', 'connect', []);
+            cordova.exec(resolve, reject, 'NfcPlugin', 'connect', [tech, timeout]);
         });
     },
 
-    // IsoDep (Android only)
     close: function() {
         return new Promise(function(resolve, reject) {
             cordova.exec(resolve, reject, 'NfcPlugin', 'close', []);
         });
     },
 
-    // IsoDep (Android only)
     // data - ArrayBuffer or string of hex data for transcieve
     // the results of transcieve are returned in the promise success as an ArrayBuffer
     transceive: function(data) {
