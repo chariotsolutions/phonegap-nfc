@@ -211,9 +211,18 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         @Override
         public void onTagDiscovered(Tag tag) {
 
-            JSONObject tagJson = Util.tagToJSON(tag);
+            JSONObject json;
 
-            PluginResult result = new PluginResult(PluginResult.Status.OK, tagJson);
+            // If the tag supports Ndef, try and return an Ndef message
+            List<String> techList = Arrays.asList(tag.getTechList());
+            if (techList.contains(Ndef.class.getName())) {
+                Ndef ndef = Ndef.get(tag);
+                json = Util.ndefToJSON(ndef);
+            } else {
+                json = Util.tagToJSON(tag);
+            }
+
+            PluginResult result = new PluginResult(PluginResult.Status.OK, json);
             result.setKeepCallback(true);
             readerModeCallback.sendPluginResult(result);
 
