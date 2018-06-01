@@ -63,6 +63,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String STATUS_NO_NFC = "NO_NFC";
     private static final String STATUS_NFC_DISABLED = "NFC_DISABLED";
     private static final String STATUS_NDEF_PUSH_DISABLED = "NDEF_PUSH_DISABLED";
+    private static final String CHANNEL = "channel";
 
     // TagTechnology IsoDep, NfcA, NfcB, NfcV, NfcF, MifareClassic, MifareUltralight
     private static final String CONNECT = "connect";
@@ -80,8 +81,16 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private Intent savedIntent = null;
 
+    private CallbackContext channelCallback;
     private CallbackContext shareTagCallback;
     private CallbackContext handoverCallback;
+
+    private void sendMessage(String message) {
+        // TODO if this works, it needs to send NFC Tags not strings
+        PluginResult result = new PluginResult(PluginResult.Status.OK, message);
+        result.setKeepCallback(true);
+        channelCallback.sendPluginResult(result);
+    }
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
@@ -92,6 +101,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         // might want to skip this if NO_NFC
         if (action.equalsIgnoreCase(SHOW_SETTINGS)) {
             showSettings(callbackContext);
+            return true;
+        }
+
+        // the channel is set up when the plugin starts
+        if (action.equalsIgnoreCase(CHANNEL)) {
+            channelCallback = callbackContext;
+            sendMessage("Hello channel.");
             return true;
         }
 
@@ -643,10 +659,27 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         });
     }
 
+    private void sendEvent(String type, JSONObject tag) {
+
+        try {
+            JSONObject event = new JSONObject();
+            event.put("type", type);
+            event.put("tag", tag);
+
+            PluginResult result = new PluginResult(PluginResult.Status.OK, event);
+            result.setKeepCallback(true);
+            channelCallback.sendPluginResult(result);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void fireNdefEvent(String type, Ndef ndef, Parcelable[] messages) {
 
         JSONObject jsonObject = buildNdefJSON(ndef, messages);
         String tag = jsonObject.toString();
+        sendEvent(type, jsonObject);
 
         String command = MessageFormat.format(javaScriptEventTemplate, type, tag);
         Log.v(TAG, command);
@@ -656,12 +689,16 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private void fireNdefFormatableEvent(Tag tag) {
 
+        sendEvent(NDEF_FORMATABLE, Util.tagToJSON(tag));
+
         String command = MessageFormat.format(javaScriptEventTemplate, NDEF_FORMATABLE, Util.tagToJSON(tag));
         Log.v(TAG, command);
         this.webView.sendJavascript(command);
     }
 
     private void fireTagEvent(Tag tag) {
+
+        sendEvent(TAG_DEFAULT, Util.tagToJSON(tag));
 
         String command = MessageFormat.format(javaScriptEventTemplate, TAG_DEFAULT, Util.tagToJSON(tag));
         Log.v(TAG, command);
