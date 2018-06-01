@@ -833,11 +833,19 @@ window.ndef = ndef;
 window.util = util;
 window.fireNfcTagEvent = fireNfcTagEvent;
 
-// Set up channel for nfcEvents so Java code no longer needs to execute Javascript
+// This channel receives nfcEvent data from native code 
+// and fires JavaScript events.
 require('cordova/channel').onCordovaReady.subscribe(function() {
-  require('cordova/exec')(win, null, 'NfcPlugin', 'channel', []);
-  function win(message) {
-    //... process message from java here ...
-    console.log(JSON.stringify(message));
+  require('cordova/exec')(success, null, 'NfcPlugin', 'channel', []);
+  function success(message) {
+    if (!message.type) { 
+        console.log(message);
+    } else {
+        console.log('Received NFC data, firing event');
+        var e = document.createEvent('Events');
+        e.initEvent(message.type)
+        e.tag = message.tag;
+        document.dispatchEvent(e);
+    }
   }
 });
