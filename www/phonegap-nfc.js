@@ -841,7 +841,7 @@ require('cordova/channel').onCordovaReady.subscribe(function() {
     if (!message.type) { 
         console.log(message);
     } else {
-        console.log('Received NFC data, firing event');
+        console.log("Received NFC data, firing '" + message.type + "' event");
         var e = document.createEvent('Events');
         e.initEvent(message.type)
         e.tag = message.tag;
