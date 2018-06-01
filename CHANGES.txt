@@ -1,3 +1,8 @@
+= 1.0.1 =
+Replace webview.sendJavascript with channel on Android Fixes #196 #249 #225 #263 Thanks jmorille
+Update code that removes event listener #257
+NFC events not firing on first scan Fixes #217 #324 Thanks homer-jay
+
 = 1.0.0 =
 Add new commands nfc.connect, nfc.tranceive, nfc.close to support sending raw commands to NFC tags on Android.
  Support tag types: NfcA (ISO 14443-3A), NfcB (ISO 14443-3B), NfcF (JIS 6319-4), NfcV (ISO 15693), and IsoDep (ISO 14443-4) #320
