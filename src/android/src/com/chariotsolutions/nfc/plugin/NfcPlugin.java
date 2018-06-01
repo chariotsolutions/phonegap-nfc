@@ -32,6 +32,7 @@ import android.nfc.TagLostException;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.nfc.tech.TagTechnology;
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 
@@ -59,10 +60,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String NDEF_FORMATABLE = "ndef-formatable";
     private static final String TAG_DEFAULT = "tag";
 
-    private static final String STATUS_NFC_OK = "NFC_OK";
-    private static final String STATUS_NO_NFC = "NO_NFC";
-    private static final String STATUS_NFC_DISABLED = "NFC_DISABLED";
-    private static final String STATUS_NDEF_PUSH_DISABLED = "NDEF_PUSH_DISABLED";
+    private static final String READER_MODE = "readerMode";
 
     // TagTechnology IsoDep, NfcA, NfcB, NfcV, NfcF, MifareClassic, MifareUltralight
     private static final String CONNECT = "connect";
@@ -70,6 +68,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String TRANSCEIVE = "transceive";
     private TagTechnology tagTechnology = null;
     private Class<?> tagTechnologyClass;
+
+    private static final String STATUS_NFC_OK = "NFC_OK";
+    private static final String STATUS_NO_NFC = "NO_NFC";
+    private static final String STATUS_NFC_DISABLED = "NFC_DISABLED";
+    private static final String STATUS_NDEF_PUSH_DISABLED = "NDEF_PUSH_DISABLED";
 
     private static final String TAG = "NfcPlugin";
     private final List<IntentFilter> intentFilters = new ArrayList<>();
@@ -80,6 +83,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private Intent savedIntent = null;
 
+    private CallbackContext readerModeCallback;
     private CallbackContext shareTagCallback;
     private CallbackContext handoverCallback;
 
@@ -98,6 +102,12 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         if (!getNfcStatus().equals(STATUS_NFC_OK)) {
             callbackContext.error(getNfcStatus());
             return true; // short circuit
+        }
+
+        if (action.equalsIgnoreCase(READER_MODE)) {
+            int flags = data.getInt(0);
+            readerMode(flags, callbackContext);
+            return true;
         }
 
         createPendingIntent();
@@ -184,6 +194,31 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             return STATUS_NFC_OK;
         }
     }
+
+    private void readerMode(int flags, CallbackContext callbackContext) {
+        // TODO probably need to set a boolean to stop startNfc() on resume?
+        Bundle extras = new Bundle(); // not used
+        readerModeCallback = callbackContext;
+        // TODO catch UnsupportedOperationException
+        getActivity().runOnUiThread(() -> {
+            NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
+            nfcAdapter.enableReaderMode(getActivity(), callback, flags, extras);
+        });
+
+    }
+
+    private NfcAdapter.ReaderCallback callback = new NfcAdapter.ReaderCallback() {
+        @Override
+        public void onTagDiscovered(Tag tag) {
+
+            JSONObject tagJson = Util.tagToJSON(tag);
+
+            PluginResult result = new PluginResult(PluginResult.Status.OK, tagJson);
+            result.setKeepCallback(true);
+            readerModeCallback.sendPluginResult(result);
+
+        }
+    };
 
     private void registerDefaultTag(CallbackContext callbackContext) {
         addTagFilter();
