@@ -194,6 +194,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private void registerDefaultTag(CallbackContext callbackContext) {
         addTagFilter();
+        restartNfc();
         callbackContext.success();
     }
 
@@ -205,11 +206,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private void registerNdefFormatable(CallbackContext callbackContext) {
         addTechList(new String[]{NdefFormatable.class.getName()});
+        restartNfc();
         callbackContext.success();
     }
 
     private void registerNdef(CallbackContext callbackContext) {
         addTechList(new String[]{Ndef.class.getName()});
+        restartNfc();
         callbackContext.success();
     }
 
@@ -248,6 +251,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         try {
             mimeType = data.getString(0);
             intentFilters.add(createIntentFilter(mimeType));
+            restartNfc();
             callbackContext.success();
         } catch (MalformedMimeTypeException e) {
             callbackContext.error("Invalid MIME Type " + mimeType);
@@ -467,7 +471,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
             if (nfcAdapter != null && !getActivity().isFinishing()) {
                 try {
-                    nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
+                    IntentFilter[] intentFilters = getIntentFilters();
+                    String[][] techLists = getTechLists();
+                    // don't start NFC unless some intent filters or tech lists have been added,
+                    // because empty lists act as wildcards and receives ALL scan events
+                    if (intentFilters.length > 0 || techLists.length > 0) {
+                        nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), intentFilters, techLists);
+                    }
 
                     if (p2pMessage != null) {
                         nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
