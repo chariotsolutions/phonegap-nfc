@@ -61,6 +61,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String TAG_DEFAULT = "tag";
 
     private static final String READER_MODE = "readerMode";
+    private static final String DISABLE_READER_MODE = "disableReaderMode";
 
     // TagTechnology IsoDep, NfcA, NfcB, NfcV, NfcF, MifareClassic, MifareUltralight
     private static final String CONNECT = "connect";
@@ -107,6 +108,9 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         if (action.equalsIgnoreCase(READER_MODE)) {
             int flags = data.getInt(0);
             readerMode(flags, callbackContext);
+            return true;
+        } else if (action.equalsIgnoreCase(DISABLE_READER_MODE)) {
+            disableReaderMode(callbackContext);
             return true;
         }
 
@@ -205,6 +209,15 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             nfcAdapter.enableReaderMode(getActivity(), callback, flags, extras);
         });
 
+    }
+
+    private void disableReaderMode(CallbackContext callbackContext) {
+        getActivity().runOnUiThread(() -> {
+            readerModeCallback = null;
+            NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
+            nfcAdapter.disableReaderMode(getActivity());
+            callbackContext.success();
+        });
     }
 
     private NfcAdapter.ReaderCallback callback = new NfcAdapter.ReaderCallback() {

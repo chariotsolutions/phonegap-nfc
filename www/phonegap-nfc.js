@@ -541,6 +541,10 @@ var nfc = {
     // Android NfcAdapter.enabledReaderMode
     readerMode: function(flags, readCallback, failureCallback) {
         cordova.exec(readCallback, failureCallback, 'NfcPlugin', 'readerMode', [flags]);
+    },
+
+    disableReaderMode: function(readCallback, failureCallback) {
+        cordova.exec(readCallback, failureCallback, 'NfcPlugin', 'disableReaderMode', []);
     }
 
 };
