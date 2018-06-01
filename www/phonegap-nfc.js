@@ -832,3 +832,20 @@ window.nfc = nfc;
 window.ndef = ndef;
 window.util = util;
 window.fireNfcTagEvent = fireNfcTagEvent;
+
+// This channel receives nfcEvent data from native code 
+// and fires JavaScript events.
+require('cordova/channel').onCordovaReady.subscribe(function() {
+  require('cordova/exec')(success, null, 'NfcPlugin', 'channel', []);
+  function success(message) {
+    if (!message.type) { 
+        console.log(message);
+    } else {
+        console.log('Received NFC data, firing event');
+        var e = document.createEvent('Events');
+        e.initEvent(message.type)
+        e.tag = message.tag;
+        document.dispatchEvent(e);
+    }
+  }
+});
