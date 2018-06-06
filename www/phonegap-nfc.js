@@ -1,6 +1,5 @@
-/*jshint  bitwise: false, camelcase: false, quotmark: false, unused: vars */
-/*global cordova, console */
-"use strict";
+/*jshint  bitwise: false, camelcase: false, quotmark: false, unused: vars, esversion: 6, browser: true*/
+/*global cordova, console, require */
 
 function handleNfcFromIntentFilter() {
 
@@ -271,9 +270,9 @@ var ndef = {
      *
      * @see NFC Data Exchange Format (NDEF) http://www.nfc-forum.org/specs/spec_list/
      */
-    decodeMessage: function (bytes) {
+    decodeMessage: function (ndefBytes) {
 
-        var bytes = bytes.slice(0), // clone since parsing is destructive
+        var bytes = ndefBytes.slice(0), // clone since parsing is destructive
             ndef_message = [],
             tnf_byte,
             header,
@@ -739,7 +738,12 @@ var textHelper = {
             utf16 = (data[0] & 0x80) !== 0; // assuming UTF-16BE
 
         // TODO need to deal with UTF in the future
-        // console.log("lang " + languageCode + (utf16 ? " utf16" : " utf8"));
+        if (utf16) {
+            console.log('WARNING: utf-16 data may not be handled properly for', languageCode);
+        }
+        // Use TextDecoder when we have enough browser support
+        // new TextDecoder('utf-8').decode(data.slice(languageCodeLength + 1));
+        // new TextDecoder('utf-16').decode(data.slice(languageCodeLength + 1));
 
         return util.bytesToString(data.slice(languageCodeLength + 1));
     },
@@ -843,7 +847,7 @@ require('cordova/channel').onCordovaReady.subscribe(function() {
     } else {
         console.log("Received NFC data, firing '" + message.type + "' event");
         var e = document.createEvent('Events');
-        e.initEvent(message.type)
+        e.initEvent(message.type);
         e.tag = message.tag;
         document.dispatchEvent(e);
     }
