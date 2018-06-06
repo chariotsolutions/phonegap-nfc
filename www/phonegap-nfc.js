@@ -539,12 +539,12 @@ var nfc = {
     FLAG_READER_NO_PLATFORM_SOUNDS: 0x100,
     
     // Android NfcAdapter.enabledReaderMode
-    readerMode: function(flags, readCallback, failureCallback) {
-        cordova.exec(readCallback, failureCallback, 'NfcPlugin', 'readerMode', [flags]);
+    readerMode: function(flags, readCallback, errorCallback) {
+        cordova.exec(readCallback, errorCallback, 'NfcPlugin', 'readerMode', [flags]);
     },
 
-    disableReaderMode: function(readCallback, failureCallback) {
-        cordova.exec(readCallback, failureCallback, 'NfcPlugin', 'disableReaderMode', []);
+    disableReaderMode: function(successCallback, errorCallback) {
+        cordova.exec(successCallback, errorCallback, 'NfcPlugin', 'disableReaderMode', []);
     }
 
 };

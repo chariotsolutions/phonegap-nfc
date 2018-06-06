@@ -100,23 +100,24 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             return true;
         }
 
+        // allow reader mode to be disabled even if nfc is disabled
+        if (action.equalsIgnoreCase(DISABLE_READER_MODE)) {
+            disableReaderMode(callbackContext);
+            return true; // short circuit
+        }
+
         if (!getNfcStatus().equals(STATUS_NFC_OK)) {
             callbackContext.error(getNfcStatus());
             return true; // short circuit
         }
 
+        createPendingIntent();
+
         if (action.equalsIgnoreCase(READER_MODE)) {
             int flags = data.getInt(0);
             readerMode(flags, callbackContext);
-            return true;
-        } else if (action.equalsIgnoreCase(DISABLE_READER_MODE)) {
-            disableReaderMode(callbackContext);
-            return true;
-        }
 
-        createPendingIntent();
-
-        if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
+        } else if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
             registerMimeType(data, callbackContext);
 
         } else if (action.equalsIgnoreCase(REMOVE_MIME_TYPE)) {
@@ -200,10 +201,8 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     }
 
     private void readerMode(int flags, CallbackContext callbackContext) {
-        // TODO probably need to set a boolean to stop startNfc() on resume?
         Bundle extras = new Bundle(); // not used
         readerModeCallback = callbackContext;
-        // TODO catch UnsupportedOperationException
         getActivity().runOnUiThread(() -> {
             NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
             nfcAdapter.enableReaderMode(getActivity(), callback, flags, extras);
@@ -215,7 +214,9 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         getActivity().runOnUiThread(() -> {
             readerModeCallback = null;
             NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
-            nfcAdapter.disableReaderMode(getActivity());
+            if (nfcAdapter != null) {
+                nfcAdapter.disableReaderMode(getActivity());
+            }
             callbackContext.success();
         });
     }
