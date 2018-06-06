@@ -410,7 +410,7 @@ var ndef = {
 
 // nfc provides javascript wrappers to the native phonegap implementation
 var nfc = {
-
+    
     addTagDiscoveredListener: function (callback, win, fail) {
         document.addEventListener("tag", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "registerTag", []);
@@ -526,6 +526,24 @@ var nfc = {
 
             cordova.exec(resolve, reject, 'NfcPlugin', 'transceive', [buffer]);
         });
+    },
+
+    // Android NfcAdapter.enableReaderMode flags 
+    FLAG_READER_NFC_A: 0x1,
+    FLAG_READER_NFC_B: 0x2,
+    FLAG_READER_NFC_F: 0x4,
+    FLAG_READER_NFC_V: 0x8,
+    FLAG_READER_NFC_BARCODE: 0x10,
+    FLAG_READER_SKIP_NDEF_CHECK: 0x80,
+    FLAG_READER_NO_PLATFORM_SOUNDS: 0x100,
+    
+    // Android NfcAdapter.enabledReaderMode
+    readerMode: function(flags, readCallback, errorCallback) {
+        cordova.exec(readCallback, errorCallback, 'NfcPlugin', 'readerMode', [flags]);
+    },
+
+    disableReaderMode: function(successCallback, errorCallback) {
+        cordova.exec(successCallback, errorCallback, 'NfcPlugin', 'disableReaderMode', []);
     }
 
 };

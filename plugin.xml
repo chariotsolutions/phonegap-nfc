@@ -36,6 +36,10 @@
             <uses-feature android:name="android.hardware.nfc" android:required="false"/>
         </config-file>
 
+        <edit-config file="AndroidManifest.xml" target="/manifest/uses-sdk" mode="merge">
+            <uses-sdk android:minSdkVersion="19" />
+        </edit-config>
+
     </platform>
 
     <platform name="wp8">

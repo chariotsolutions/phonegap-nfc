@@ -31,6 +31,7 @@ import android.nfc.TagLostException;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.nfc.tech.TagTechnology;
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 
@@ -58,11 +59,8 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String NDEF_FORMATABLE = "ndef-formatable";
     private static final String TAG_DEFAULT = "tag";
 
-    private static final String STATUS_NFC_OK = "NFC_OK";
-    private static final String STATUS_NO_NFC = "NO_NFC";
-    private static final String STATUS_NFC_DISABLED = "NFC_DISABLED";
-    private static final String STATUS_NDEF_PUSH_DISABLED = "NDEF_PUSH_DISABLED";
-    private static final String CHANNEL = "channel";
+    private static final String READER_MODE = "readerMode";
+    private static final String DISABLE_READER_MODE = "disableReaderMode";
 
     // TagTechnology IsoDep, NfcA, NfcB, NfcV, NfcF, MifareClassic, MifareUltralight
     private static final String CONNECT = "connect";
@@ -70,6 +68,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String TRANSCEIVE = "transceive";
     private TagTechnology tagTechnology = null;
     private Class<?> tagTechnologyClass;
+
+    private static final String STATUS_NFC_OK = "NFC_OK";
+    private static final String STATUS_NO_NFC = "NO_NFC";
+    private static final String STATUS_NFC_DISABLED = "NFC_DISABLED";
+    private static final String STATUS_NDEF_PUSH_DISABLED = "NDEF_PUSH_DISABLED";
 
     private static final String TAG = "NfcPlugin";
     private final List<IntentFilter> intentFilters = new ArrayList<>();
@@ -80,6 +83,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private Intent savedIntent = null;
 
+    private CallbackContext readerModeCallback;
     private CallbackContext channelCallback;
     private CallbackContext shareTagCallback;
     private CallbackContext handoverCallback;
@@ -99,7 +103,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         // the channel is set up when the plugin starts
         if (action.equalsIgnoreCase(CHANNEL)) {
             channelCallback = callbackContext;
-            return true;
+            return true; // short circuit
+        }
+
+        // allow reader mode to be disabled even if nfc is disabled
+        if (action.equalsIgnoreCase(DISABLE_READER_MODE)) {
+            disableReaderMode(callbackContext);
+            return true; // short circuit
         }
 
         if (!getNfcStatus().equals(STATUS_NFC_OK)) {
@@ -109,7 +119,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
         createPendingIntent();
 
-        if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
+        if (action.equalsIgnoreCase(READER_MODE)) {
+            int flags = data.getInt(0);
+            readerMode(flags, callbackContext);
+
+        } else if (action.equalsIgnoreCase(REGISTER_MIME_TYPE)) {
             registerMimeType(data, callbackContext);
 
         } else if (action.equalsIgnoreCase(REMOVE_MIME_TYPE)) {
@@ -191,6 +205,49 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             return STATUS_NFC_OK;
         }
     }
+
+    private void readerMode(int flags, CallbackContext callbackContext) {
+        Bundle extras = new Bundle(); // not used
+        readerModeCallback = callbackContext;
+        getActivity().runOnUiThread(() -> {
+            NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
+            nfcAdapter.enableReaderMode(getActivity(), callback, flags, extras);
+        });
+
+    }
+
+    private void disableReaderMode(CallbackContext callbackContext) {
+        getActivity().runOnUiThread(() -> {
+            readerModeCallback = null;
+            NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
+            if (nfcAdapter != null) {
+                nfcAdapter.disableReaderMode(getActivity());
+            }
+            callbackContext.success();
+        });
+    }
+
+    private NfcAdapter.ReaderCallback callback = new NfcAdapter.ReaderCallback() {
+        @Override
+        public void onTagDiscovered(Tag tag) {
+
+            JSONObject json;
+
+            // If the tag supports Ndef, try and return an Ndef message
+            List<String> techList = Arrays.asList(tag.getTechList());
+            if (techList.contains(Ndef.class.getName())) {
+                Ndef ndef = Ndef.get(tag);
+                json = Util.ndefToJSON(ndef);
+            } else {
+                json = Util.tagToJSON(tag);
+            }
+
+            PluginResult result = new PluginResult(PluginResult.Status.OK, json);
+            result.setKeepCallback(true);
+            readerModeCallback.sendPluginResult(result);
+
+        }
+    };
 
     private void registerDefaultTag(CallbackContext callbackContext) {
         addTagFilter();
