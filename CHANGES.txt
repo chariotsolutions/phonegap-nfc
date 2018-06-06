@@ -1,3 +1,7 @@
+= 1.0.2 =
+Add reader mode for Android #326 #198
+Add es6 to jshint config, remove strict mode, cleanup jshint errors #325
+
 = 1.0.1 =
 Replace webview.sendJavascript with channel on Android Fixes #196 #249 #225 #263 Thanks jmorille
 Update code that removes event listener #257
