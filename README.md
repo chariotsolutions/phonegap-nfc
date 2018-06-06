@@ -601,7 +601,7 @@ Read NFC tags sending the tag data to the success callback.
 
 In reader mode, when a NFC tags is read, the results are returned to read callback as a tag object. Note that the normal event listeners are *not* used in reader mode. The callback receives the tag object *without* the event wrapper.
 
-    tag: {
+    {
         "isWritable": true,
         "id": [4, 96, 117, 74, -17, 34, -128],
         "techTypes": ["android.nfc.tech.IsoDep", "android.nfc.tech.NfcA", "android.nfc.tech.Ndef"],
