@@ -3,7 +3,6 @@ package com.chariotsolutions.nfc.plugin;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -85,6 +84,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private Intent savedIntent = null;
 
     private CallbackContext readerModeCallback;
+    private CallbackContext channelCallback;
     private CallbackContext shareTagCallback;
     private CallbackContext handoverCallback;
 
@@ -98,6 +98,12 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         if (action.equalsIgnoreCase(SHOW_SETTINGS)) {
             showSettings(callbackContext);
             return true;
+        }
+
+        // the channel is set up when the plugin starts
+        if (action.equalsIgnoreCase(CHANNEL)) {
+            channelCallback = callbackContext;
+            return true; // short circuit
         }
 
         // allow reader mode to be disabled even if nfc is disabled
@@ -245,6 +251,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private void registerDefaultTag(CallbackContext callbackContext) {
         addTagFilter();
+        restartNfc();
         callbackContext.success();
     }
 
@@ -256,11 +263,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
     private void registerNdefFormatable(CallbackContext callbackContext) {
         addTechList(new String[]{NdefFormatable.class.getName()});
+        restartNfc();
         callbackContext.success();
     }
 
     private void registerNdef(CallbackContext callbackContext) {
         addTechList(new String[]{Ndef.class.getName()});
+        restartNfc();
         callbackContext.success();
     }
 
@@ -299,6 +308,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         try {
             mimeType = data.getString(0);
             intentFilters.add(createIntentFilter(mimeType));
+            restartNfc();
             callbackContext.success();
         } catch (MalformedMimeTypeException e) {
             callbackContext.error("Invalid MIME Type " + mimeType);
@@ -518,7 +528,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
             if (nfcAdapter != null && !getActivity().isFinishing()) {
                 try {
-                    nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), getIntentFilters(), getTechLists());
+                    IntentFilter[] intentFilters = getIntentFilters();
+                    String[][] techLists = getTechLists();
+                    // don't start NFC unless some intent filters or tech lists have been added,
+                    // because empty lists act as wildcards and receives ALL scan events
+                    if (intentFilters.length > 0 || techLists.length > 0) {
+                        nfcAdapter.enableForegroundDispatch(getActivity(), getPendingIntent(), intentFilters, techLists);
+                    }
 
                     if (p2pMessage != null) {
                         nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
@@ -701,29 +717,34 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         });
     }
 
+    // Send the event data through a channel so the JavaScript side can fire the event
+    private void sendEvent(String type, JSONObject tag) {
+
+        try {
+            JSONObject event = new JSONObject();
+            event.put("type", type);       // TAG_DEFAULT, NDEF, NDEF_MIME, NDEF_FORMATABLE
+            event.put("tag", tag);         // JSON representing the NFC tag and NDEF messages
+
+            PluginResult result = new PluginResult(PluginResult.Status.OK, event);
+            result.setKeepCallback(true);
+            channelCallback.sendPluginResult(result);
+        } catch (JSONException e) {
+            Log.e(TAG, "Error sending NFC event through the channel", e);
+        }
+
+    }
+
     private void fireNdefEvent(String type, Ndef ndef, Parcelable[] messages) {
-
-        JSONObject jsonObject = buildNdefJSON(ndef, messages);
-        String tag = jsonObject.toString();
-
-        String command = MessageFormat.format(javaScriptEventTemplate, type, tag);
-        Log.v(TAG, command);
-        this.webView.sendJavascript(command);
-
+        JSONObject json = buildNdefJSON(ndef, messages);
+        sendEvent(type, json);
     }
 
     private void fireNdefFormatableEvent(Tag tag) {
-
-        String command = MessageFormat.format(javaScriptEventTemplate, NDEF_FORMATABLE, Util.tagToJSON(tag));
-        Log.v(TAG, command);
-        this.webView.sendJavascript(command);
+        sendEvent(NDEF_FORMATABLE, Util.tagToJSON(tag));
     }
 
     private void fireTagEvent(Tag tag) {
-
-        String command = MessageFormat.format(javaScriptEventTemplate, TAG_DEFAULT, Util.tagToJSON(tag));
-        Log.v(TAG, command);
-        this.webView.sendJavascript(command);
+        sendEvent(TAG_DEFAULT, Util.tagToJSON(tag));
     }
 
     private JSONObject buildNdefJSON(Ndef ndef, Parcelable[] messages) {
@@ -803,12 +824,6 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private void setIntent(Intent intent) {
         getActivity().setIntent(intent);
     }
-
-    private final String javaScriptEventTemplate =
-            "var e = document.createEvent(''Events'');\n" +
-                    "e.initEvent(''{0}'');\n" +
-                    "e.tag = {1};\n" +
-                    "document.dispatchEvent(e);";
 
     @Override
     public void onNdefPushComplete(NfcEvent event) {
