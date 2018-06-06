@@ -95,7 +95,7 @@ The initial iOS version plugin does not support scanning multiple tags (invalida
 
 ## ReaderMode
 
-- [nfc.readerMode](#enablereadermode)
+- [nfc.readerMode](#nfcreadermode)
 - [nfc.disableReaderMode](#nfcdisablereadermode)
 
 ## Tag Technology Functions
