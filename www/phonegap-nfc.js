@@ -513,7 +513,7 @@ var nfc = {
     transceive: function(data) {
         return new Promise(function(resolve, reject) {
 
-            let buffer;
+            var buffer;
             if (typeof data === 'string') {
                 buffer = util.hexStringToArrayBuffer(data);
             } else if (data instanceof ArrayBuffer) {
@@ -703,9 +703,10 @@ var util = {
         function toHexString(byte) {
             return ('0' + (byte & 0xFF).toString(16)).slice(-2);
         }
-        const typedArray = new Uint8Array(buffer);
+        var typedArray = new Uint8Array(buffer);
         var array = Array.from(typedArray);  // need to convert to [] so our map result is not typed
-        const parts = array.map(i => toHexString(i));
+        var parts = array.map(function(i) { return toHexString(i) });
+
         return parts.join('');
     },
 
@@ -729,16 +730,16 @@ var util = {
         }
 
         // check for some non-hex characters
-        const bad = hexString.match(/[G-Z\s]/i);
+        var bad = hexString.match(/[G-Z\s]/i);
         if (bad) {
             console.log('WARNING: found non-hex characters', bad);
         }
 
         // split the string into pairs of octets
-        const pairs = hexString.match(/[\dA-F]{2}/gi);
+        var pairs = hexString.match(/[\dA-F]{2}/gi);
 
         // convert the octets to integers
-        const ints = pairs.map(s => parseInt(s, 16));
+        var ints = pairs.map(function(s) { return parseInt(s, 16) });
 
         var array = new Uint8Array(ints);
         return array.buffer;

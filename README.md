@@ -1108,7 +1108,7 @@ Create a new project
     cordova platform add android
     cordova plugin add ../phonegap-nfc
     cordova plugin add ../phonegap-nfc/tests
-    cordova plugin add http://git-wip-us.apache.org/repos/asf/cordova-plugin-test-framework.git
+    cordova plugin add https://github.com/apache/cordova-plugin-test-framework.git
 
 Change the start page in `config.xml`
 
