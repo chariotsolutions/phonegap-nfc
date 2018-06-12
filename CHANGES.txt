@@ -1,3 +1,6 @@
+= 1.0.3 =
+Remove ES6 code from phonegap-nfc.js #325
+
 = 1.0.2 =
 Add reader mode for Android #326 #198
 Add es6 to jshint config, remove strict mode, cleanup jshint errors #325
