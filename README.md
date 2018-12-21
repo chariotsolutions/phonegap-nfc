@@ -778,13 +778,13 @@ See Android's documentation [IsoDep.transceive()](https://developer.android.com/
 
     // Promise style
     nfc.transceive('90 5A 00 00 03 AA AA AA 00').then(
-        response => console.log(util.arrayBufferToString(response)),
+        response => console.log(util.arrayBufferToHexString(response)),
         error => console.log('Error selecting DESFire application')
     )
 
     // async await
     const response = await nfc.transceive('90 5A 00 00 03 AA AA AA 00');
-    console.log('response =',util.arrayBufferToString(response));
+    console.log('response =',util.arrayBufferToHexString(response));
 
 ### Supported Platforms
 
