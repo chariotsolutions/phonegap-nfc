@@ -117,15 +117,16 @@
             </feature>
         </config-file>
 
-        <config-file platform="ios" target="*-Debug.plist" parent="com.apple.developer.nfc.readersession.formats">
+        <config-file parent="com.apple.developer.nfc.readersession.formats" platform="ios" target="*-Debug.plist">
             <array>
                 <string>NDEF</string>
+                <string>TAG</string>  
             </array>
         </config-file>
-
-        <config-file platform="ios" target="*-Release.plist" parent="com.apple.developer.nfc.readersession.formats">
+        <config-file parent="com.apple.developer.nfc.readersession.formats" platform="ios" target="*-Release.plist">
             <array>
                 <string>NDEF</string>
+                <string>TAG</string>  
             </array>
         </config-file>
         
