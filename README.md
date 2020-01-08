@@ -728,7 +728,7 @@ Connect to the tag and enable I/O operations to the tag from this TagTechnology 
 
 ### Description
 
-Function `connect` enables I/O operations to the tag from this TagTechnology object. `nfc.connect` should be called after receiving a nfcEvent from the `addTagDiscoveredListener`. Only one TagTechnology object can be connected to a Tag at a time.
+Function `connect` enables I/O operations to the tag from this TagTechnology object. `nfc.connect` should be called after receiving a nfcEvent from the `addTagDiscoveredListener` or the `readerMode` callback. Only one TagTechnology object can be connected to a Tag at a time.
 
 See Android's [TagTechnology.connect()](https://developer.android.com/reference/android/nfc/tech/TagTechnology.html#connect()) for more info.
 
