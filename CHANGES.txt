@@ -1,3 +1,9 @@
+= 1.0.4 =
+Added TAG string for iOS entitlement compatibility #376 Thanks ActionZachson
+Add DeviceCapability proximity for Windows 10 builds #358 #265 Thanks DirkHeinke
+Fix issue with AndroidManifest.xml #372 by LuisEGR
+Fix error in documentation arrayBufferToString doesn't exist #356 Thanks JohnMcLear
+
 = 1.0.3 =
 Remove ES6 code from phonegap-nfc.js #325
 

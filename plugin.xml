@@ -3,7 +3,7 @@
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="phonegap-nfc"
-    version="1.0.3">
+    version="1.0.4">
 
     <name>NFC</name>
 
@@ -35,10 +35,6 @@
             <uses-permission android:name="android.permission.NFC"/>
             <uses-feature android:name="android.hardware.nfc" android:required="false"/>
         </config-file>
-
-        <edit-config file="AndroidManifest.xml" target="/manifest/uses-sdk" mode="merge">
-            <uses-sdk android:minSdkVersion="19" />
-        </edit-config>
 
     </platform>
 
@@ -80,6 +76,9 @@
         <config-file target="package.windows.appxmanifest" parent="/Package/Capabilities">
             <DeviceCapability Name="proximity" />
         </config-file>
+        <config-file target="package.windows10.appxmanifest" parent="/Package/Capabilities">
+            <DeviceCapability Name="proximity" />
+        </config-file>
         <config-file target="package.windows80.appxmanifest" parent="/Package/Capabilities">
             <DeviceCapability Name="proximity" />
         </config-file>
@@ -118,15 +117,17 @@
             </feature>
         </config-file>
 
-        <config-file platform="ios" target="*-Debug.plist" parent="com.apple.developer.nfc.readersession.formats">
+        <!-- https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_nfc_readersession_formats?language=objc -->
+        <config-file parent="com.apple.developer.nfc.readersession.formats" platform="ios" target="*-Debug.plist">
             <array>
                 <string>NDEF</string>
+                <string>TAG</string>  
             </array>
         </config-file>
-
-        <config-file platform="ios" target="*-Release.plist" parent="com.apple.developer.nfc.readersession.formats">
+        <config-file parent="com.apple.developer.nfc.readersession.formats" platform="ios" target="*-Release.plist">
             <array>
                 <string>NDEF</string>
+                <string>TAG</string>  
             </array>
         </config-file>
         
