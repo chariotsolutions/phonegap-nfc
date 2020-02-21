@@ -15,6 +15,7 @@
 }
 
 // iOS Specific API
+- (void)channel:(CDVInvokedUrlCommand *)command;
 - (void)beginSession:(CDVInvokedUrlCommand *)command;
 - (void)invalidateSession:(CDVInvokedUrlCommand *)command;
 
