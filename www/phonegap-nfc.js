@@ -21,7 +21,7 @@ function handleNfcFromIntentFilter() {
                     },
                     "NfcPlugin", "init", []
                 );
-            }, 100
+            }, 10
         );
     }
 }
