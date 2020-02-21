@@ -134,8 +134,8 @@
         <header-file src="src/ios/NfcPlugin.h" />
         <source-file src="src/ios/NfcPlugin.m" />
 
-        <!-- frameworks -->
-        <framework src="CoreNFC.framework" />
+        <!-- frameworks- make CoreNFC optional (for backwards compatibility issues)-->
+        <framework src="CoreNFC.framework" weak="true"/>
 
         <preference name="NFC_USAGE_DESCRIPTION" default="Read NFC Tags" />
         <config-file target="*-Info.plist" parent="NFCReaderUsageDescription">
