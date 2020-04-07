@@ -244,6 +244,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 json = Util.tagToJSON(tag);
             }
 
+            Intent tagIntent = new Intent();
+            tagIntent.putExtra(NfcAdapter.EXTRA_TAG, tag);
+            setIntent(tagIntent);
+
             PluginResult result = new PluginResult(PluginResult.Status.OK, json);
             result.setKeepCallback(true);
             readerModeCallback.sendPluginResult(result);
