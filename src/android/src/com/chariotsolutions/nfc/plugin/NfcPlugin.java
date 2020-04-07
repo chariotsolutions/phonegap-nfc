@@ -856,7 +856,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             try {
 
                 Tag tag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                if (tag == null) {
+                if (tag == null && savedIntent != null) {
                     tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                 }
 
