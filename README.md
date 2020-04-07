@@ -739,7 +739,7 @@ See Android's [TagTechnology.connect()](https://developer.android.com/reference/
 
 ### Returns
 
- - Promise when the connection is successful
+ - Promise when the connection is successful, optionally with a maxTransceiveLength attribute in case the tag technology supports it
 
 ### Quick Example
 
