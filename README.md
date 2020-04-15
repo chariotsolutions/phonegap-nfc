@@ -63,13 +63,15 @@ See [Getting Started](https://github.com/chariotsolutions/phonegap-nfc/blob/mast
 
 ## iOS Notes
 
-Reading NFC NDEF tags is supported on iPhone 7 and iPhone 7 Plus running iOS 11. To enable your app to detect NFC tags, the plugin adds the Near Field Communication Tag Reading capability in your Xcode project. You must build your application with XCode 9. See the [Apple Documentation](http://help.apple.com/xcode/mac/current/#/dev88ff319e7) for more info.
+Reading NFC NDEF tags is supported on iPhone 7 and newer with iOS 11. iOS 13 added support for*writing NDEF messages to NFC tags.and iPhone 7 Plus running iOS 11. iOS 13 also adds the ability to get the UID from some NFC tag types. Android can constantly scan for NFC tags and send the results to a listener function. On iOS, the user must start a NFC session to scan for a tag. The [nfc.scanNdef](#nfcscanndef) and [nfc.scanTag](#nfcscantag) functions start a NFC scanning session and NFC tag is returned to the caller via a Promise. If your existing code uses [nfc.beginSession](#nfcbeginsession), you should update it to use `nfc.scanNdef`.
+
+The `scanNdef` function uses [NFCNDEFReaderSession](https://developer.apple.com/documentation/corenfc/nfcndefreadersession) to detecting NFC Data Exchange Format (NDEF) tags. `scanTag` uses the newer [NFCTagReaderSession](https://developer.apple.com/documentation/corenfc/nfctagreadersession) available in iOS 13 to detect ISO15693, FeliCa, and MIFARE tags. The `scanTag` function will include the tag UID and tag type for *some* NFC tags along with the NDEF messages. `scanTag` and can also read some RFID tags without NDEF messsages. `scanTag` will not scan some NDEF tags including Topaz and Mifare Classic. 
 
 Use [nfc.addNdefListener](#nfcaddndeflistener) to read NDEF NFC tags with iOS. Unfortunately, iOS also requires you to begin a session before scanning NFC tag. The JavaScript API contains two new iOS specific functions [nfc.beginSession](#nfcbeginsession) and [nfc.invalidateSession](#nfcinvalidatesession).
 
-You must call [nfc.beginSession](#nfcbeginsession) before every scan. 
+You must call [nfc.scanNdef](#nfcscanndef) and [nfc.scanTag](#nfcscantag) before every scan. 
 
-The initial iOS version plugin does not support scanning multiple tags (invalidateAfterFirstRead:FALSE) or setting the alertMessage. If you have use cases or suggestions on the best way to support multi-read or alert messages, open a ticket for discussion.
+Writing NFC tags on iOS uses the same [nfc.write](#nfcwrite) function as other platforms. Although it's the same function, the behavior is differnt on iOS. Calling `nfc.write` on an iOS device will start a new scanning session.
 
 # NFC
 
@@ -92,6 +94,9 @@ The initial iOS version plugin does not support scanning multiple tags (invalida
 - [nfc.showSettings](#nfcshowsettings)
 - [nfc.beginSession](#nfcbeginsession)
 - [nfc.invalidateSession](#nfcinvalidatesession)
+- [nfc.scanNdef](#nfcscanndef)
+- [nfc.scanTag](#nfcscanTag)
+- [nfc.cancelScan](#nfccancelscan)
 
 ## ReaderMode
 
@@ -303,12 +308,14 @@ Function `nfc.write` writes an NdefMessage to a NFC tag.
 
 On **Android** this method *must* be called from within an NDEF Event Handler.
 On **Windows** this method *may* be called from within the NDEF Event Handler.
+On **iOS** this method should be called outside the NDEF Event Handler, it will starts a new scanning session. 
 
 On **Windows Phone 8.1** this method should be called outside the NDEF Event Handler, otherwise Windows tries to read the tag contents as you are writing to the tag.
 
 ### Supported Platforms
 
 - Android
+- iOS
 - Windows
 - BlackBerry 7
 - Windows Phone 8
@@ -545,13 +552,17 @@ Windows will return **NO_NFC_OR_NFC_DISABLED** when NFC is not present or disabl
 
 ## nfc.beginSession
 
+**`beginSession` is deprecated. Use `scanNdef` or `scanTag`**
+
 iOS requires you to begin a session before scanning a NFC tag.
 
     nfc.beginSession(success, failure);
 
 ### Description
 
-Function `beginSession` starts the [NFCNDEFReaderSession](https://developer.apple.com/documentation/corenfc/nfcndefreadersession) allowing iOS to scan NFC tags.
+**`beginSession` is deprecated. Use `scanNdef` or `scanTag`**
+
+Function `beginSession` starts the [NFCNDEFReaderSession](https://developer.apple.com/documentation/corenfc/nfcndefreadersession) allowing iOS to scan NFC tags. Use [nfc.addNdefListener](#nfcaddndeflistener) to receive the results of the scan.
 
 ### Parameters
 
@@ -567,6 +578,8 @@ Function `beginSession` starts the [NFCNDEFReaderSession](https://developer.appl
 - iOS
 
 ## nfc.invalidateSession
+
+**`invalidateSession` is deprecated. Use `cancelScan``.**
 
 Invalidate the NFC session.
 
@@ -588,6 +601,113 @@ Function `invalidateSession` stops the [NFCNDEFReaderSession](https://developer.
 ### Supported Platforms
 
 - iOS
+
+## nfc.scanNdef
+
+Calling `scanNdef` will being an iOS NFC scanning session. The tag or an error will be returned in a promise.
+
+    nfc.scanNdef();
+
+### Description
+
+Function `scanNdef` starts the [NFCNDEFReaderSession](https://developer.apple.com/documentation/corenfc/nfcndefreadersession)  allowing iOS to scan NFC tags.
+
+### Returns
+
+ - Promise
+
+### Quick Example
+
+    // Promise
+    nfc.scanNdef().then(
+        tag => console.log(JSON.stringify(tag)),
+        err => console.log(err)
+    );
+
+    // Async Await
+    try {
+        let tag = await nfc.scanNdef();
+        console.log(JSON.stringify(tag));
+    } catch (err) {
+        console.log(err);
+    }
+    
+
+### Supported Platforms
+
+- iOS
+
+## nfc.scanTag
+
+Calling `scanTag` will being an iOS NFC scanning session. The tag or an error will be returned in a promise.
+
+    nfc.scanTag();
+
+### Description
+
+Function `scanNdef` starts the [NFCTagReaderSession](https://developer.apple.com/documentation/corenfc/nfctagreadersession) allowing iOS to scan NFC tags.
+
+The Tag reader will attempt to get the UID from the NFC Tag. If can also read the UID from some non-NDEF tags.
+
+### Returns
+
+ - Promise
+
+### Quick Example
+
+    // Promise
+    nfc.scanTag().then(
+        tag => {
+            console.log(JSON.stringify(tag))
+            if (tag.id) {
+                console.log(nfc.bytesToHexString(tag.id));
+            }            
+        },
+        err => console.log(err)
+    );
+
+    // Async Await
+    try {
+        let tag = await nfc.scanTag();
+        console.log(JSON.stringify(tag));
+        if (tag.id) {
+            console.log(nfc.bytesToHexString(tag.id));
+        }
+    } catch (err) {
+        console.log(err);
+    }
+    
+
+### Supported Platforms
+
+- iOS
+
+
+## nfc.cancelScan
+
+Invalidate the NFC session started by `scanNdef` or `scanTag`.
+
+    nfc.cancelScan();
+    
+### Description
+
+Function `cancelScan` stops the [NFCReaderSession](https://developer.apple.com/documentation/corenfc/nfcreadersession) returning control to your app.
+
+### Returns
+
+ - Promise
+
+### Quick Example
+
+    nfc.cancelScan().then(
+        success => { console.log('Cancelled NFC session')}, 
+        err => { console.log(`Error cancelling session ${err}`)}
+    );
+
+### Supported Platforms
+
+- iOS
+
 
 # Reader Mode Functions
 
