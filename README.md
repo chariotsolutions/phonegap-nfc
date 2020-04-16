@@ -602,7 +602,7 @@ Function `invalidateSession` stops the [NFCNDEFReaderSession](https://developer.
 
 ## nfc.scanNdef
 
-Calling `scanNdef` will being an iOS NFC scanning session. The tag or an error will be returned in a promise.
+Calling `scanNdef` will being an iOS NFC scanning session. The NFC tag will be returned in a Promise.
 
     nfc.scanNdef();
 
@@ -637,15 +637,17 @@ Function `scanNdef` starts the [NFCNDEFReaderSession](https://developer.apple.co
 
 ## nfc.scanTag
 
-Calling `scanTag` will being an iOS NFC scanning session. The tag or an error will be returned in a promise.
+Calling `scanTag` will being an iOS NFC scanning session. The NFC tag will be returned in a Promise.
 
     nfc.scanTag();
 
 ### Description
 
-Function `scanNdef` starts the [NFCTagReaderSession](https://developer.apple.com/documentation/corenfc/nfctagreadersession) allowing iOS to scan NFC tags.
+Function `scanTag` starts the [NFCTagReaderSession](https://developer.apple.com/documentation/corenfc/nfctagreadersession) allowing iOS to scan NFC tags.
 
-The Tag reader will attempt to get the UID from the NFC Tag. If can also read the UID from some non-NDEF tags.
+The Tag reader will attempt to get the UID from the NFC Tag. If can also read the UID from some non-NDEF tags. 
+
+Use [scanNdef](#nfcscanndef) for reading NFC tags on iOS unless you need to get the tag UID.
 
 ### Returns
 
