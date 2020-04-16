@@ -1,3 +1,6 @@
+= 1.1.1 =
+CoreNFC Framework is optional #400 Thanks M3skar and wux-shuto
+
 = 1.1.0 =
 Implement nfc.write for iOS
 New iOS specific APIs
