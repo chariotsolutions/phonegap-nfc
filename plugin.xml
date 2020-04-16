@@ -135,7 +135,7 @@
         <source-file src="src/ios/NfcPlugin.m" />
 
         <!-- frameworks -->
-        <framework src="CoreNFC.framework" />
+        <framework src="CoreNFC.framework" weak="true" />
 
         <preference name="NFC_USAGE_DESCRIPTION" default="Read NFC Tags" />
         <config-file target="*-Info.plist" parent="NFCReaderUsageDescription">
