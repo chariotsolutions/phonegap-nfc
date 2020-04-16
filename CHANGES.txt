@@ -1,3 +1,14 @@
+= 1.1.0 =
+Implement nfc.write for iOS
+New iOS specific APIs
+ * scanNdef
+ * scanTag
+ * cancelScan    
+Deprecated old iOS APIs
+ * beginSession
+ * invalidate
+Remove usage of UIWebView and WKWebView. Send event data to Javascript via the channel callback.
+
 = 1.0.4 =
 Added TAG string for iOS entitlement compatibility #376 Thanks ActionZachson
 Add DeviceCapability proximity for Windows 10 builds #358 #265 Thanks DirkHeinke
