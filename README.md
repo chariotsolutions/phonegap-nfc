@@ -52,7 +52,8 @@ Supported Platforms
 
 Edit config.xml to install the plugin for [PhoneGap Build](http://build.phonegap.com).
 
-    <gap:plugin name="phonegap-nfc" source="npm" />
+    <preference name="phonegap-version" value="cli-9.0.0" />
+    <plugin name="phonegap-nfc" source="npm" />
 
 
 Windows Phone 8.1 should use the **windows** platform. The Silverlight based Windows Phone 8 code is no longer being maintained.
