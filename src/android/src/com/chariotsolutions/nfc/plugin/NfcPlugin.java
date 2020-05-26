@@ -250,7 +250,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
             PluginResult result = new PluginResult(PluginResult.Status.OK, json);
             result.setKeepCallback(true);
-            readerModeCallback.sendPluginResult(result);
+            if (readerModeCallback != null) {
+                readerModeCallback.sendPluginResult(result);
+            } else {
+                Log.i(TAG, "readerModeCallback is null - reader mode probably disabled in the meantime");
+            }
 
         }
     };
