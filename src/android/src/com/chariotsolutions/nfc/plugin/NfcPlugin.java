@@ -998,6 +998,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 String error = "TagTechnology " + tagTechnologyClass.getName() + " does not have a transceive function";
                 Log.e(TAG, error, e);
                 callbackContext.error(error);
+            } catch (NullPointerException e) {
+                // This can happen if the tag has been closed while we're still working with it from the thread pool.
+                Log.e(TAG, e.getMessage(), e);
+                callbackContext.error(e.getMessage());
             } catch (IllegalAccessException e) {
                 Log.e(TAG, e.getMessage(), e);
                 callbackContext.error(e.getMessage());
