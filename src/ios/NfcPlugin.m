@@ -378,6 +378,8 @@
                     [self closeSession:session withError:@"Write failed."];
                 } else {
                     session.alertMessage = @"Wrote data to NFC tag.";
+                    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+                    [self.commandDelegate sendPluginResult:pluginResult callbackId:self->sessionCallbackId];
                     [self closeSession:session];
                 }
             }];
