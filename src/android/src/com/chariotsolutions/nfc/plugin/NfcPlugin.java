@@ -250,7 +250,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
             PluginResult result = new PluginResult(PluginResult.Status.OK, json);
             result.setKeepCallback(true);
-            readerModeCallback.sendPluginResult(result);
+            if (readerModeCallback != null) {
+                readerModeCallback.sendPluginResult(result);
+            } else {
+                Log.i(TAG, "readerModeCallback is null - reader mode probably disabled in the meantime");
+            }
 
         }
     };
@@ -994,6 +998,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 String error = "TagTechnology " + tagTechnologyClass.getName() + " does not have a transceive function";
                 Log.e(TAG, error, e);
                 callbackContext.error(error);
+            } catch (NullPointerException e) {
+                // This can happen if the tag has been closed while we're still working with it from the thread pool.
+                Log.e(TAG, e.getMessage(), e);
+                callbackContext.error(e.getMessage());
             } catch (IllegalAccessException e) {
                 Log.e(TAG, e.getMessage(), e);
                 callbackContext.error(e.getMessage());
