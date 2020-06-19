@@ -348,7 +348,9 @@
     }
     
     [tag readNDEFWithCompletionHandler:^(NFCNDEFMessage * _Nullable message, NSError * _Nullable error) {
-        if (error) {
+
+        // Error Code=403 "NDEF tag does not contain any NDEF message" is not an error for this plugin
+        if (error && error.code != 403) {
             NSLog(@"%@", error);
             [self closeSession:session withError:@"Read Failed."];
             return;
@@ -358,6 +360,7 @@
             [self fireNdefEvent:message metaData:metaData];
             [self closeSession:session];
         }
+
     }];
 
 }
