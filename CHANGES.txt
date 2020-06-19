@@ -1,3 +1,8 @@
+= 1.1.2 =
+Android Fix null pointer exception and possible crash #415 Thanks pschlang 
+iOS Notify Cordova on Successful Tag Write - #408 Thanks H0schi 
+iOS NDEF tags with no messages causes Read Failed #416
+
 = 1.1.1 =
 CoreNFC Framework is optional #400 Thanks M3skar and wux-shuto
 
