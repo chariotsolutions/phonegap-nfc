@@ -317,21 +317,36 @@ On **Windows Phone 8.1** this method should be called outside the NDEF Event Han
 
 On Android, write must be called inside an event handler
 
-  TODO example here
+    function onNfc(nfcEvent) {
+    
+        console.log(nfcEvent.tag);
+        
+        var message = [
+            ndef.textRecord(new String(new Date()))
+        ];
+        
+        nfc.write(
+            message,
+            success => console.log('wrote data to tag'),
+            error => console.log(error)
+        );
+
+    nfc.addNdefListener(onNfc);
+
 
 #### iOS - Simple
 
 Calling `nfc.write` on iOS will create a new session and write data when the user taps a NFC tag
 
         var message = [
-            ndef.textRecord("Hello world")
+            ndef.textRecord("Hello, world")
         ];
 
         nfc.write(
             message,
             success => console.log('wrote data to tag'),
             error => console.log(error)
-       );
+        );
 
 #### iOS - Read and Write
 
@@ -340,7 +355,7 @@ On iOS you can optionally write to NFC tag using the read session
         try {
             let tag = await nfc.scanNdef({ keepSessionOpen: true});
 
-            // you can read tag data here and decide what to write
+            // you can read tag data here
             console.log(tag);
             
             // this example writes a new message with a timestamp
