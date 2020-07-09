@@ -501,16 +501,16 @@ var nfc = {
     },
 
     // iOS only - scan for NFC NDEF tag using NFCNDEFReaderSession
-    scanNdef: function () {
+    scanNdef: function (options) {
         return new Promise(function(resolve, reject) {
-            cordova.exec(resolve, reject, "NfcPlugin", "scanNdef", []);
+            cordova.exec(resolve, reject, "NfcPlugin", "scanNdef", [options]);
         });
     },
 
     // iOS only - scan for NFC Tag using NFCTagReaderSession
     scanTag: function (options) {
         return new Promise(function(resolve, reject) {
-            cordova.exec(resolve, reject, "NfcPlugin", "scanTag", []);
+            cordova.exec(resolve, reject, "NfcPlugin", "scanTag", [options]);
         });
     },
     
