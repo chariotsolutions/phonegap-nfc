@@ -307,11 +307,13 @@ Function `nfc.write` writes an NdefMessage to a NFC tag.
 
 On **Android** this method *must* be called from within an NDEF Event Handler.
 
-On **iOS** this method should be called outside the NDEF Event Handler, it will start a new scanning session. 
+On **iOS** this method can be called outside the NDEF Event Handler, it will start a new scanning session. Optionally you can reuse the read session to write data. See example below.
 
 On **Windows** this method *may* be called from within the NDEF Event Handler.
 
 On **Windows Phone 8.1** this method should be called outside the NDEF Event Handler, otherwise Windows tries to read the tag contents as you are writing to the tag.
+
+### Examples
 
 #### Android
 
