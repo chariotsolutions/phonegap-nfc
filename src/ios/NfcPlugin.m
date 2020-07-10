@@ -141,7 +141,6 @@
     if (reusingSession) {                   // reusing a read session to write
         self.keepSessionOpen = NO;          // close session after writing
         [self writeNDEFTag:self.nfcSession status:connectedTagStatus tag:connectedTag];
-        // TODO release tag and status when closing session
     } else {
         [self.nfcSession beginSession];
     }
@@ -152,6 +151,8 @@
     if (self.nfcSession) {
         [self.nfcSession invalidateSession];
     }
+    connectedTag = NULL;
+    connectedTagStatus = NFCNDEFStatusNotSupported;
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -490,6 +491,8 @@
 
     // kill the callback so the Cordova doesn't get "Session invalidated by user"
     sessionCallbackId = NULL;
+    connectedTag = NULL;
+    connectedTagStatus = NFCNDEFStatusNotSupported;
     [session invalidateSession];
 }
 
@@ -498,6 +501,8 @@
 
     // kill the callback so Cordova doesn't get "Session invalidated by user"
     sessionCallbackId = NULL;
+    connectedTag = NULL;
+    connectedTagStatus = NFCNDEFStatusNotSupported;
     
     if (@available(iOS 13.0, *)) {
         [session invalidateSessionWithErrorMessage:errorMessage];
