@@ -307,11 +307,73 @@ Function `nfc.write` writes an NdefMessage to a NFC tag.
 
 On **Android** this method *must* be called from within an NDEF Event Handler.
 
-On **iOS** this method should be called outside the NDEF Event Handler, it will start a new scanning session. 
+On **iOS** this method can be called outside the NDEF Event Handler, it will start a new scanning session. Optionally you can reuse the read session to write data. See example below.
 
 On **Windows** this method *may* be called from within the NDEF Event Handler.
 
 On **Windows Phone 8.1** this method should be called outside the NDEF Event Handler, otherwise Windows tries to read the tag contents as you are writing to the tag.
+
+### Examples
+
+#### Android
+
+On Android, write must be called inside an event handler
+
+    function onNfc(nfcEvent) {
+    
+        console.log(nfcEvent.tag);
+        
+        var message = [
+            ndef.textRecord(new String(new Date()))
+        ];
+        
+        nfc.write(
+            message,
+            success => console.log('wrote data to tag'),
+            error => console.log(error)
+        );
+
+    nfc.addNdefListener(onNfc);
+
+
+#### iOS - Simple
+
+Calling `nfc.write` on iOS will create a new session and write data when the user taps a NFC tag
+
+        var message = [
+            ndef.textRecord("Hello, world")
+        ];
+
+        nfc.write(
+            message,
+            success => console.log('wrote data to tag'),
+            error => console.log(error)
+        );
+
+#### iOS - Read and Write
+
+On iOS you can optionally write to NFC tag using the read session
+
+        try {
+            let tag = await nfc.scanNdef({ keepSessionOpen: true});
+
+            // you can read tag data here
+            console.log(tag);
+            
+            // this example writes a new message with a timestamp
+            var message = [
+                ndef.textRecord(new String(new Date()))
+            ];
+
+            nfc.write(
+                message,
+                success => console.log('wrote data to tag'),
+                error => console.log(error)
+            );
+
+        } catch (err) {
+            console.log(err);
+        }
 
 ### Supported Platforms
 
