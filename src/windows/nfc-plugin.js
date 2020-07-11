@@ -28,36 +28,37 @@ var self = {
     listeningForNonNdefTags: false,
     tagEventTimeoutId: -1,
     initializeProximityDevice: function() {
-        if (self.proximityDevice) {
-            // TODO Is there an API to tell if the user disabled NFC?
-            try {
-                // KLUDGE this call fails when the user has disabled the device
-                var kludge = self.proximityDevice.maxMessageBytes;
-                self.proximityDeviceStatus = STATUS_NFC_OK;
-            } catch (e) {
-                console.log(e);
-                self.proximityDeviceStatus = STATUS_NFC_DISABLED;
-            }
-            return self.proximityDeviceStatus === STATUS_NFC_OK;
+        if (!self.proximityDevice || self.proximityDeviceStatus != STATUS_NFC_OK) {
+            self.proximityDevice = Windows.Networking.Proximity.ProximityDevice.getDefault();
         }
 
-        // try to get device again because user might have re-enabled the device
-        self.proximityDevice = Windows.Networking.Proximity.ProximityDevice.getDefault();
-
-        // TODO use these events to implement nfc.addTagDiscoveredListener
         if (self.proximityDevice) {
-            self.proximityDevice.ondevicearrived = function (eventArgs) {
-                console.log("NFC tag detected");
-                if (self.listeningForNonNdefTags) {
-                    // set a timeout so NDEF tags can cancel this event
-                    // we want one event to mimic the Android behavior
-                    self.tagEventTimeoutId = setTimeout(self.fireTagEvent, 100);
+            if (self.proximityDeviceStatus != STATUS_NFC_OK) {
+                // TODO Is there an API to tell if the user disabled NFC?
+                try {
+                    // KLUDGE this call fails when the user has disabled the device
+                    var kludge = self.proximityDevice.maxMessageBytes;
+                    self.proximityDeviceStatus = STATUS_NFC_OK;
+                } catch (e) {
+                    console.log(e);
+                    self.proximityDeviceStatus = STATUS_NFC_DISABLED;
+                    return false;
                 }
-            };
 
-            self.proximityDevice.ondevicedeparted = function (eventArgs) {
-                console.log("NFC tag is gone");
-            };
+                // TODO use these events to implement nfc.addTagDiscoveredListener
+                self.proximityDevice.ondevicearrived = function (eventArgs) {
+                    console.log("NFC tag detected");
+                    if (self.listeningForNonNdefTags) {
+                        // set a timeout so NDEF tags can cancel this event
+                        // we want one event to mimic the Android behavior
+                        self.tagEventTimeoutId = setTimeout(self.fireTagEvent, 100);
+                    }
+                };
+
+                self.proximityDevice.ondevicedeparted = function (eventArgs) {
+                    console.log("NFC tag is gone");
+                };
+            }
         } else {
             self.proximityDeviceStatus = STATUS_NO_NFC_OR_NFC_DISABLED;
         }
