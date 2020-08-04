@@ -105,7 +105,7 @@
             NSNumber *tnfNumber = [recordData objectForKey:@"tnf"];
             NFCTypeNameFormat tnf = (uint8_t)[tnfNumber intValue];
             NSData *type = [self uint8ArrayToNSData:[recordData objectForKey:@"type"]];
-            NSData *identifier = [self uint8ArrayToNSData:[recordData objectForKey:@"identifiers"]];
+            NSData *identifier = [self uint8ArrayToNSData:[recordData objectForKey:@"id"]];
             NSData *payload  = [self uint8ArrayToNSData:[recordData objectForKey:@"payload"]];
             NFCNDEFPayload *record = [[NFCNDEFPayload alloc] initWithFormat:tnf type:type identifier:identifier payload:payload];
             [payloads addObject:record];
