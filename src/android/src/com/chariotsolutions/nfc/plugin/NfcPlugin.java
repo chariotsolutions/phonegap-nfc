@@ -79,6 +79,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String TAG = "NfcPlugin";
     private final List<IntentFilter> intentFilters = new ArrayList<>();
     private final ArrayList<String[]> techLists = new ArrayList<>();
+    private final ArrayList<Thread> channelWaitingQueue = new ArrayList<>();
 
     private NdefMessage p2pMessage = null;
     private PendingIntent pendingIntent = null;
@@ -105,6 +106,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         // the channel is set up when the plugin starts
         if (action.equalsIgnoreCase(CHANNEL)) {
             channelCallback = callbackContext;
+            awakeChannelWaitingQueue();
             return true; // short circuit
         }
 
@@ -195,6 +197,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         }
 
         return true;
+    }
+
+    private void awakeChannelWaitingQueue() {
+        for (Thread t: channelWaitingQueue) {
+            t.interrupt();
+        }
+        channelWaitingQueue.clear();
     }
 
     private String getNfcStatus() {
@@ -737,12 +746,27 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
             PluginResult result = new PluginResult(PluginResult.Status.OK, event);
             result.setKeepCallback(true);
-            while(channelCallback == null) { }
+            waitForChannel();
             channelCallback.sendPluginResult(result);
         } catch (JSONException e) {
             Log.e(TAG, "Error sending NFC event through the channel", e);
         }
 
+    }
+
+    private void waitForChannel() {
+        if(channelCallback == null) {
+            channelWaitingQueue.add(Thread.currentThread());
+            
+            while (channelCallback == null) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ie) {
+                    // the thread has been awakened, so channelCallback is set
+                    return;
+                }
+            }
+        }
     }
 
     private void fireNdefEvent(String type, Ndef ndef, Parcelable[] messages) {
