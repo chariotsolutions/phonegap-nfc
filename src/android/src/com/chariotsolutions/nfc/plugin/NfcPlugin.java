@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 // using wildcard imports so we can support Cordova 3.x
 import org.apache.cordova.*; // Cordova 3.x
@@ -53,6 +54,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String ENABLED = "enabled";
     private static final String INIT = "init";
     private static final String SHOW_SETTINGS = "showSettings";
+    private static final String NDEF_MESSAGE = "getInitialPushPayload";
 
     private static final String NDEF = "ndef";
     private static final String NDEF_MIME = "ndef-mime";
@@ -79,6 +81,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String TAG = "NfcPlugin";
     private final List<IntentFilter> intentFilters = new ArrayList<>();
     private final ArrayList<String[]> techLists = new ArrayList<>();
+    public static NdefMessage[] ndfe_messages;
 
     private NdefMessage p2pMessage = null;
     private PendingIntent pendingIntent = null;
@@ -186,7 +189,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             byte[] command = args.getArrayBuffer(0);
             transceive(command, callbackContext);
 
-        } else if (action.equalsIgnoreCase(CLOSE)) {
+        } else if (action.equals(NDEF_MESSAGE)) {
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    getInitialPushPayload(callbackContext);
+                }
+            });
+        }  else if (action.equalsIgnoreCase(CLOSE)) {
             close(callbackContext);
 
         } else {
@@ -195,6 +204,44 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         }
 
         return true;
+    }
+
+    public void getInitialPushPayload(CallbackContext callback) {
+        if(ndfe_messages == null) {
+            Log.d(TAG, "getInitialPushPayload: null");
+            callback.success((String) null);
+            return;
+        }
+        Log.d(TAG, "getInitialPushPayload");
+        try {
+            JSONObject jo = new JSONObject();
+            for (int i = 0; i < ndfe_messages.length; i++) {
+                jo.put("ndefMessage",Util.messageToJSON(ndfe_messages[i]));
+            }
+            callback.success(jo);
+        } catch(Exception error) {
+            try {
+                callback.error(exceptionToJson(error));
+            }
+            catch (JSONException jsonErr) {
+                Log.e(TAG, "Error when parsing json", jsonErr);
+            }
+        }
+    }
+
+    private JSONObject exceptionToJson(final Exception exception) throws JSONException {
+        return new JSONObject() {
+            {
+                put("message", exception.getMessage());
+                put("cause", exception.getClass().getName());
+                put("stacktrace", exception.getStackTrace().toString());
+            }
+        };
+    }
+
+    public static void setInitialPushPayload(NdefMessage[] payload) {
+        ndfe_messages = payload;
+
     }
 
     private String getNfcStatus() {
@@ -206,6 +253,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         } else {
             return STATUS_NFC_OK;
         }
+    }
+
+    public static void sendNFCPayload(Map<String, Object> data) {
+        Log.d(TAG, String.valueOf(data));
     }
 
     private void readerMode(int flags, CallbackContext callbackContext) {
