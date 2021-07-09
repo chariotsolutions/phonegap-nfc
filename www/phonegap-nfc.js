@@ -914,4 +914,12 @@
         }
       }
     });
+
+    var NFC = {
+        nfc: nfc,
+        ndef: ndef,
+        util: util
+    };
+
+    module.exports = NFC;
     
