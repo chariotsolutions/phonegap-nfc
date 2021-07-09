@@ -31,7 +31,7 @@
         <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/Util.java"
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
 
-        <config-file target="AndroidManifest.xml" parent="/manifest">
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
         <activity android:name="com.chariotsolutions.nfc.plugin.NfcActivity" android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
