@@ -39,9 +39,12 @@
                 <data android:mimeType="application/kiot" />
             </intent-filter>
         </activity>
+        </config-file>
+         <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.NFC"/>
             <uses-feature android:name="android.hardware.nfc" android:required="false"/>
         </config-file>
+
 
     </platform>
 
