@@ -1,4 +1,4 @@
-package io.kiot;
+package com.chariotsolutions.nfc.plugin;
 
 import android.app.Activity;
 import android.nfc.NfcAdapter;
