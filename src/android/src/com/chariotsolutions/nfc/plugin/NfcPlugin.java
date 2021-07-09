@@ -92,6 +92,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private CallbackContext channelCallback;
     private CallbackContext shareTagCallback;
     private CallbackContext handoverCallback;
+    public static CallbackContext globalCallback;
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
@@ -218,7 +219,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             for (int i = 0; i < ndfe_messages.length; i++) {
                 jo.put("ndefMessage",Util.messageToJSON(ndfe_messages[i]));
             }
-            callback.success(jo);
+            //callback.success(jo);
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jo);
+            pluginResult.setKeepCallback(true);
+            callback.sendPluginResult(pluginResult);
+            globalCallback = callback;
         } catch(Exception error) {
             try {
                 callback.error(exceptionToJson(error));
@@ -239,9 +244,19 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         };
     }
 
-    public static void setInitialPushPayload(NdefMessage[] payload) {
+    public static void setInitialPushPayload(NdefMessage[] payload) throws JSONException {
         ndfe_messages = payload;
-
+        if(globalCallback!=null){
+            Log.d(TAG, "setInitialPushPayload");
+            JSONObject jo = new JSONObject();
+            for (int i = 0; i < payload.length; i++) {
+                jo.put("ndefMessage",Util.messageToJSON(payload[i]));
+            }
+            //callback.success(jo);
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jo);
+            pluginResult.setKeepCallback(true);
+            globalCallback.sendPluginResult(pluginResult);
+        }
     }
 
     private String getNfcStatus() {

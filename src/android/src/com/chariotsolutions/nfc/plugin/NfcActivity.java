@@ -16,17 +16,23 @@ import java.util.Map;
 import android.os.Parcelable;
 import android.nfc.NdefMessage;
 
+import org.json.JSONException;
+
 public class NfcActivity extends Activity {
     private static String TAG = "NFCLogs";
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        this.sendPushPayload();
+        try {
+            this.sendPushPayload();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         finish();
         forceMainActivityReload();
     }
-    private void sendPushPayload() {
+    private void sendPushPayload() throws JSONException {
         Log.d(TAG, "==> USER TAPPED NFCtag");
         Bundle intentExtras = getIntent().getExtras();
         if(intentExtras == null) {
