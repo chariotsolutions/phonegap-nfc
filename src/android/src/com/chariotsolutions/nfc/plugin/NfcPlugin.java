@@ -219,6 +219,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             for (int i = 0; i < ndfe_messages.length; i++) {
                 jo.put("ndefMessage",Util.messageToJSON(ndfe_messages[i]));
             }
+            ndfe_messages = null;
             //callback.success(jo);
             PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jo);
             pluginResult.setKeepCallback(true);
