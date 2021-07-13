@@ -33,15 +33,6 @@
         <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/NfcActivity.java"
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
 
-        <config-file target="AndroidManifest.xml" parent="/manifest/application">
-        <activity android:name="com.chariotsolutions.nfc.plugin.NfcActivity" android:launchMode="singleTop">
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="application/kiot" />
-            </intent-filter>
-        </activity>
-        </config-file>
          <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.NFC"/>
             <uses-feature android:name="android.hardware.nfc" android:required="false"/>
