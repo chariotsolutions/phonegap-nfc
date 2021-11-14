@@ -11,15 +11,25 @@
 #import <CoreNFC/CoreNFC.h>
 #import <WebKit/WebKit.h>
 
+#import "AppDelegate.h"
+
 @interface NfcPlugin : CDVPlugin <NFCNDEFReaderSessionDelegate, NFCTagReaderSessionDelegate> {
 }
 
 // iOS Specific API
 
+// Cordova lifecycle events
+- (void) onPause;
+- (void) onResume;
+
 // deprecated use scanNdef or scanTag
 - (void)beginSession:(CDVInvokedUrlCommand *)command;
 // deprecated use stopScan
 - (void)invalidateSession:(CDVInvokedUrlCommand *)command;
+
+// Handle launch data
+- (void)parseLaunchIntent:(CDVInvokedUrlCommand *)command;
+- (void)messageReceived:(NFCNDEFMessage *)message;
 
 // Added iOS 13
 - (void)scanNdef:(CDVInvokedUrlCommand *)command;
@@ -35,6 +45,11 @@
 // Internal implementation
 - (void)channel:(CDVInvokedUrlCommand *)command;
 
+@end
+
+@interface AppDelegate (nfcDelegate)
+    - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *))restorationHandler ;
+    @property (nonatomic, strong) IBOutlet NSUserActivity* userActivity;
 @end
 
 #endif

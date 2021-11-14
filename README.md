@@ -1264,6 +1264,46 @@ Or to scan only Plain Text tags use
 
 See the [BlackBerry documentation](http://developer.blackberry.com/native/documentation/cascades/device_comm/nfc/receiving_content.html) for more info.
 
+# Launching your iOS Application when Scanning a Tag
+
+On iOS, your application can be launched when an NFC tag is read, if the tag contains an NDEF message with a Universal Link (URL). This is optional and requires configuration on your application entitlements. The Universal Link needs to point to an actual HTTPS server that contains an `apple-app-site-association` that links the URL with your app.
+
+In a nutshell, you need to:
+
+1. Setup an associated domain relationship between your app and the Universal Link URL of your choosing. See: https://developer.apple.com/documentation/xcode/supporting-associated-domains
+
+2. Add an associated domain entitlement to your app in XCode. See: https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_associated-domains
+  * If you are developing in a multi-platform environment, you can do this by adding the following to your `config.xml`:
+
+```xml
+<platform name="ios">
+    <config-file parent="com.apple.developer.associated-domains" platform="ios" target="*-Debug.plist">
+        <array>
+            <string>applinks:myapp.com</string>
+        </array>
+    </config-file>
+    <config-file parent="com.apple.developer.associated-domains" platform="ios" target="*-Release.plist">
+        <array>
+            <string>applinks:myapp.com</string>
+        </array>
+    </config-file>
+</platform>
+```
+
+3. On your app, during or after the Cordova `deviceready` event, call the `parseLaunchIntent` plugin function, for example:
+
+```javascript
+document.addEventListener("deviceready", onDeviceReady, false);
+
+function onDeviceReady() {
+    nfc.parseLaunchIntent(function(tag) {
+        console.log('Application was launched with tag: ' + JSON.stringify(tag));
+    });
+}
+```
+
+  * You may want to do the same on the `onresume` event to support the case where your app was already running in the background.
+
 # Launching your Android Application when Scanning a Tag
 
 On Android, intents can be used to launch your application when a NFC tag is read.  This is optional and configured in AndroidManifest.xml.
@@ -1316,7 +1356,7 @@ function onDeviceReady() {
 }
 ```
 
-The above will work whether your app was launched for the first time or simply brought to the foreground.
+ * You may want to do the same on the `onresume` event to support the case where your app was already running in the background.
 
 Testing
 =======
