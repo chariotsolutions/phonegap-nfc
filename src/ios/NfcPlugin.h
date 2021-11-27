@@ -47,9 +47,8 @@
 
 @end
 
-@interface AppDelegate (nfcDelegate)
-    - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *))restorationHandler ;
-    @property (nonatomic, strong) IBOutlet NSUserActivity* userActivity;
+@interface AppDelegate (PhonegapNfc)
+    - (BOOL)application:(UIApplication *)application swizzledContinueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *))restorationHandler ;
 @end
 
 #endif

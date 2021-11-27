@@ -11,18 +11,16 @@ static void * UserActivityPropertyKey = &UserActivityPropertyKey;
 static NFCNDEFMessage * LaunchMessage = nil;
 static NfcPlugin* Listener = nil;
 
-@implementation AppDelegate (nfcDelegate)
+@implementation AppDelegate (PhonegapNfc)
 
-- (NSUserActivity *)userActivity {
-    return objc_getAssociatedObject(self, UserActivityPropertyKey);
-}
-
-- (void)setUserActivity:(NSUserActivity *)activity {
-    objc_setAssociatedObject(self, UserActivityPropertyKey, activity, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
++ (void)load {
+    Method original = class_getInstanceMethod(self, @selector(application:continueUserActivity:restorationHandler:));
+    Method swizzled = class_getInstanceMethod(self, @selector(application:swizzledContinueUserActivity:restorationHandler:));
+    method_exchangeImplementations(original, swizzled);
 }
 
 - (BOOL)application:(UIApplication *)application
-continueUserActivity:(NSUserActivity *)userActivity
+swizzledContinueUserActivity:(NSUserActivity *)userActivity
  restorationHandler:(void (^)(NSArray *))restorationHandler {
     if (@available(iOS 12, *)) {
         if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb])
@@ -39,13 +37,12 @@ continueUserActivity:(NSUserActivity *)userActivity
                 {
                     LaunchMessage = messagePayload;
                 }
-                self.userActivity = userActivity;
                 return YES;
             }
         }
     }
 
-    return NO;
+    return [self application:application swizzledContinueUserActivity:userActivity restorationHandler:restorationHandler];
 }
 
 @end
