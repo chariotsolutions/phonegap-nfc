@@ -124,7 +124,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     // the channel is set up when the plugin starts
 //    if (action.equalsIgnoreCase(CHANNEL)) {
     if (action.equalsIgnoreCase(READER_MODE)) {
-      readerModeCallback = callbackContext;
+      channelCallback = callbackContext;
 
       if (postponedPluginResult != null) {
         Log.i(TAG, "Postponed plugin result available");
@@ -132,7 +132,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         if (postponedPluginResult.isValid()) {
           Log.i(TAG, "Postponed plugin result is valid, resending it now");
 
-          readerModeCallback.sendPluginResult(postponedPluginResult.pluginResult);
+          channelCallback.sendPluginResult(postponedPluginResult.pluginResult);
         } else {
           Log.i(TAG, "Postponed plugin result not valid anymore, so ignoring it");
         }
