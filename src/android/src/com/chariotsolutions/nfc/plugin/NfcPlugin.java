@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+
 // using wildcard imports so we can support Cordova 3.x
 import org.apache.cordova.*; // Cordova 3.x
 
@@ -485,7 +486,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             
             int pendingFlags;
-            if (Util.SDK_INT >= 23) {
+            if (android.os.Build.VERSION.SDK_INT > 30) {
               pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
             } else {
               pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
