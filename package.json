@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/chariotsolutions/phonegap-nfc#readme",
   "dependencies": {
-    "phonegap-nfc": "somq/phonegap-nfc#fix/nfc-launch",
+    "phonegap-nfc": "somq/phonegap-nfc#fix/nfc-launch"
   }
   
 }
