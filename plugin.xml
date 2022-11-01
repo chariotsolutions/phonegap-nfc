@@ -2,7 +2,7 @@
 <plugin
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="ziath-phonegap-nfc"
+    id="phonegap-nfc"
     version="1.2.0">
 
     <name>NFC</name>
@@ -11,8 +11,8 @@
 
     <license>MIT</license>
     <keywords>nfc, NFC, NDEF</keywords>
-    <repo>https://github.com/ZiathLtd/ziath-phonegap-nfc.git</repo>
-    <issue>https://github.com/ZiathLtd/ziath-phonegap-nfc/issues</issue>
+    <repo>https://github.com/chariotsolutions/phonegap-nfc.git</repo>
+    <issue>https://github.com/chariotsolutions/phonegap-nfc/issues</issue>
 
     <platform name="android">
         <js-module src="www/phonegap-nfc.js" name="NFC">
