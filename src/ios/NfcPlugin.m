@@ -326,6 +326,7 @@
             NSLog(@"Tag Confirms to ISO15693 Protocol");
             id<NFCISO15693Tag> iso15693Tag = (id<NFCISO15693Tag>)tag;
             __block NSInteger blockNumber = 0;
+            __block NSInteger errCount = 0;
             void (^readNextBlock)(void) = ^{
                 if (blockNumber >= 218) {
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -350,12 +351,23 @@
                         NSLog(@"Read Single Block Invoked for block %ld", (long)blockNumber);
                         if (error) {
                             NSLog(@"Error Recieved in : Read Single Block");
-                            [self handleError:error];
+                            errCount++;
+                            if(errCount>=10)
+                            {
+                                blockNumber = 220;
+                                [self handleError:error];
+                                 // No data read
+                                NSString *dataString = @"No Data Read";
+                                CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataString];
+                                [self.commandDelegate sendPluginResult:pluginResult callbackId:self->sessionCallbackId];
+                                [session invalidateSession];
+                            }
                         } else {
                             //NSLog(@"Processing Result : Read Single Block");
 
                             [consolidatedData appendData:dataBlock];
                             blockNumber++;
+                            errCount = 0;
                         }
                         dispatch_group_leave(readGroup);
                     }];
