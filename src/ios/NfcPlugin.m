@@ -334,11 +334,13 @@
                             NSString *dataString = [data base64EncodedStringWithOptions:0];
                             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataString];
                             [self.commandDelegate sendPluginResult:pluginResult callbackId:self->sessionCallbackId];
+                            blockNumber++;
                         } else {
                             // No data read
                             NSString *dataString = @"No Data Read";
                             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataString];
                             [self.commandDelegate sendPluginResult:pluginResult callbackId:self->sessionCallbackId];
+                            blockNumber++;
                         }
                         [session invalidateSession];
                     });
@@ -350,7 +352,7 @@
                             NSLog(@"Error Recieved in : Read Single Block");
                             [self handleError:error];
                         } else {
-                            NSLog(@"Processing Result : Read Single Block");
+                            //NSLog(@"Processing Result : Read Single Block");
 
                             [consolidatedData appendData:dataBlock];
                             blockNumber++;
@@ -361,12 +363,13 @@
             };
             dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
             dispatch_async(queue, ^{
-                while (blockNumber < 220) {
+                while (blockNumber <= 218) {
                     if (dispatch_group_wait(readGroup, DISPATCH_TIME_NOW) == 0) {
                         readNextBlock();
                     }
                 }
             });
+            
         }
 
     }];
@@ -721,3 +724,7 @@
 }
 
 @end
+
+
+
+
