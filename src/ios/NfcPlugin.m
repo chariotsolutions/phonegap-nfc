@@ -5,6 +5,7 @@
 //  (c) 2107-2020 Don Coleman
 
 #import "NfcPlugin.h"
+#import <CoreNFC/CoreNFC.h>
 
 @interface NfcPlugin() {
     NSString* sessionCallbackId;
@@ -124,14 +125,13 @@
     } else {                                                // create a new session
         if (self.shouldUseTagReaderSession) {
             NSLog(@"Using NFCTagReaderSession");
-
-            self.nfcSession = [[NFCTagReaderSession new]
-                       initWithPollingOption:(NFCPollingISO14443 | NFCPollingISO15693)
-                       delegate:self queue:dispatch_get_main_queue()];
+            self.nfcSession = [[NFCTagReaderSession alloc] initWithPollingOption: (NFCPollingISO14443 | NFCPollingISO15693)
+                                                                        delegate: self
+                                                                           queue: dispatch_get_main_queue()];
 
         } else {
             NSLog(@"Using NFCTagReaderSession");
-            self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:FALSE];
+            self.nfcSession = [[NFCNDEFReaderSession alloc] initWithDelegate:self queue:nil invalidateAfterFirstRead:FALSE];
         }
     }
 
@@ -306,12 +306,12 @@
         
         if (self.shouldUseTagReaderSession) {
             NSLog(@"Using NFCTagReaderSession");
-            self.nfcSession = [[NFCTagReaderSession new]
+            self.nfcSession = [[NFCTagReaderSession alloc]
                            initWithPollingOption:(NFCPollingISO14443 | NFCPollingISO15693)
                            delegate:self queue:dispatch_get_main_queue()];
         } else {
             NSLog(@"Using NFCNDEFReaderSession");
-            self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
+            self.nfcSession = [[NFCNDEFReaderSession alloc]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
         }
         sessionCallbackId = [command.callbackId copy];
         self.nfcSession.alertMessage = @"Hold near NFC tag to scan.";
@@ -319,7 +319,7 @@
         
     } else if (@available(iOS 11.0, *)) {
         NSLog(@"iOS < 13, using NFCNDEFReaderSession");
-        self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
+        self.nfcSession = [[NFCNDEFReaderSession alloc]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
         sessionCallbackId = [command.callbackId copy];
         self.nfcSession.alertMessage = @"Hold near NFC tag to scan.";
         [self.nfcSession beginSession];
