@@ -328,7 +328,7 @@
             __block NSInteger blockNumber = 0;
             __block NSInteger errCount = 0;
             void (^readNextBlock)(void) = ^{
-                if (blockNumber >= 218) {
+                if (blockNumber >= 247) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         if ([consolidatedData length] > 0) {
                             NSData *data = [consolidatedData copy];
@@ -354,7 +354,7 @@
                             errCount++;
                             if(errCount>=10)
                             {
-                                blockNumber = 220;
+                                blockNumber = 249;
                                 [self handleError:error];
                                  // No data read
                                 NSString *dataString = @"No Data Read";
@@ -375,7 +375,7 @@
             };
             dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
             dispatch_async(queue, ^{
-                while (blockNumber <= 218) {
+                while (blockNumber <= 247) {
                     if (dispatch_group_wait(readGroup, DISPATCH_TIME_NOW) == 0) {
                         readNextBlock();
                     }
