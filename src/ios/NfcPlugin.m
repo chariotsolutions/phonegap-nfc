@@ -12,6 +12,7 @@
     id<NFCNDEFTag> connectedTag API_AVAILABLE(ios(13.0));
     NFCNDEFStatus connectedTagStatus API_AVAILABLE(ios(13.0));
 }
+
 @property (nonatomic, assign) BOOL writeMode;
 @property (nonatomic, assign) BOOL shouldUseTagReaderSession;
 @property (nonatomic, assign) BOOL sendCallbackOnSessionStart;
@@ -98,7 +99,7 @@
     NSArray<NSDictionary *> *ndefData = [command argumentAtIndex:0];
 
     // Create the NDEF Message
-    NSMutableArray<NFCNDEFPayload*> *payloads = [NSMutableArray new];
+    NSMutableArray<NFCNDEFPayload*> *payloads = [[NSMutableArray alloc] init];
                               
     @try {
         for (id recordData in ndefData) {
@@ -125,13 +126,13 @@
         if (self.shouldUseTagReaderSession) {
             NSLog(@"Using NFCTagReaderSession");
 
-            self.nfcSession = [[NFCTagReaderSession new]
+            self.nfcSession = [[NFCTagReaderSession alloc]
                        initWithPollingOption:(NFCPollingISO14443 | NFCPollingISO15693)
                        delegate:self queue:dispatch_get_main_queue()];
 
         } else {
             NSLog(@"Using NFCTagReaderSession");
-            self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:FALSE];
+            self.nfcSession = [[NFCNDEFReaderSession alloc]initWithDelegate:self queue:nil invalidateAfterFirstRead:FALSE];
         }
     }
 
@@ -211,7 +212,8 @@
 }
 
 // iOS 13
-- (void) readerSession:(NFCNDEFReaderSession *)session didDetectTags:(NSArray<__kindof id<NFCNDEFTag>> *)tags API_AVAILABLE(ios(13.0)) {
+- (void) readerSession:(NFCTagReaderSession *)session didDetectTags:(NSArray<__kindof id<NFCTag>> *)tags API_AVAILABLE(ios(13.0)) {
+    NSLog(@"ReaderSession didDetectTags");
     
     if (tags.count > 1) {
         session.alertMessage = @"More than 1 tag detected. Please remove all tags and try again.";
@@ -222,27 +224,63 @@
         return;
     }
     
-    id<NFCNDEFTag> tag = [tags firstObject];
-    
+    id<NFCTag> tag = tags[0];
+    NSLog(@"Got the Tag");
     [session connectToTag:tag completionHandler:^(NSError * _Nullable error) {
         if (error) {
             NSLog(@"%@", error);
             [self closeSession:session withError:@"Error connecting to tag."];
             return;
         }
-        
-        [self processNDEFTag:session tag:tag];
+        NSLog(@"Tag Connected with session");
+        if([tag conformsToProtocol:@protocol(NFCNDEFTag)])
+        {
+            NSLog(@"Tag Confirms to NFCNDEFTag Protocol");
+            id<NFCNDEFTag> ndefTag = (id<NFCNDEFTag>)tag;
+            [self processNDEFTag:session tag:ndefTag];
+        } else if([tag conformsToProtocol:@protocol(NFCISO15693Tag)])
+        {
+            NSLog(@"Tag Confirms to ISO15693 Protocol");
+            id<NFCISO15693Tag> iso15693Tag = (id<NFCISO15693Tag>)tag;
+            
+            //read a single block
+            if (@available(iOS 14.0, *)) {
+                [iso15693Tag readSingleBlockWithRequestFlags:NFCISO15693RequestFlagDualSubCarriers blockNumber:0 completionHandler:^(NSData *dataBlock, NSError *error) {
+                    NSLog(@"Read Single Block Invoked");
+                    if(error)
+                    {
+                        NSLog(@"Error Recieved in : Read Single Block");
+                        [self handleError:error];
+                    } else {
+                        NSLog(@"Processing Result : Read Single Block");
+                        NSString *dataString = [dataBlock base64EncodedStringWithOptions:0];
+                        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataString];
+                        [self.commandDelegate sendPluginResult:pluginResult callbackId:self->sessionCallbackId];
+                    }
+                    [session invalidateSession];
+            }];
+            } else {
+                // Fallback on earlier versions
+            }
+        }
     }];
     
 }
 
-- (void) readerSession:(NFCNDEFReaderSession *)session didInvalidateWithError:(NSError *)error API_AVAILABLE(ios(11.0)) {
+- (void) readerSession:(NFCReaderSession *)session didInvalidateWithError:(NSError *)error API_AVAILABLE(ios(11.0)) {
     NSLog(@"readerSession ended");
-    if (error.code == NFCReaderSessionInvalidationErrorFirstNDEFTagRead) { // not an error
-        NSLog(@"Session ended after successful NDEF tag read");
-        return;
-    } else {
-        [self sendError:error.localizedDescription];
+    if([session isKindOfClass:[NFCISO15693ReaderSession class]])
+    {
+        [self handleError:error];
+    }
+    else if ([session isKindOfClass:[NFCNDEFReaderSession class]])
+    {
+        if (error.code == NFCReaderSessionInvalidationErrorFirstNDEFTagRead) { // not an error
+            NSLog(@"Session ended after successful NDEF tag read");
+            return;
+        } else {
+            [self sendError:error.localizedDescription];
+        }
     }
 }
 
@@ -260,7 +298,7 @@
 
 - (void)tagReaderSession:(NFCTagReaderSession *)session didDetectTags:(NSArray<__kindof id<NFCTag>> *)tags API_AVAILABLE(ios(13.0)) {
     NSLog(@"tagReaderSession didDetectTags");
-    
+
     if (tags.count > 1) {
         session.alertMessage = @"More than 1 tag detected. Please remove all tags and try again.";
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 500 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
@@ -269,19 +307,83 @@
         });
         return;
     }
-    
-    id<NFCTag> tag = [tags firstObject];
+
+    id<NFCTag> tag = tags[0];
     NSMutableDictionary *tagMetaData = [self getTagInfo:tag];
-    id<NFCNDEFTag> ndefTag = (id<NFCNDEFTag>)tag;
-    
+
+    NSLog(@"Got the Tag");
     [session connectToTag:tag completionHandler:^(NSError * _Nullable error) {
         if (error) {
             NSLog(@"%@", error);
             [self closeSession:session withError:@"Error connecting to tag."];
             return;
         }
+        NSLog(@"Tag Connected with session");
+        if([tag conformsToProtocol:@protocol(NFCISO15693Tag)])
+        {
+            dispatch_group_t readGroup = dispatch_group_create();
+            NSMutableData *consolidatedData = [NSMutableData data];
+            NSLog(@"Tag Confirms to ISO15693 Protocol");
+            id<NFCISO15693Tag> iso15693Tag = (id<NFCISO15693Tag>)tag;
+            __block NSInteger blockNumber = 0;
+            __block NSInteger errCount = 0;
+            void (^readNextBlock)(void) = ^{
+                if (blockNumber >= 247) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if ([consolidatedData length] > 0) {
+                            NSData *data = [consolidatedData copy];
+                            NSString *dataString = [data base64EncodedStringWithOptions:0];
+                            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataString];
+                            [self.commandDelegate sendPluginResult:pluginResult callbackId:self->sessionCallbackId];
+                            blockNumber++;
+                        } else {
+                            // No data read
+                            NSString *dataString = @"No Data Read";
+                            CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataString];
+                            [self.commandDelegate sendPluginResult:pluginResult callbackId:self->sessionCallbackId];
+                            blockNumber++;
+                        }
+                        [session invalidateSession];
+                    });
+                } else {
+                    dispatch_group_enter(readGroup);
+                    [iso15693Tag readSingleBlockWithRequestFlags:NFCISO15693RequestFlagHighDataRate blockNumber:blockNumber completionHandler:^(NSData *dataBlock, NSError *error) {
+                        NSLog(@"Read Single Block Invoked for block %ld", (long)blockNumber);
+                        if (error) {
+                            NSLog(@"Error Recieved in : Read Single Block");
+                            errCount++;
+                            if(errCount>=10)
+                            {
+                                blockNumber = 249;
+                                [self handleError:error];
+                                 // No data read
+                                NSString *dataString = @"No Data Read";
+                                CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:dataString];
+                                [self.commandDelegate sendPluginResult:pluginResult callbackId:self->sessionCallbackId];
+                                [session invalidateSession];
+                            }
+                        } else {
+                            //NSLog(@"Processing Result : Read Single Block");
 
-        [self processNDEFTag:session tag:ndefTag metaData:tagMetaData];
+                            [consolidatedData appendData:dataBlock];
+                            blockNumber++;
+                            errCount = 0;
+                        }
+                        dispatch_group_leave(readGroup);
+                    }];
+                }
+            };
+            dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+            dispatch_async(queue, ^{
+                while (blockNumber <= 247) {
+                    if (dispatch_group_wait(readGroup, DISPATCH_TIME_NOW) == 0) {
+                        readNextBlock();
+                    }
+                }
+            });
+            
+        }
+
     }];
 }
 
@@ -305,21 +407,23 @@
     if (@available(iOS 13.0, *)) {
         
         if (self.shouldUseTagReaderSession) {
-            NSLog(@"Using NFCTagReaderSession");
-            self.nfcSession = [[NFCTagReaderSession new]
+            NSLog(@"Using NFCTagReaderSession and polling ISO15693");
+            self.nfcSession = [[NFCTagReaderSession alloc]
                            initWithPollingOption:(NFCPollingISO14443 | NFCPollingISO15693)
                            delegate:self queue:dispatch_get_main_queue()];
+            
         } else {
             NSLog(@"Using NFCNDEFReaderSession");
-            self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
+            self.nfcSession = [[NFCNDEFReaderSession alloc]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
         }
         sessionCallbackId = [command.callbackId copy];
         self.nfcSession.alertMessage = @"Hold near NFC tag to scan.";
+       
         [self.nfcSession beginSession];
         
     } else if (@available(iOS 11.0, *)) {
         NSLog(@"iOS < 13, using NFCNDEFReaderSession");
-        self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
+        self.nfcSession = [[NFCNDEFReaderSession alloc]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
         sessionCallbackId = [command.callbackId copy];
         self.nfcSession.alertMessage = @"Hold near NFC tag to scan.";
         [self.nfcSession beginSession];
@@ -333,7 +437,7 @@
 }
 
 - (void)processNDEFTag: (NFCReaderSession *)session tag:(__kindof id<NFCNDEFTag>)tag API_AVAILABLE(ios(13.0)) {
-    [self processNDEFTag:session tag:tag metaData:[NSMutableDictionary new]];
+    [self processNDEFTag:session tag:tag metaData:[[NSMutableDictionary alloc] init]];
 }
 
 - (void)processNDEFTag: (NFCReaderSession *)session tag:(__kindof id<NFCNDEFTag>)tag metaData: (NSMutableDictionary * _Nonnull)metaData API_AVAILABLE(ios(13.0)) {
@@ -426,7 +530,7 @@
 // Gets the tag meta data - type and uid
 - (NSMutableDictionary *) getTagInfo:(id<NFCTag>)tag API_AVAILABLE(ios(13.0)) {
     
-    NSMutableDictionary *tagInfo = [NSMutableDictionary new];
+    NSMutableDictionary *tagInfo = [[NSMutableDictionary alloc] init];
     
     NSData *uid;
     NSString *type;
@@ -524,7 +628,7 @@
 -(void) fireNdefEvent:(NFCNDEFMessage *) ndefMessage metaData:(NSDictionary *)metaData API_AVAILABLE(ios(11.0)) {
     NSLog(@"fireNdefEvent");
     
-    NSMutableDictionary *nfcEvent = [NSMutableDictionary new];
+    NSMutableDictionary *nfcEvent = [[NSMutableDictionary alloc] init];
     nfcEvent[@"type"] = @"ndef";
     nfcEvent[@"tag"] = [self buildTagDictionary:ndefMessage metaData:metaData];
 
@@ -549,7 +653,7 @@
 // NSData fields are converted to uint8_t arrays
 -(NSDictionary *) buildTagDictionary:(NFCNDEFMessage *) ndefMessage metaData: (NSDictionary *)metaData API_AVAILABLE(ios(11.0)) {
     
-    NSMutableDictionary *dictionary = [NSMutableDictionary new];
+    NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
     
     // start with tag meta data
     if (metaData) {
@@ -563,7 +667,7 @@
     }
     
     if (ndefMessage) {
-        NSMutableArray *array = [NSMutableArray new];
+        NSMutableArray *array = [[NSMutableArray alloc] init];
         for (NFCNDEFPayload *record in ndefMessage.records){
             NSDictionary* recordDictionary = [self ndefRecordToNSDictionary:record];
             [array addObject:recordDictionary];
@@ -575,7 +679,7 @@
 }
 
 -(NSDictionary *) ndefRecordToNSDictionary:(NFCNDEFPayload *) ndefRecord API_AVAILABLE(ios(11.0)) {
-    NSMutableDictionary *dict = [NSMutableDictionary new];
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     dict[@"tnf"] = [NSNumber numberWithInt:(int)ndefRecord.typeNameFormat];
     dict[@"type"] = [self uint8ArrayFromNSData: ndefRecord.type];
     dict[@"id"] = [self uint8ArrayFromNSData: ndefRecord.identifier];
@@ -619,4 +723,20 @@
     return jsonString;
 }
 
+//- (void)transceive:(CDVInvokedUrlCommand *)command {
+//     NSLog(@"Invoking Transcieve");
+//    NFCTagReaderSession *session = [[NFCTagReaderSession alloc] initWithPollingOption:NFCPollingISO15693 delegate:self queue:nil];
+//    session.alertMessage = @"Hold your phone near the Tag";
+//    [session beginSession];
+//}
+
+- (void)handleError:(NSError *)error {
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:error.localizedDescription];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:self->sessionCallbackId];
+}
+
 @end
+
+
+
+

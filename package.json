@@ -1,9 +1,9 @@
 {
-  "name": "phonegap-nfc",
-  "version": "1.2.0",
+  "name": "ziath-phonegap-nfc",
+  "version": "1.2.4",
   "description": "Near Field Communication (NFC) Plugin. Read and write NDEF messages to NFC tags and share NDEF messages with peers.",
   "cordova": {
-    "id": "phonegap-nfc",
+    "id": "ziath-phonegap-nfc",
     "platforms": [
       "android",
       "wp8",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/chariotsolutions/phonegap-nfc.git"
+    "url": "git+https://github.com/ZiathLtd/ziath-phonegap-nfc.git"
   },
   "keywords": [
     "nfc",
@@ -30,7 +30,7 @@
   "author": "Don Coleman <don.coleman@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/chariotsolutions/phonegap-nfc/issues"
+    "url": "https://github.com/ZiathLtd/ziath-phonegap-nfc/issues"
   },
-  "homepage": "https://github.com/chariotsolutions/phonegap-nfc#readme"
+  "homepage": "https://github.com/ZiathLtd/ziath-phonegap-nfc#readme"
 }
