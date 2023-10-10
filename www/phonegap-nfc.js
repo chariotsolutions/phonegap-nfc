@@ -503,6 +503,9 @@
         getInitialPushPayload: function (win, fail) {
             cordova.exec(win, fail, "NfcPlugin", "getInitialPushPayload", []);
         },
+        createNotificationChannel: function (win, fail) {
+            cordova.exec(win, fail, "NfcPlugin", "createNotificationChannel", []);
+        },
     
         // iOS only - scan for NFC NDEF tag using NFCNDEFReaderSession
         scanNdef: function (options) {
@@ -922,4 +925,3 @@
     };
 
     module.exports = NFC;
-    
