@@ -17,10 +17,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
+import android.media.AudioAttributes;
 import android.net.Uri;
 import android.nfc.FormatException;
 import android.nfc.NdefMessage;
@@ -32,8 +37,10 @@ import android.nfc.TagLostException;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.nfc.tech.TagTechnology;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.telecom.Call;
 import android.util.Log;
 
 public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCompleteCallback {
@@ -55,6 +62,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String INIT = "init";
     private static final String SHOW_SETTINGS = "showSettings";
     private static final String NDEF_MESSAGE = "getInitialPushPayload";
+    private static final String CHANNEL = "createNotificationChannel";
 
     private static final String NDEF = "ndef";
     private static final String NDEF_MIME = "ndef-mime";
@@ -93,6 +101,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private CallbackContext shareTagCallback;
     private CallbackContext handoverCallback;
     public static CallbackContext globalCallback;
+    protected Context context;
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
@@ -179,6 +188,13 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             // if code made it here, NFC is enabled
             callbackContext.success(STATUS_NFC_OK);
 
+        } else if (action.equalsIgnoreCase(CHANNEL)) {
+            cordova.getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    createNotificationChannel(callbackContext);
+                }
+            });
+           // createNotificationChannel(getActivity().getApplicationContext());
         } else if (action.equalsIgnoreCase(CONNECT)) {
             String tech = data.getString(0);
             int timeout = data.optInt(1, -1);
@@ -206,6 +222,50 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
         return true;
     }
+
+    protected Context getContext() {
+        context = cordova != null ? cordova.getActivity().getBaseContext() : context;
+        if (context == null) {
+            throw new RuntimeException("The Android Context is required. Verify if the 'activity' or 'context' are passed by constructor");
+        }
+
+        return context;
+    }
+
+    public void createNotificationChannel(CallbackContext callbackContext) {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is not in the Support Library.
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                CharSequence name = "QR Video Doorbell";
+                String description = "QR Video Doorbell";
+                int importance = NotificationManager.IMPORTANCE_HIGH;
+                NotificationChannel channel = new NotificationChannel("qr_video", name, importance);
+                channel.setDescription(description);
+                channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                channel.enableLights(true);
+                channel.enableVibration(true);
+                AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                        .build();
+                channel.setSound(Uri.parse("android.resource://" + getContext().getPackageName() + "/raw/" + "intrusion"), audioAttributes);
+                // Uri soundUri = ;
+                //Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.custom_sound);
+//            channel.setSound(soundUri, null);
+                // Register the channel with the system. You can't change the importance
+                // or other notification behaviors after this.
+                NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.createNotificationChannel(channel);
+                callbackContext.success();
+            }
+        }catch (Exception e) {
+            Log.w(TAG, "createNotificationChannel: "+e.getMessage());
+            callbackContext.error(e.getMessage());
+        }
+    }
+
+
 
     public void getInitialPushPayload(CallbackContext callback) {
         if(ndfe_messages == null) {
