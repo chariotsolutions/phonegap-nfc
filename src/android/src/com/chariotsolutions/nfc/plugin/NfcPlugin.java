@@ -62,7 +62,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String INIT = "init";
     private static final String SHOW_SETTINGS = "showSettings";
     private static final String NDEF_MESSAGE = "getInitialPushPayload";
-    private static final String CHANNEL = "createNotificationChannel";
+    private static final String NOTIFICATIONCHANNEL = "createNotificationChannel";
 
     private static final String NDEF = "ndef";
     private static final String NDEF_MIME = "ndef-mime";
@@ -107,6 +107,12 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
 
         Log.d(TAG, "execute " + action);
+
+        if (action.equalsIgnoreCase(NOTIFICATIONCHANNEL)) {
+
+                    createNotificationChannel(callbackContext);
+
+            };
 
         // showSettings can be called if NFC is disabled
         // might want to skip this if NO_NFC
@@ -188,7 +194,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             // if code made it here, NFC is enabled
             callbackContext.success(STATUS_NFC_OK);
 
-        } else if (action.equalsIgnoreCase(CHANNEL)) {
+        } else if (action.equalsIgnoreCase(NOTIFICATIONCHANNEL)) {
             cordova.getActivity().runOnUiThread(new Runnable() {
                 public void run() {
                     createNotificationChannel(callbackContext);
@@ -249,7 +255,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                         .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
                         .build();
-                channel.setSound(Uri.parse("android.resource://" + getContext().getPackageName() + "/raw/" + "intrusion"), audioAttributes);
+                channel.setSound(Uri.parse("android.resource://" + getContext().getPackageName() + "/raw/" + "longbell"), audioAttributes);
                 // Uri soundUri = ;
                 //Uri.parse("android.resource://" + context.getPackageName() + "/" + R.raw.custom_sound);
 //            channel.setSound(soundUri, null);
