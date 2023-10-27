@@ -3,7 +3,7 @@
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="phonegap-nfc"
-    version="1.2.0">
+    version="1.2.0-j5.2">
 
     <name>NFC</name>
 

@@ -1,3 +1,6 @@
+= 1.2.0-j5.2 =
+Remove peer to peer communication for Android since it is not supported in Android SDK 34 anymore
+
 = 1.2.0 =
 iOS allow tag read and write in same session #419
 
