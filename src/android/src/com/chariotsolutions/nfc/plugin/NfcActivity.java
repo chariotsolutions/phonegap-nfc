@@ -88,7 +88,7 @@ public class NfcActivity extends Activity {
             if (raw_data.length() > 0) {
                 NfcPlugin.setInitialPushPayloadRaw(raw_data);
                 getIntent().removeExtra("data");
-                return false;
+                return true;
             }
         } catch (Exception e) {
             //handle this later
