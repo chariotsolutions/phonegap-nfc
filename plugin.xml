@@ -32,11 +32,29 @@
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
         <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/NfcActivity.java"
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
+        <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/IncomingCallActivity.java"
+            target-dir="src/com/chariotsolutions/nfc/plugin"/>
+        <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/QRNotificationHandler.java"
+            target-dir="src/com/chariotsolutions/nfc/plugin"/>
         
          <config-file target="AndroidManifest.xml" parent="/manifest">
             <uses-permission android:name="android.permission.NFC"/>
             <uses-feature android:name="android.hardware.nfc" android:required="false"/>
         </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <activity android:configChanges="orientation|keyboardHidden|screenSize" android:exported="false" android:label="@string/title_activity_fullscreen" android:launchMode="singleTop" android:name="com.chariotsolutions.nfc.plugin.IncomingCallActivity" android:screenOrientation="portrait" android:showOnLockScreen="true" android:theme="@style/Theme.Design.NoActionBar"/>
+            <meta-data android:name="com.onesignal.NotificationServiceExtension" android:value="com.chariotsolutions.nfc.plugin.QRNotificationHandler"/>
+            <receiver android:exported="true" android:name="com.chariotsolutions.nfc.plugin.QRNotificationHandler">
+                <intent-filter>
+                    <action android:name="com.yourpackage.QR_NOTIFICATION_ACTION"/>
+                </intent-filter>
+            </receiver>
+        </config-file>
+
+        <framework src="com.google.android.material:material:1.5.0" />
+
+        <resource-file src="src/android/res/layout/activity_incomingcall.xml" target="res/layput/activity_incomingcall.xml" />
 
 
     </platform>
