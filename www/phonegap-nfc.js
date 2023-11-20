@@ -503,6 +503,9 @@
         getInitialPushPayload: function (win, fail) {
             cordova.exec(win, fail, "NfcPlugin", "getInitialPushPayload", []);
         },
+        setInitialPushPayloadCallback: function (win, fail) {
+            cordova.exec(win, fail, "NfcPlugin", "setInitialPushPayloadCallback", []);
+        },
         createNotificationChannel: function (win, fail) {
             cordova.exec(win, fail, "NfcPlugin", "createNotificationChannel", []);
         },
