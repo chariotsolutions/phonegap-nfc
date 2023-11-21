@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,8 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private static final String INIT = "init";
     private static final String SHOW_SETTINGS = "showSettings";
     private static final String NDEF_MESSAGE = "getInitialPushPayload";
+
+    private static final String NOTIF_MESSAGE_CALLBACK = "setInitialPushPayloadCallback";
     private static final String NOTIFICATIONCHANNEL = "createNotificationChannel";
 
     private static final String NDEF = "ndef";
@@ -101,6 +104,9 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
     private CallbackContext shareTagCallback;
     private CallbackContext handoverCallback;
     public static CallbackContext globalCallback;
+    protected static CallbackContext notif2Callback;
+    protected static String notifPayload;
+
     protected Context context;
 
     @Override
@@ -108,11 +114,14 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
         Log.d(TAG, "execute " + action);
 
+        if (action.equals(NOTIF_MESSAGE_CALLBACK)) {
+            setInitialPushPayloadCallback(callbackContext);
+//            notif2Callback = callbackContext;
+        }
+
         if (action.equalsIgnoreCase(NOTIFICATIONCHANNEL)) {
-
-                    createNotificationChannel(callbackContext);
-
-            };
+            createNotificationChannel(callbackContext);
+        };
 
         // showSettings can be called if NFC is disabled
         // might want to skip this if NO_NFC
@@ -218,7 +227,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                     getInitialPushPayload(callbackContext);
                 }
             });
-        }  else if (action.equalsIgnoreCase(CLOSE)) {
+        } else if (action.equalsIgnoreCase(CLOSE)) {
             close(callbackContext);
 
         } else {
@@ -246,11 +255,17 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 CharSequence name = "QR Video Doorbell";
                 String description = "QR Video Doorbell";
                 int importance = NotificationManager.IMPORTANCE_HIGH;
+
+                long[] pattern = {0,400,800,600,800,800,800,1000, 400,800,600,800,800,800,1000, 400,800,600,800,800,800,1000, 0,400,800,600,800,800,800,1000, 400,800,600,800,800,800,1000, 400,800,600,800,800,800,1000, 0,400,800,600,800,800,800,1000, 400,800,600,800,800,800,1000, 400,800,600,800,800,800,1000};
+
                 NotificationChannel channel = new NotificationChannel("qr_video", name, importance);
                 channel.setDescription(description);
                 channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
                 channel.enableLights(true);
                 channel.enableVibration(true);
+                channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
+                channel.canBypassDnd();
+                channel.setVibrationPattern(pattern);
                 AudioAttributes audioAttributes = new AudioAttributes.Builder()
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                         .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
@@ -277,6 +292,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         if(ndfe_messages == null) {
             Log.d(TAG, "getInitialPushPayload: null");
             callback.success((String) null);
+            globalCallback = callback;
             return;
         }
         Log.d(TAG, "getInitialPushPayload");
@@ -323,6 +339,39 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jo);
             pluginResult.setKeepCallback(true);
             globalCallback.sendPluginResult(pluginResult);
+        }
+    }
+
+    public void setInitialPushPayloadCallback(CallbackContext callback) {
+        if (notifPayload == null || notifPayload.length() < 1) {
+            notif2Callback = callback;
+            return;
+        }
+
+        try {
+            Log.d(TAG, "setInitialPushPayload");
+            JSONObject jo = new JSONObject(notifPayload);
+            PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jo);
+            pluginResult.setKeepCallback(true);
+            callback.sendPluginResult(pluginResult);
+            notifPayload = null;
+        } catch (Exception e) {
+            // handle this
+        }
+    }
+
+    public static void setInitialPushPayloadRaw(String payload) {
+        notifPayload = payload;
+        try {
+            if (notif2Callback != null) {
+                Log.d(TAG, "setInitialPushPayload");
+                JSONObject jo = new JSONObject(payload);
+                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jo);
+                pluginResult.setKeepCallback(true);
+                notif2Callback.sendPluginResult(pluginResult);
+            }
+        } catch (Exception e) {
+            // handle this
         }
     }
 
