@@ -122,14 +122,15 @@ public class QRNotificationHandler extends BroadcastReceiver implements OSRemote
                             PendingIntent.FLAG_MUTABLE);
                     PendingIntent answerIntent = PendingIntent.getActivity(context, NOTIFICATION_ID - 20, answerMainIntent, PendingIntent.FLAG_MUTABLE);
 //                PendingIntent answerIntent = PendingIntent.getBroadcast(context, 0, answerMainIntent, PendingIntent.FLAG_MUTABLE);
-                    PendingIntent contentIntent = PendingIntent.getActivity(context, NOTIFICATION_ID - 35, contentMainIntent, PendingIntent.FLAG_MUTABLE);
+                    PendingIntent contentIntent = PendingIntent.getActivity(context, NOTIFICATION_ID - 35, contentMainIntent, PendingIntent.FLAG_IMMUTABLE);
 
 
                     NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
 
                     Notification.Builder notifBuilder = new Notification.Builder(context, "qr_video")
-                            .setFullScreenIntent(contentIntent, true)
+//                            .setFullScreenIntent(contentIntent, true)
+                            .setContentIntent(contentIntent)
                             .setSmallIcon(_getResource(context, "ic_launcher", "mipmap"))
                             .setContentTitle("Incoming Call")
                             .setContentText("Answer the call to see who")
@@ -137,6 +138,7 @@ public class QRNotificationHandler extends BroadcastReceiver implements OSRemote
                             .setCategory(NotificationCompat.CATEGORY_CALL)
                             .setTimeoutAfter(45000)
                             .setAutoCancel(true)
+                            .setVisibility(VISIBILITY_PUBLIC)
                             .addPerson(incomingCaller);
 
 
