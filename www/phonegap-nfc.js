@@ -531,6 +531,33 @@ var nfc = {
     invalidateSession: function (win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "invalidateSession", []);
     },
+    // iOS 13 only
+    startNfcVSession: function () {
+        return new Promise(function(resolve, reject) {
+            cordova.exec(resolve, reject, "NfcPlugin", "startNfcVSession", []);
+        });
+    },
+    closeNfcVSession: function () {
+        return new Promise(function(resolve, reject) {
+            cordova.exec(resolve, reject, "NfcPlugin", "closeNfcVSession", []);
+        });
+    },
+    // iOS 13 only
+    readBlock: function (index) {
+        return new Promise(function(resolve, reject) {
+        //index:  uint8_t
+        cordova.exec(resolve, reject, "NfcPlugin", "readBlock", [index]);
+        });
+    },
+
+    // iOS 13 only
+    writeBlock: function (index, data) {
+        return new Promise(function(resolve, reject) {
+            //index: uint8_t block index
+            //data:  uint8_t array, length 4, block data,  e.g. [1, 2, 3, 4]
+        cordova.exec(resolve, reject, "NfcPlugin", "writeBlock", [index, data]);
+        });
+    },
 
     // connect to begin transceive
     connect: function(tech, timeout) {

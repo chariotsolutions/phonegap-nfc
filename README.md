@@ -109,6 +109,13 @@ Writing NFC tags on iOS uses the same [nfc.write](#nfcwrite) function as other p
 - [nfc.close](#nfcclose)
 - [ISO-DEP example](#tag-technology-functions-1)
 
+## Tag-V (ISO15693) IOS function
+
+- [nfc.startNfcVSession](#startnfcvsession)
+- [nfc.closeNfcVSession](#closenfcvsession)
+- [nfc.readBlock](#readblock)
+- [nfc.writeBlock](#writeblock)
+  
 ## nfc.addNdefListener
 
 Registers an event listener for any NDEF tag.
@@ -1005,6 +1012,128 @@ See Android's [TagTechnology.close()](https://developer.android.com/reference/an
 ### Supported Platforms
 
 - Android
+
+## startNfcVSession
+
+Start an NFC-V (ISO 15693) session. This function is available on iOS 13 and later.
+See Apple's [Core NFC](https://developer.apple.com/documentation/corenfc) for more info.
+
+### Description
+
+The `startNfcVSession` function initiates an NFC-V session, allowing further NFC operations such as reading or writing to NFC-V tags. This function should be called to establish a session before any NFC-V specific operations.
+
+### Returns
+
+- Promise that resolves with a [NFCISO15693Tag Object](https://developer.apple.com/documentation/corenfc/nfciso15693tag) when the NFC-V session is successfully started.
+
+### Quick Example
+
+```javascript
+nfc.startNfcVSession().then(
+    (tagV) => console.log('NFC-V session started', tagV),
+    (error) => console.log('Failed to start NFC-V session', error)
+);
+```
+
+### Supported Platforms
+
+- iOS (13 and later)
+
+---
+
+## closeNfcVSession
+
+Close the current NFC-V session.
+
+### Description
+
+The `closeNfcVSession` function ends an ongoing NFC-V session. It should be called when all NFC-V operations are completed to ensure proper release of resources.
+
+### Returns
+
+- Promise that resolves when the NFC-V session is successfully closed.
+
+### Quick Example
+
+```javascript
+nfc.closeNfcVSession().then(
+    () => console.log('NFC-V session closed'),
+    (error) => console.log('Failed to close NFC-V session', error)
+);
+```
+
+### Supported Platforms
+
+- iOS (13 and later)
+
+---
+
+## readBlock
+
+Read a block from an NFC-V tag.
+
+### Parameters
+
+- __index__: The block index (uint8_t) to read from.
+
+### Description
+
+The `readBlock` function reads data from a specified block index of an NFC-V tag. It requires an active NFC-V session (established by `startNfcVSession`).
+
+### Returns
+
+- Promise that resolves with the read data if successful.
+
+### Quick Example
+
+```javascript
+// Example to read block 0
+nfc.readBlock(0).then(
+    (data) => console.log('Block data:', data.data),
+    (error) => console.log('Failed to read block', error)
+);
+```
+
+### Supported Platforms
+
+- iOS (13 and later)
+
+---
+
+## writeBlock
+
+Write data to a block on an NFC-V tag.
+
+### Parameters
+
+- __index__: The block index (uint8_t) to write to.
+- __data__: An array of uint8_t representing the data to be written, e.g., [1, 2, 3, 4].
+
+### Description
+
+The `writeBlock` function writes an array of data to a specified block index of an NFC-V tag. This function requires an active NFC-V session. 
+
+### Returns
+
+- Promise that resolves when the data is successfully written.
+
+### Quick Example
+
+```javascript
+// Example to write to block 0
+nfc.writeBlock(0, [1, 2, 3, 4]).then(
+    () => console.log('Data written to block'),
+    (error) => console.log('Failed to write to block', error)
+);
+```
+
+### Supported Platforms
+
+- iOS (13 and later)
+
+---
+
+These documentation entries provide a concise description, usage examples, and platform support for each of the functions related to NFC-V operations on iOS.
 
 # NDEF
 
