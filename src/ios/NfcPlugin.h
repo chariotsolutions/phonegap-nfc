@@ -25,6 +25,10 @@
 - (void)scanNdef:(CDVInvokedUrlCommand *)command;
 - (void)scanTag:(CDVInvokedUrlCommand *)command;
 - (void)cancelScan:(CDVInvokedUrlCommand *)command;
+- (void)startNfcVSession:(CDVInvokedUrlCommand *)command;
+- (void)closeNfcVSession:(CDVInvokedUrlCommand *)command;
+- (void)readBlock:(CDVInvokedUrlCommand *)command;
+- (void)writeBlock:(CDVInvokedUrlCommand *)command;
 
 // Standard PhoneGap NFC API
 - (void)registerNdef:(CDVInvokedUrlCommand *)command;
