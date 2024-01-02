@@ -162,17 +162,13 @@
 - (void)readBlock:(CDVInvokedUrlCommand*)command API_AVAILABLE(ios(14.0)){
     NSLog(@"read nfcv tag Block");
     sessionCallbackId = [command.callbackId copy];
-    NSArray *arguments = [command arguments];
-    NSNumber *arg1 = arguments[0];
-
+    NSNumber *index =  [command argumentAtIndex:0];
     
-    if (arg1 != nil) {
-        uint8_t index = [arg1 unsignedCharValue];
-        NSLog(@"Converted Number: %u", index);
-
+    if (index != nil) {
+        NSLog(@"Converted Number: %u", [index unsignedCharValue]);
     } else {
         NSLog(@"Wrong block index number");
-        NSString *ret = [NSString stringWithFormat:@"wrong block index input: %@", arg1];
+        NSString *ret = [NSString stringWithFormat:@"wrong block index input: %@", index];
         if (self->sessionCallbackId) {
             CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:ret];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:self->sessionCallbackId];
@@ -181,7 +177,7 @@
         return;
     }
     if(self->connectedNfcVTag) {
-     [self->connectedNfcVTag readSingleBlockWithRequestFlags:RequestFlagHighDataRate blockNumber:index completionHandler:^(NSData * _Nonnull data, NSError * _Nullable error) {
+     [self->connectedNfcVTag readSingleBlockWithRequestFlags:RequestFlagHighDataRate blockNumber:[index unsignedCharValue] completionHandler:^(NSData * _Nonnull data, NSError * _Nullable error) {
         if (error == nil) {
             NSLog(@"Read successful!");
 
