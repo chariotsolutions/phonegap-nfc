@@ -36,23 +36,25 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.onesignal.OSNotification;
-import com.onesignal.OSMutableNotification;
-import com.onesignal.OSNotificationReceivedEvent;
-import com.onesignal.OneSignal.OSRemoteNotificationReceivedHandler;
-import com.onesignal.OneSignalNotificationManager;
+import com.onesignal.notifications.IActionButton;
+import com.onesignal.notifications.IDisplayableMutableNotification;
+import com.onesignal.notifications.INotificationReceivedEvent;
+import com.onesignal.notifications.INotificationServiceExtension;
 
 import com.chariotsolutions.nfc.plugin.IncomingCallActivity;
+import com.onesignal.notifications.internal.NotificationReceivedEvent;
 
 import java.math.BigInteger;
 
-public class QRNotificationHandler extends BroadcastReceiver implements OSRemoteNotificationReceivedHandler{
+public class QRNotificationHandler extends BroadcastReceiver implements INotificationServiceExtension{
 
 
     private Vibrator vibrator = null;
+    private Context context;
     @Override
-    public void remoteNotificationReceived(Context context, OSNotificationReceivedEvent notificationReceivedEvent) {
-        OSNotification notification = notificationReceivedEvent.getNotification();
+    public void onNotificationReceived(INotificationReceivedEvent notificationReceivedEvent) {
+        context = notificationReceivedEvent.getContext();
+        IDisplayableMutableNotification notification = notificationReceivedEvent.getNotification();
 
         JSONObject data = notification.getAdditionalData();
         Log.i("OneSignalExample", "Received Notification Data: " + data);
@@ -77,10 +79,10 @@ public class QRNotificationHandler extends BroadcastReceiver implements OSRemote
                             mNotification.flags |= Notification.FLAG_INSISTENT;
                         }
 //                        notificationManager.notify((int) (System.currentTimeMillis() & 0xfffffff) + 22, mNotification);
-                        notificationReceivedEvent.complete(notification);
+                        // notificationReceivedEvent.complete(notification);
                     }
                     else {
-                        notificationReceivedEvent.complete(null);
+//                        notificationReceivedEvent.complete(null);
                     }
                 } else {
 
@@ -93,7 +95,7 @@ public class QRNotificationHandler extends BroadcastReceiver implements OSRemote
                                 .setImportant(true)
                                 .build();
                     } else {
-                        notificationReceivedEvent.complete(notification);
+//                        notificationReceivedEvent.complete(notification);
                         return;
                     }
 
@@ -154,6 +156,7 @@ public class QRNotificationHandler extends BroadcastReceiver implements OSRemote
                     notifBuilder.addAction(android.R.drawable.sym_action_call, "Answer", answerIntent);
 //                }
                     Notification newNotification = notifBuilder.build();
+                    notificationManager.cancel(notification.getAndroidNotificationId());
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                         newNotification.flags |= Notification.FLAG_INSISTENT;
                     }
@@ -163,16 +166,16 @@ public class QRNotificationHandler extends BroadcastReceiver implements OSRemote
 //                startForeground(202, newNotification);
 //                notificationReceivedEvent.complete();
 //                    startForeground(1124, notifBuilder.build());
-                    notificationReceivedEvent.complete(null);
+//                    notificationReceivedEvent.complete(null);
                 }
 
             } else {
-                notificationReceivedEvent.complete(notification);
+                // notificationReceivedEvent.complete(notification);
             }
         } catch (Exception ex) {
             // dont do anything
             Log.e("chudu", ex.toString());
-            notificationReceivedEvent.complete(notification);
+//            notificationReceivedEvent.complete(notification);
         }
 
     }
