@@ -125,7 +125,7 @@
         if (self.shouldUseTagReaderSession) {
             NSLog(@"Using NFCTagReaderSession");
 
-            //Fixing iOS issue
+            //Fixing MABS10 iOS Compilation issue #1
             //self.nfcSession = [[NFCTagReaderSession new]
                        //initWithPollingOption:(NFCPollingISO14443 | NFCPollingISO15693)
                        //delegate:self queue:dispatch_get_main_queue()];
@@ -135,7 +135,11 @@
 
         } else {
             NSLog(@"Using NFCTagReaderSession");
-            self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:FALSE];
+
+            //Fixing MABS10 iOS Compilation issue #2
+            //self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:FALSE];
+            self.nfcSession = [[NFCNDEFReaderSession alloc] initWithDelegate:self queue:nil invalidateAfterFirstRead:NO];
+
         }
     }
 
@@ -310,12 +314,20 @@
         
         if (self.shouldUseTagReaderSession) {
             NSLog(@"Using NFCTagReaderSession");
-            self.nfcSession = [[NFCTagReaderSession new]
-                           initWithPollingOption:(NFCPollingISO14443 | NFCPollingISO15693)
-                           delegate:self queue:dispatch_get_main_queue()];
+            
+            //Fixing MABS10 iOS Compilation issue #3
+            //self.nfcSession = [[NFCTagReaderSession new]
+                           //initWithPollingOption:(NFCPollingISO14443 | NFCPollingISO15693)
+                           //delegate:self queue:dispatch_get_main_queue()];
+            self.nfcSession = [[NFCTagReaderSession alloc] initWithPollingOption:NFCPollingISO14443 delegate:self queue:nil];
+            
         } else {
             NSLog(@"Using NFCNDEFReaderSession");
-            self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
+
+            //Fixing MABS10 iOS Compilation issue #4
+            //self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
+            self.nfcSession = [[NFCTagReaderSession alloc] initWithPollingOption:NFCPollingISO14443 delegate:self queue:nil];
+
         }
         sessionCallbackId = [command.callbackId copy];
         self.nfcSession.alertMessage = @"Hold near NFC tag to scan.";
@@ -323,7 +335,11 @@
         
     } else if (@available(iOS 11.0, *)) {
         NSLog(@"iOS < 13, using NFCNDEFReaderSession");
-        self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
+
+        //Fixing MABS10 iOS Compilation issue #5
+        //self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
+        self.nfcSession = [[NFCTagReaderSession alloc] initWithPollingOption:NFCPollingISO14443 delegate:self queue:nil];
+        
         sessionCallbackId = [command.callbackId copy];
         self.nfcSession.alertMessage = @"Hold near NFC tag to scan.";
         [self.nfcSession beginSession];
