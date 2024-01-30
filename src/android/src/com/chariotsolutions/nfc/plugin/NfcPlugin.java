@@ -324,33 +324,49 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             Log.d(TAG, "parseLaunchIntent " + intent);
             String action = intent.getAction();
             Log.d(TAG, "action " + action);
+            final String data = intent.getDataString();
+            Log.d(TAG, "data " + data);
 
-            Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-            Parcelable[] messages = intent.getParcelableArrayExtra((NfcAdapter.EXTRA_NDEF_MESSAGES));
+            try {
+                Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+                Parcelable[] messages = intent.getParcelableArrayExtra((NfcAdapter.EXTRA_NDEF_MESSAGES));
 
-            if (action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
-                Ndef ndef = Ndef.get(tag);
-                callbackContext.success(buildNdefJSON(ndef, messages));
-                return;
-            } else if (action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
-                Ndef ndef = null;
-                for (String tagTech : tag.getTechList()) {
-                    Log.d(TAG, tagTech);
-                    if (tagTech.equals(Ndef.class.getName())) { //
-                        ndef = Ndef.get(tag);
+                if (action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)) {
+                    Ndef ndef = Ndef.get(tag);
+                    callbackContext.success(buildNdefJSON(ndef, messages));
+                } else if (action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)) {
+                    Ndef ndef = null;
+                    for (String tagTech : tag.getTechList()) {
+                        Log.d(TAG, tagTech);
+                        if (tagTech.equals(Ndef.class.getName())) { //
+                            ndef = Ndef.get(tag);
+                        }
+                    }
+                    if (ndef != null) {
+                        callbackContext.success(buildNdefJSON(ndef, messages));
+                    } else {
+                        callbackContext.success(Util.tagToJSON(tag));
+                    }
+                } else if (action.equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
+                    callbackContext.success(Util.tagToJSON(tag));
+                } else {
+                    if (data != null) {
+                        callbackContext.success(data);
+                    } else {
+                        callbackContext.error("NO_INTENT");
                     }
                 }
-                if (ndef != null) {
-                    callbackContext.success(buildNdefJSON(ndef, messages));
+            } catch (Exception exception) {
+                Log.e(TAG, "failed to parse tag from launch intent", exception);
+                if (data != null) {
+                    // Fallback to returning the URL obtained from the intent
+                    callbackContext.success(data);
                 } else {
-                    callbackContext.success(Util.tagToJSON(tag));
+                    callbackContext.error("NO_INTENT");
                 }
-            } else if (action.equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
-                callbackContext.success(Util.tagToJSON(tag));
-            } else {
-                callbackContext.error("NO_INTENT");
             }
         } else {
+            Log.d(TAG, "parseLaunchIntent: NO_INTENT");
             callbackContext.error("NO_INTENT");
         }
     }
