@@ -452,7 +452,6 @@ Function `nfc.share` writes an NdefMessage via peer-to-peer.  This should appear
 
 ### Supported Platforms
 
-- Android
 - Windows
 - BlackBerry 7
 - BlackBerry 10
@@ -481,7 +480,6 @@ Function `nfc.unshare` stops sharing data via peer-to-peer.
 
 ### Supported Platforms
 
-- Android
 - Windows
 - BlackBerry 7
 - BlackBerry 10
