@@ -26,6 +26,8 @@
             </feature>
         </config-file>
 
+        <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/NfcActivity.java"
+            target-dir="src/com/chariotsolutions/nfc/plugin"/>
         <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/NfcPlugin.java"
             target-dir="src/com/chariotsolutions/nfc/plugin"/>
         <source-file src="src/android/src/com/chariotsolutions/nfc/plugin/Util.java"
@@ -121,13 +123,13 @@
         <config-file parent="com.apple.developer.nfc.readersession.formats" platform="ios" target="*-Debug.plist">
             <array>
                 <string>NDEF</string>
-                <string>TAG</string>  
+                <string>TAG</string>
             </array>
         </config-file>
         <config-file parent="com.apple.developer.nfc.readersession.formats" platform="ios" target="*-Release.plist">
             <array>
                 <string>NDEF</string>
-                <string>TAG</string>  
+                <string>TAG</string>
             </array>
         </config-file>
         
