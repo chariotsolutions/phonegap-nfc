@@ -120,13 +120,11 @@
         <!-- https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_nfc_readersession_formats?language=objc -->
         <config-file parent="com.apple.developer.nfc.readersession.formats" platform="ios" target="*-Debug.plist">
             <array>
-                <string>NDEF</string>
                 <string>TAG</string>  
             </array>
         </config-file>
         <config-file parent="com.apple.developer.nfc.readersession.formats" platform="ios" target="*-Release.plist">
             <array>
-                <string>NDEF</string>
                 <string>TAG</string>  
             </array>
         </config-file>
