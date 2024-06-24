@@ -34,6 +34,7 @@
 
 // Internal implementation
 - (void)channel:(CDVInvokedUrlCommand *)command;
+//- (void)transceive:(CDVInvokedUrlCommand *)command;
 
 @end
 
