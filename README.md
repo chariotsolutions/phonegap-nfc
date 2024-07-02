@@ -87,8 +87,6 @@ Writing NFC tags on iOS uses the same [nfc.write](#nfcwrite) function as other p
 - [nfc.share](#nfcshare)
 - [nfc.unshare](#nfcunshare)
 - [nfc.erase](#nfcerase)
-- [nfc.handover](#nfchandover)
-- [nfc.stopHandover](#nfcstophandover)
 - [nfc.enabled](#nfcenabled)
 - [nfc.showSettings](#nfcshowsettings)
 - [~~nfc.beginSession~~](#nfcbeginsession)
@@ -452,7 +450,6 @@ Function `nfc.share` writes an NdefMessage via peer-to-peer.  This should appear
 
 ### Supported Platforms
 
-- Android
 - Windows
 - BlackBerry 7
 - BlackBerry 10
@@ -481,7 +478,6 @@ Function `nfc.unshare` stops sharing data via peer-to-peer.
 
 ### Supported Platforms
 
-- Android
 - Windows
 - BlackBerry 7
 - BlackBerry 10
@@ -507,57 +503,6 @@ This method *must* be called from within an NDEF Event Handler.
 
 - Android
 - BlackBerry 7
-
-## nfc.handover
-
-Send a file to another device via NFC handover.
-
-    var uri = "content://media/external/audio/media/175";
-    nfc.handover(uri, [onSuccess], [onFailure]);
-
-
-    var uris = [
-        "content://media/external/audio/media/175",
-        "content://media/external/audio/media/176",
-        "content://media/external/audio/media/348"
-    ];
-    nfc.handover(uris, [onSuccess], [onFailure]);
-
-
-### Parameters
-
-- __uri__: A URI as a String, or an *array* of URIs.
-- __onSuccess__: (Optional) The callback that is called when the message is pushed.
-- __onFailure__: (Optional) The callback that is called if there was an error.
-
-### Description
-
-Function `nfc.handover` shares files to a NFC peer using handover. Files are sent by specifying a file:// or context:// URI or a list of URIs. The file transfer is initiated with NFC but the transfer is completed with over Bluetooth or WiFi which is handled by a NFC handover request. The Android code is responsible for building the handover NFC Message.
-
-This is Android only, but it should be possible to add implementations for other platforms.
-
-### Supported Platforms
-
-- Android
-
-## nfc.stopHandover
-
-Stop sharing NDEF data via NFC handover.
-
-    nfc.stopHandover([onSuccess], [onFailure]);
-
-### Parameters
-
-- __onSuccess__: (Optional) The callback that is called when sharing stops.
-- __onFailure__: (Optional) The callback that is called if there was an error.
-
-### Description
-
-Function `nfc.stopHandover` stops sharing data via peer-to-peer.
-
-### Supported Platforms
-
-- Android
 
 ## nfc.showSettings
 
@@ -747,7 +692,6 @@ Use [scanNdef](#nfcscanndef) for reading NFC tags on iOS unless you need to get 
 
 - iOS
 
-
 ## nfc.cancelScan
 
 Invalidate the NFC session started by `scanNdef` or `scanTag`.
@@ -772,7 +716,6 @@ Function `cancelScan` stops the [NFCReaderSession](https://developer.apple.com/d
 ### Supported Platforms
 
 - iOS
-
 
 # Reader Mode Functions
 
@@ -849,7 +792,6 @@ Disable NFC reader mode.
 ### Supported Platforms
 
 - Android
-
 
 # Tag Technology Functions
 
