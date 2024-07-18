@@ -14,10 +14,10 @@ function handleNfcFromIntentFilter() {
             function () {
                 cordova.exec(
                     function () {
-                        console.log("Initialized the NfcPlugin");
+                        console.debug("Initialized the NfcPlugin");
                     },
                     function (reason) {
-                        console.log("Failed to initialize the NfcPlugin " + reason);
+                        console.warn("Failed to initialize the NfcPlugin " + reason);
                     },
                     "NfcPlugin", "init", []
                 );
@@ -175,7 +175,7 @@ var ndef = {
                 payload = ndefRecords;
             }
         } else {
-            console.log("WARNING: Expecting an array of NDEF records");
+            console.warn("WARNING: Expecting an array of NDEF records");
         }
 
         return ndef.record(ndef.TNF_WELL_KNOWN, ndef.RTD_SMART_POSTER, id, payload);
@@ -410,7 +410,7 @@ var ndef = {
 
 // nfc provides javascript wrappers to the native phonegap implementation
 var nfc = {
-    
+
     multiCallbackTest: function(success, failure) {
         cordova.exec(success, failure, "NfcPlugin", "multiCallbackTest", []);
     },
@@ -419,7 +419,7 @@ var nfc = {
     //     //cordova.exec(success, failure, "NfcPlugin", "multiCallbackTest", []);
     //     setInterval(failure, 10000, 'Test from JavaScript!');
     // },
-    
+
     addTagDiscoveredListener: function (callback, win, fail) {
         document.addEventListener("tag", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "registerTag", []);
@@ -440,10 +440,10 @@ var nfc = {
         cordova.exec(win, fail, "NfcPlugin", "registerNdefFormatable", []);
     },
 
-    write: function (ndefMessage, win, fail, options) {      
-        
+    write: function (ndefMessage, win, fail, options) {
+
         if (cordova.platformId === "ios") {
-          cordova.exec(win, fail, "NfcPlugin", "writeTag", [ndefMessage, options]);        
+          cordova.exec(win, fail, "NfcPlugin", "writeTag", [ndefMessage, options]);
         } else {
           cordova.exec(win, fail, "NfcPlugin", "writeTag", [ndefMessage]);
         }
@@ -459,18 +459,6 @@ var nfc = {
 
     unshare: function (win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "unshareTag", []);
-    },
-
-    handover: function (uris, win, fail) {
-        // if we get a single URI, wrap it in an array
-        if (!Array.isArray(uris)) {
-            uris = [ uris ];
-        }
-        cordova.exec(win, fail, "NfcPlugin", "handover", uris);
-    },
-
-    stopHandover: function (win, fail) {
-        cordova.exec(win, fail, "NfcPlugin", "stopHandover", []);
     },
 
     erase: function (win, fail) {
@@ -513,7 +501,7 @@ var nfc = {
             cordova.exec(resolve, reject, "NfcPlugin", "scanTag", [options]);
         });
     },
-    
+
     // iOS only - cancel NFC scan session
     cancelScan: function () {
         return new Promise(function(resolve, reject) {
@@ -566,7 +554,7 @@ var nfc = {
         });
     },
 
-    // Android NfcAdapter.enableReaderMode flags 
+    // Android NfcAdapter.enableReaderMode flags
     FLAG_READER_NFC_A: 0x1,
     FLAG_READER_NFC_B: 0x2,
     FLAG_READER_NFC_F: 0x4,
@@ -574,7 +562,7 @@ var nfc = {
     FLAG_READER_NFC_BARCODE: 0x10,
     FLAG_READER_SKIP_NDEF_CHECK: 0x80,
     FLAG_READER_NO_PLATFORM_SOUNDS: 0x100,
-    
+
     // Android NfcAdapter.enabledReaderMode
     readerMode: function(flags, readCallback, errorCallback) {
         cordova.exec(readCallback, errorCallback, 'NfcPlugin', 'readerMode', [flags]);
@@ -735,7 +723,7 @@ var util = {
      * Convert an ArrayBuffer to a hex string
      *
      * @param {ArrayBuffer} buffer
-     * @returns {srting} - hex representation of bytes e.g. 000407AF 
+     * @returns {string} - hex representation of bytes e.g. 000407AF
      */
     arrayBufferToHexString: function(buffer) {
         function toHexString(byte) {
@@ -764,13 +752,13 @@ var util = {
 
         // ensure even number of characters
         if (hexString.length % 2 != 0) {
-            console.log('WARNING: expecting an even number of characters in the hexString');
+            console.warn('WARNING: expecting an even number of characters in the hexString');
         }
 
         // check for some non-hex characters
         var bad = hexString.match(/[G-Z\s]/i);
         if (bad) {
-            console.log('WARNING: found non-hex characters', bad);
+            console.warn('WARNING: found non-hex characters', bad);
         }
 
         // split the string into pairs of octets
@@ -796,7 +784,7 @@ var textHelper = {
 
         // TODO need to deal with UTF in the future
         if (utf16) {
-            console.log('WARNING: utf-16 data may not be handled properly for', languageCode);
+            console.warn('WARNING: utf-16 data may not be handled properly for', languageCode);
         }
         // Use TextDecoder when we have enough browser support
         // new TextDecoder('utf-8').decode(data.slice(languageCodeLength + 1));
@@ -873,7 +861,6 @@ function fireNfcTagEvent(eventType, tagAsJson) {
         var e = document.createEvent('Events');
         e.initEvent(eventType, true, false);
         e.tag = JSON.parse(tagAsJson);
-        console.log(e.tag);
         document.dispatchEvent(e);
     }, 10);
 }
@@ -894,15 +881,15 @@ window.ndef = ndef;
 window.util = util;
 window.fireNfcTagEvent = fireNfcTagEvent;
 
-// This channel receives nfcEvent data from native code 
+// This channel receives nfcEvent data from native code
 // and fires JavaScript events.
 require('cordova/channel').onCordovaReady.subscribe(function() {
   require('cordova/exec')(success, null, 'NfcPlugin', 'channel', []);
   function success(message) {
-    if (!message.type) { 
-        console.log(message);
+    if (!message.type) {
+        console.warn("Skip received NFC data, missing type in", message);
     } else {
-        console.log("Received NFC data, firing '" + message.type + "' event");
+        console.debug("Received NFC data, firing '" + message.type + "' event");
         var e = document.createEvent('Events');
         e.initEvent(message.type);
         e.tag = message.tag;

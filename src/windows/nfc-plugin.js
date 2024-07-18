@@ -35,7 +35,7 @@ var self = {
                 var kludge = self.proximityDevice.maxMessageBytes;
                 self.proximityDeviceStatus = STATUS_NFC_OK;
             } catch (e) {
-                console.log(e);
+                console.error(e);
                 self.proximityDeviceStatus = STATUS_NFC_DISABLED;
             }
             return self.proximityDeviceStatus === STATUS_NFC_OK;
@@ -47,7 +47,7 @@ var self = {
         // TODO use these events to implement nfc.addTagDiscoveredListener
         if (self.proximityDevice) {
             self.proximityDevice.ondevicearrived = function (eventArgs) {
-                console.log("NFC tag detected");
+                console.debug("NFC tag detected");
                 if (self.listeningForNonNdefTags) {
                     // set a timeout so NDEF tags can cancel this event
                     // we want one event to mimic the Android behavior
@@ -56,7 +56,7 @@ var self = {
             };
 
             self.proximityDevice.ondevicedeparted = function (eventArgs) {
-                console.log("NFC tag is gone");
+                console.debug("NFC tag is gone");
             };
         } else {
             self.proximityDeviceStatus = STATUS_NO_NFC_OR_NFC_DISABLED;
@@ -69,13 +69,13 @@ var self = {
         self.initializeProximityDevice();
 
         if (!self.proximityDevice) {
-            console.log("WARNING: proximity device is null");
+            console.warn("WARNING: proximity device is null");
         }
 
         success();
     },
     registerNdef: function (success, failure, args) {
-        console.log("Listening for NFC tags with NDEF messages.");
+        console.debug("Listening for NFC tags with NDEF messages.");
 
         if (!self.initializeProximityDevice()) {
             failure(self.proximityDeviceStatus);
@@ -86,13 +86,13 @@ var self = {
             self.subscribedMessageId = self.proximityDevice.subscribeForMessage("NDEF", self.messageReceivedHandler);
             success();
         } catch (e) {
-            console.log(e);
+            console.error(e);
             failure(e);
         }
     },
     removeNdef: function (success, failure, args) {
 
-        console.log("Removing NDEF Listener");
+        console.debug("Removing NDEF Listener");
 
         if (!self.initializeProximityDevice()) {
             failure(self.proximityDeviceStatus);
@@ -107,7 +107,7 @@ var self = {
 
             success();
         } catch (e) {
-            console.log(e);
+            console.error(e);
             failure(e.message);
         }
     },
@@ -121,7 +121,7 @@ var self = {
     },
     writeTag: function (success, failure, args) {
 
-        console.log("Write Tag");
+        console.debug("Write Tag");
 
         if (!self.initializeProximityDevice()) {
             failure(self.proximityDeviceStatus);
@@ -141,7 +141,7 @@ var self = {
             self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF:WriteTag",
                 dataWriter.detachBuffer(),
                 function (sender, messageId) {
-                      console.log("Successfully wrote message to the NFC tag.");
+                      console.debug("Successfully wrote message to the NFC tag.");
                       self.stopPublishing();
 
                       success();
@@ -149,13 +149,13 @@ var self = {
             );
 
         } catch (e) {
-            console.log(e);
+            console.error(e);
             failure(e.message);
         }
     },
     shareTag: function(success, failure, args) {
 
-        console.log("Share Tag");
+        console.debug("Share Tag");
 
         if (!self.initializeProximityDevice()) {
             failure(self.proximityDeviceStatus);
@@ -175,19 +175,19 @@ var self = {
             self.publishedMessageId = self.proximityDevice.publishBinaryMessage("NDEF",
                 dataWriter.detachBuffer(),
                 function (sender, messageId) {
-                    console.log("Successfully shared message over peer-to-peer.");
+                    console.debug("Successfully shared message over peer-to-peer.");
                     self.stopPublishing();
 
                     success();
                 });
 
         } catch (e) {
-            console.log(e);
+            console.error(e);
             failure(e.message);
         }
     },
     unshareTag: function(success, failure, args) {
-        console.log("Unshare Tag");
+        console.debug("Unshare Tag");
 
         if (!self.initializeProximityDevice()) {
             failure(self.proximityDeviceStatus);
@@ -198,7 +198,7 @@ var self = {
             self.stopPublishing();
             success();
         } catch (e) {
-            console.log(e);
+            console.error(e);
             failure(e.message);
         }
     },
@@ -246,7 +246,6 @@ var self = {
 
         var byteArray = ndefUtils.toArray(bytes);
         var ndefMessage = ndef.decodeMessage(byteArray);
-        console.log(JSON.stringify(ndefMessage));
 
         // on windows, tag only contains the ndef message
         // other platforms have tag data

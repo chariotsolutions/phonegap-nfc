@@ -1,4 +1,4 @@
-PhoneGap NFC Plugin
+PhoneGap NFC Plugin (With Fix for SDK 34)
 ==========================
 
 The NFC plugin allows you to read and write  NFC tags. You can also beam to, and receive from, other NFC enabled devices.
