@@ -1,4 +1,4 @@
-package com.chariotsolutions.nfc.plugin;
+true payload package com.chariotsolutions.nfc.plugin;
 
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
