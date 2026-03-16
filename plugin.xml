@@ -2,8 +2,8 @@
 <plugin
     xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="phonegap-nfc"
-    version="1.2.0">
+    id="community-cordova-plugin-nfc"
+    version="1.4.1">
 
     <name>NFC</name>
 
@@ -11,8 +11,8 @@
 
     <license>MIT</license>
     <keywords>nfc, NFC, NDEF</keywords>
-    <repo>https://github.com/chariotsolutions/phonegap-nfc.git</repo>
-    <issue>https://github.com/chariotsolutions/phonegap-nfc/issues</issue>
+    <repo>https://github.com/EYALIN/community-cordova-plugin-nfc.git.git</repo>
+    <issue>https://github.com/EYALIN/community-cordova-plugin-nfc.git/issues</issue>
 
     <platform name="android">
         <js-module src="www/phonegap-nfc.js" name="NFC">
@@ -120,13 +120,11 @@
         <!-- https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_nfc_readersession_formats?language=objc -->
         <config-file parent="com.apple.developer.nfc.readersession.formats" platform="ios" target="*-Debug.plist">
             <array>
-                <string>NDEF</string>
                 <string>TAG</string>  
             </array>
         </config-file>
         <config-file parent="com.apple.developer.nfc.readersession.formats" platform="ios" target="*-Release.plist">
             <array>
-                <string>NDEF</string>
                 <string>TAG</string>  
             </array>
         </config-file>

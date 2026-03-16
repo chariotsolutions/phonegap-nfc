@@ -1,5 +1,20 @@
-PhoneGap NFC Plugin
-==========================
+[![NPM version](https://img.shields.io/npm/v/community-cordova-plugin-nfc)](https://www.npmjs.com/package/community-cordova-plugin-nfc)
+
+#### This is a fork of the original plugin phonegap-nfc
+
+# community-cordova-plugin-nfc
+
+
+I dedicate a considerable amount of my free time to developing and maintaining many cordova plugins for the community ([See the list with all my maintained plugins][community_plugins]).
+To help ensure this plugin is kept updated,
+new features are added and bugfixes are implemented quickly,
+please donate a couple of dollars (or a little more if you can stretch) as this will help me to afford to dedicate time to its maintenance.
+Please consider donating if you're using this plugin in an app that makes you money,
+or if you're asking for new features or priority bug fixes. Thank you!
+
+[![](https://img.shields.io/static/v1?label=Sponsor%20Me&style=for-the-badge&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/eyalin)
+
+
 
 The NFC plugin allows you to read and write  NFC tags. You can also beam to, and receive from, other NFC enabled devices.
 
@@ -42,11 +57,11 @@ Supported Platforms
 
 ### Cordova
 
-    $ cordova plugin add phonegap-nfc
+    $ cordova plugin add community-cordova-plugin-nfc
 
 ### PhoneGap
 
-    $ phonegap plugin add phonegap-nfc
+    $ phonegap plugin add community-cordova-plugin-nfc
 
 ### PhoneGap Build
 
@@ -84,11 +99,11 @@ Writing NFC tags on iOS uses the same [nfc.write](#nfcwrite) function as other p
 - [nfc.addNdefFormatableListener](#nfcaddndefformatablelistener)
 - [nfc.write](#nfcwrite)
 - [nfc.makeReadOnly](#nfcmakereadonly)
-- [nfc.share](#nfcshare)
-- [nfc.unshare](#nfcunshare)
+- [~~nfc.share~~](#nfcshare)
+- [~~nfc.unshare~~](#nfcunshare)
 - [nfc.erase](#nfcerase)
-- [nfc.handover](#nfchandover)
-- [nfc.stopHandover](#nfcstophandover)
+- [~~nfc.handover~~](#nfchandover)
+- [~~nfc.stopHandover~~](#nfcstophandover)
 - [nfc.enabled](#nfcenabled)
 - [nfc.showSettings](#nfcshowsettings)
 - [~~nfc.beginSession~~](#nfcbeginsession)
@@ -1350,3 +1365,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+[w3c_spec]: https://www.w3.org/TR/battery-status/
+[status_object]: #status-object
+[community_plugins]: https://github.com/EYALIN?tab=repositories&q=community&type=&language=&sort=

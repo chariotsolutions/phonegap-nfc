@@ -1,3 +1,9 @@
+= 1.4.1 =
+Send error logs to JS for NDEF message parse failure and tag connection issues via sendLogToJs
+
+= 1.2.1 =
+iOS updated to work in newer xcode builds
+
 = 1.2.0 =
 iOS allow tag read and write in same session #419
 
