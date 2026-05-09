@@ -452,7 +452,6 @@ Function `nfc.share` writes an NdefMessage via peer-to-peer.  This should appear
 
 ### Supported Platforms
 
-- Android
 - Windows
 - BlackBerry 7
 - BlackBerry 10
@@ -481,7 +480,6 @@ Function `nfc.unshare` stops sharing data via peer-to-peer.
 
 ### Supported Platforms
 
-- Android
 - Windows
 - BlackBerry 7
 - BlackBerry 10
@@ -1264,6 +1262,46 @@ Or to scan only Plain Text tags use
 
 See the [BlackBerry documentation](http://developer.blackberry.com/native/documentation/cascades/device_comm/nfc/receiving_content.html) for more info.
 
+# Launching your iOS Application when Scanning a Tag
+
+On iOS, your application can be launched when an NFC tag is read, if the tag contains an NDEF message with a Universal Link (URL). This is optional and requires configuration on your application entitlements. The Universal Link needs to point to an actual HTTPS server that contains an `apple-app-site-association` that links the URL with your app.
+
+In a nutshell, you need to:
+
+1. Setup an associated domain relationship between your app and the Universal Link URL of your choosing. See: https://developer.apple.com/documentation/xcode/supporting-associated-domains
+
+2. Add an associated domain entitlement to your app in XCode. See: https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_associated-domains
+  * If you are developing in a multi-platform environment, you can do this by adding the following to your `config.xml`:
+
+```xml
+<platform name="ios">
+    <config-file parent="com.apple.developer.associated-domains" platform="ios" target="*-Debug.plist">
+        <array>
+            <string>applinks:myapp.com</string>
+        </array>
+    </config-file>
+    <config-file parent="com.apple.developer.associated-domains" platform="ios" target="*-Release.plist">
+        <array>
+            <string>applinks:myapp.com</string>
+        </array>
+    </config-file>
+</platform>
+```
+
+3. On your app, during or after the Cordova `deviceready` event, call the `parseLaunchIntent` plugin function, for example:
+
+```javascript
+document.addEventListener("deviceready", onDeviceReady, false);
+
+function onDeviceReady() {
+    nfc.parseLaunchIntent(function(tag) {
+        console.log('Application was launched with tag: ' + JSON.stringify(tag));
+    });
+}
+```
+
+  * You may want to do the same on the `onresume` event to support the case where your app was already running in the background.
+
 # Launching your Android Application when Scanning a Tag
 
 On Android, intents can be used to launch your application when a NFC tag is read.  This is optional and configured in AndroidManifest.xml.
@@ -1279,6 +1317,44 @@ Note: `data android:mimeType="text/pg"` should match the data type you specified
 We have found it necessary to add `android:noHistory="true"` to the activity element so that scanning a tag launches the application after the user has pressed the home button.
 
 See the Android documentation for more information about [filtering for NFC intents](http://developer.android.com/guide/topics/connectivity/nfc/nfc.html#ndef-disc).
+
+## Accessing Tag information during application launch
+
+If your application is launched because an NFC tag was read, the intent passed to your main activity will be the `LAUNCH` intent, rather than one of the NFC tag intents (e.g. `NDEF_DISCOVERED`). In order to capture the NFC tag intent that was used to launch your application, you need to associate the NFC tag intent filter with an activity other than Cordova's `MainActivity`.
+
+You can do this following these steps:
+
+1. Add a section to your `AndroidManifest.xml` file with the appropriate NFC `intent-filter` that points to the activity `com.chariotsolutions.nfc.plugin.NfcActivity`. 
+ * If you are developing in a multi-platform environment, you can do this by adding the following to your `config.xml`:
+
+```xml
+<platform name="android">
+    <config-file parent="/manifest/application" target="AndroidManifest.xml">
+        <activity android:label="NfcActivity" android:launchMode="singleTask" android:name="com.chariotsolutions.nfc.plugin.NfcActivity" android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <!-- Replace the following with a filter that applies to your app -->
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:host="myapp.com" android:pathPrefix="/nfc" android:scheme="https" />
+            </intent-filter>
+        </activity>
+    </config-file>
+</platform>
+```
+
+2. On your app, during or after the Cordova `deviceready` event, call the `parseLaunchIntent` function, for example:
+
+```javascript
+document.addEventListener("deviceready", onDeviceReady, false);
+
+function onDeviceReady() {
+    nfc.parseLaunchIntent(function(tag) {
+        console.log('Application was launched with tag: ' + JSON.stringify(tag));
+    });
+}
+```
+
+ * You may want to do the same on the `onresume` event to support the case where your app was already running in the background.
 
 Testing
 =======

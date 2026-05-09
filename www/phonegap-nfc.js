@@ -500,6 +500,10 @@ var nfc = {
         cordova.exec(win, fail, "NfcPlugin", "showSettings", []);
     },
 
+    parseLaunchIntent: function (win, fail) {
+            cordova.exec(win, fail, "NfcPlugin", "parseLaunchIntent", []);
+    },
+
     // iOS only - scan for NFC NDEF tag using NFCNDEFReaderSession
     scanNdef: function (options) {
         return new Promise(function(resolve, reject) {

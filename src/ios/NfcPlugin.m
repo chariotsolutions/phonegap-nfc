@@ -5,6 +5,71 @@
 //  (c) 2107-2020 Don Coleman
 
 #import "NfcPlugin.h"
+#import <objc/runtime.h>
+
+static void * UserActivityPropertyKey = &UserActivityPropertyKey;
+static NFCNDEFMessage * LaunchMessage = nil;
+static NSString * LaunchURL = nil;
+static NfcPlugin* Listener = nil;
+
+@implementation AppDelegate (PhonegapNfc)
+
++ (void)load {
+    Method original = class_getInstanceMethod(self, @selector(application:continueUserActivity:restorationHandler:));
+    Method swizzled = class_getInstanceMethod(self, @selector(application:swizzledContinueUserActivity:restorationHandler:));
+    method_exchangeImplementations(original, swizzled);
+}
+
+- (BOOL)application:(UIApplication *)application
+swizzledContinueUserActivity:(NSUserActivity *)userActivity
+ restorationHandler:(void (^)(NSArray *))restorationHandler {
+    if (@available(iOS 12, *)) {
+        if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb])
+        {
+            NFCNDEFMessage *messagePayload = userActivity.ndefMessagePayload;
+            if (messagePayload.records.count > 0 && messagePayload.records[0].typeNameFormat != NFCTypeNameFormatEmpty)
+            {
+                NSLog(@"nfcDelegate - received NDEF message");
+                if (Listener != nil)
+                {
+                    [Listener messageReceived:messagePayload];
+                }
+                else
+                {
+                    LaunchMessage = messagePayload;
+                }
+                return YES;
+            }
+            // Fallback — Universal Link without NDEF payload.
+            // This happens when the URL is opened via simctl, Safari, or another app
+            // rather than from an NFC tag scan. The URL still contains the tag ID
+            // (in the fragment) and name (in the query param), so NfcTag can parse it.
+            else
+            {
+                NSURL *webpageURL = userActivity.webpageURL;
+                if (webpageURL != nil)
+                {
+                    NSString *urlString = webpageURL.absoluteString;
+                    NSLog(@"nfcDelegate - received Universal Link without NDEF: %@", urlString);
+                    if (Listener != nil)
+                    {
+                        [Listener urlReceived:urlString];
+                    }
+                    else
+                    {
+                        // Cold start — buffer for parseLaunchIntent.
+                        LaunchURL = urlString;
+                    }
+                    return YES;
+                }
+            }
+        }
+    }
+
+    return [self application:application swizzledContinueUserActivity:userActivity restorationHandler:restorationHandler];
+}
+
+@end
 
 @interface NfcPlugin() {
     NSString* sessionCallbackId;
@@ -20,6 +85,7 @@
 @property (nonatomic, assign) BOOL keepSessionOpen;
 @property (strong, nonatomic) NFCReaderSession *nfcSession API_AVAILABLE(ios(11.0));
 @property (strong, nonatomic) NFCNDEFMessage *messageToWrite API_AVAILABLE(ios(11.0));
+@property BOOL hasListener;
 @end
 
 @implementation NfcPlugin
@@ -46,6 +112,80 @@
     // the channel is used to send NFC tag data to the web view
     channelCallbackId = [command.callbackId copy];
 }
+
+- (void)onPause {
+    Listener = nil;
+}
+
+- (void)onResume {
+    if (self.hasListener) {
+        Listener = self;
+    }
+}
+
+- (void)parseLaunchIntent:(CDVInvokedUrlCommand *)command {
+    NSLog(@"parseLaunchIntent");
+
+    NFCNDEFMessage* ndefMessage = LaunchMessage;
+    LaunchMessage = nil;
+    NSString* launchURL = LaunchURL;
+    LaunchURL = nil;
+
+    CDVPluginResult* pluginResult;
+
+    if (ndefMessage != nil)
+    {
+        NSDictionary* parsedMessage = [self buildTagDictionary:ndefMessage metaData:nil];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:parsedMessage];
+    }
+    else if (launchURL != nil)
+    {
+        // URL string fallback — same as Android's getDataString() path.
+        // NfcTag JS constructor accepts strings.
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:launchURL];
+    }
+    else
+    {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"NO_INTENT"];
+    }
+
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)messageReceived:(NFCNDEFMessage *)ndefMessage {
+    NSLog(@"messageReceived");
+
+    NSMutableDictionary *nfcEvent = [NSMutableDictionary new];
+    nfcEvent[@"type"] = @"ndef";
+    nfcEvent[@"tag"] = [self buildTagDictionary:ndefMessage metaData:nil];
+
+    if (channelCallbackId) {
+        NSLog(@"Sending NFC data via channelCallbackId so an NDEF event fires)");
+
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:nfcEvent];
+        [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:channelCallbackId];
+    }
+}
+
+- (void)urlReceived:(NSString *)urlString {
+    NSLog(@"urlReceived: %@", urlString);
+
+    // Send URL string through the channel callback as an NDEF event.
+    // JS NfcTag constructor accepts strings and parses the URI.
+    NSMutableDictionary *nfcEvent = [NSMutableDictionary new];
+    nfcEvent[@"type"] = @"ndef";
+    nfcEvent[@"tag"] = urlString;
+
+    if (channelCallbackId) {
+        NSLog(@"Sending URL via channelCallbackId so an NDEF event fires");
+
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:nfcEvent];
+        [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:channelCallbackId];
+    }
+}
+
 
 - (void)beginSession:(CDVInvokedUrlCommand*)command {
     NSLog(@"beginSession");
@@ -125,13 +265,13 @@
         if (self.shouldUseTagReaderSession) {
             NSLog(@"Using NFCTagReaderSession");
 
-            self.nfcSession = [[NFCTagReaderSession new]
+            self.nfcSession = [[NFCTagReaderSession alloc]
                        initWithPollingOption:(NFCPollingISO14443 | NFCPollingISO15693)
                        delegate:self queue:dispatch_get_main_queue()];
 
         } else {
             NSLog(@"Using NFCTagReaderSession");
-            self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:FALSE];
+            self.nfcSession = [[NFCNDEFReaderSession alloc]initWithDelegate:self queue:nil invalidateAfterFirstRead:FALSE];
         }
     }
 
@@ -172,6 +312,8 @@
 // Nothing happens here, the event listener is registered in JavaScript
 - (void)registerNdef:(CDVInvokedUrlCommand *)command {
     NSLog(@"registerNdef");
+    self.hasListener = TRUE;
+    Listener = self;
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -179,6 +321,8 @@
 // Nothing happens here, the event listener is removed in JavaScript
 - (void)removeNdef:(CDVInvokedUrlCommand *)command {
     NSLog(@"removeNdef");
+    self.hasListener = FALSE;
+    Listener = nil;
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
@@ -306,12 +450,12 @@
         
         if (self.shouldUseTagReaderSession) {
             NSLog(@"Using NFCTagReaderSession");
-            self.nfcSession = [[NFCTagReaderSession new]
+            self.nfcSession = [[NFCTagReaderSession alloc]
                            initWithPollingOption:(NFCPollingISO14443 | NFCPollingISO15693)
                            delegate:self queue:dispatch_get_main_queue()];
         } else {
             NSLog(@"Using NFCNDEFReaderSession");
-            self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
+            self.nfcSession = [[NFCNDEFReaderSession alloc]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
         }
         sessionCallbackId = [command.callbackId copy];
         self.nfcSession.alertMessage = @"Hold near NFC tag to scan.";
@@ -319,7 +463,7 @@
         
     } else if (@available(iOS 11.0, *)) {
         NSLog(@"iOS < 13, using NFCNDEFReaderSession");
-        self.nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
+        self.nfcSession = [[NFCNDEFReaderSession alloc]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
         sessionCallbackId = [command.callbackId copy];
         self.nfcSession.alertMessage = @"Hold near NFC tag to scan.";
         [self.nfcSession beginSession];
