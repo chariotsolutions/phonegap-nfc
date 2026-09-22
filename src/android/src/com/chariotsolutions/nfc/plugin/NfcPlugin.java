@@ -483,7 +483,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             Activity activity = getActivity();
             Intent intent = new Intent(activity, activity.getClass());
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            pendingIntent = PendingIntent.getActivity(activity, 0, intent, 0);
+            int flags = 0;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+                flags |= PendingIntent.FLAG_MUTABLE;
+            }
+            pendingIntent = PendingIntent.getActivity(activity, 0, intent, flags);
         }
     }
 
@@ -547,7 +551,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                     }
 
                     if (p2pMessage != null) {
-                        nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
+                        setNdefPushMessage(p2pMessage, getActivity(), nfcAdapter);
                     }
                 } catch (IllegalStateException e) {
                     // issue 110 - user exits app with home button while nfc is initializing
@@ -582,12 +586,12 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
             if (nfcAdapter == null) {
                 callbackContext.error(STATUS_NO_NFC);
-            } else if (!nfcAdapter.isNdefPushEnabled()) {
+            } else if (!isNdefPushEnabled(nfcAdapter)) {
                 callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
             } else {
-                nfcAdapter.setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity());
+                setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity(), nfcAdapter);
                 try {
-                    nfcAdapter.setBeamPushUris(uris, getActivity());
+                    setBeamPushUris(uris, getActivity(), nfcAdapter);
 
                     PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
                     result.setKeepCallback(true);
@@ -608,11 +612,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
             if (nfcAdapter == null) {
                 callbackContext.error(STATUS_NO_NFC);
-            } else if (!nfcAdapter.isNdefPushEnabled()) {
+            } else if (!isNdefPushEnabled(nfcAdapter)) {
                 callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
             } else {
-                nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
-                nfcAdapter.setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity());
+                setNdefPushMessage(p2pMessage, getActivity(), nfcAdapter);
+                setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity(), nfcAdapter);
 
                 PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
                 result.setKeepCallback(true);
@@ -628,7 +632,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
             if (nfcAdapter != null) {
-                nfcAdapter.setNdefPushMessage(null, getActivity());
+                setNdefPushMessage(null, getActivity(), nfcAdapter);
             }
 
         });
@@ -640,7 +644,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
             if (nfcAdapter != null) {
-                nfcAdapter.setBeamPushUris(null, getActivity());
+                setBeamPushUris(null, getActivity(), nfcAdapter);
             }
 
         });
@@ -1011,6 +1015,52 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 callbackContext.error(cause.getMessage());
             }
         });
+    }
+
+    private void setNdefPushMessage(NdefMessage message, Activity activity, NfcAdapter nfcAdapter) {
+        try {
+            Method method = nfcAdapter.getClass().getMethod("setNdefPushMessage", NdefMessage.class, Activity.class, Activity[].class);
+            method.invoke(nfcAdapter, message, activity, (Object) new Activity[0]);
+        } catch (NoSuchMethodException e) {
+            Log.w(TAG, "NfcAdapter.setNdefPushMessage not available");
+        } catch (Exception e) {
+            Log.e(TAG, "Error calling setNdefPushMessage", e);
+        }
+    }
+
+    private void setOnNdefPushCompleteCallback(NfcAdapter.OnNdefPushCompleteCallback callback, Activity activity, NfcAdapter nfcAdapter) {
+        try {
+            Method method = nfcAdapter.getClass().getMethod("setOnNdefPushCompleteCallback", NfcAdapter.OnNdefPushCompleteCallback.class, Activity.class, Activity[].class);
+            method.invoke(nfcAdapter, callback, activity, (Object) new Activity[0]);
+        } catch (NoSuchMethodException e) {
+            Log.w(TAG, "NfcAdapter.setOnNdefPushCompleteCallback not available");
+        } catch (Exception e) {
+            Log.e(TAG, "Error calling setOnNdefPushCompleteCallback", e);
+        }
+    }
+
+    private void setBeamPushUris(Uri[] uris, Activity activity, NfcAdapter nfcAdapter) {
+        try {
+            Method method = nfcAdapter.getClass().getMethod("setBeamPushUris", Uri[].class, Activity.class);
+            method.invoke(nfcAdapter, uris, activity);
+        } catch (NoSuchMethodException e) {
+            Log.w(TAG, "NfcAdapter.setBeamPushUris not available");
+        } catch (Exception e) {
+            Log.e(TAG, "Error calling setBeamPushUris", e);
+        }
+    }
+
+    private boolean isNdefPushEnabled(NfcAdapter nfcAdapter) {
+        try {
+            Method method = nfcAdapter.getClass().getMethod("isNdefPushEnabled");
+            Object result = method.invoke(nfcAdapter);
+            return result != null && (boolean) result;
+        } catch (NoSuchMethodException e) {
+            return false;
+        } catch (Exception e) {
+            Log.e(TAG, "Error calling isNdefPushEnabled", e);
+            return false;
+        }
     }
 
 }
