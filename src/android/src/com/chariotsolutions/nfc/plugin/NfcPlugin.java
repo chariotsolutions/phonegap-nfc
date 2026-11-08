@@ -34,6 +34,7 @@ import android.nfc.tech.TagTechnology;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
+import android.os.Build;
 
 public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCompleteCallback {
     private static final String REGISTER_MIME_TYPE = "registerMimeType";
@@ -482,8 +483,18 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
         if (pendingIntent == null) {
             Activity activity = getActivity();
             Intent intent = new Intent(activity, activity.getClass());
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            pendingIntent = PendingIntent.getActivity(activity, 0, intent, 0);
+            // intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            // pendingIntent = PendingIntent.getActivity(activity, 0, intent, 0);
+
+            //--add-on
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {    //--change Build.VERSION_CODES.M to .S
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                pendingIntent = PendingIntent.getActivity(activity, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+            } else {
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                pendingIntent = PendingIntent.getActivity(activity, 0, intent, 0);
+            }
+            //--add-on
         }
     }
 
@@ -547,7 +558,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                     }
 
                     if (p2pMessage != null) {
-                        nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
+                        // nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());    //--fuad:20240528
                     }
                 } catch (IllegalStateException e) {
                     // issue 110 - user exits app with home button while nfc is initializing
@@ -582,12 +593,12 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
             if (nfcAdapter == null) {
                 callbackContext.error(STATUS_NO_NFC);
-            } else if (!nfcAdapter.isNdefPushEnabled()) {
-                callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
+            // } else if (!nfcAdapter.isNdefPushEnabled()) {    //--fuad:20240528
+            //     callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
             } else {
-                nfcAdapter.setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity());
+                // nfcAdapter.setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity()); //--fuad:20240528
                 try {
-                    nfcAdapter.setBeamPushUris(uris, getActivity());
+                    // nfcAdapter.setBeamPushUris(uris, getActivity());//--fuad:20240528
 
                     PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
                     result.setKeepCallback(true);
@@ -608,11 +619,11 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
             if (nfcAdapter == null) {
                 callbackContext.error(STATUS_NO_NFC);
-            } else if (!nfcAdapter.isNdefPushEnabled()) {
-                callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
+            // } else if (!nfcAdapter.isNdefPushEnabled()) {    //--fuad:20240528
+            //     callbackContext.error(STATUS_NDEF_PUSH_DISABLED);
             } else {
-                nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());
-                nfcAdapter.setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity());
+                // nfcAdapter.setNdefPushMessage(p2pMessage, getActivity());    //--fuad:20240528
+                // nfcAdapter.setOnNdefPushCompleteCallback(NfcPlugin.this, getActivity()); //--fuad:20240528
 
                 PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
                 result.setKeepCallback(true);
@@ -628,7 +639,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
             if (nfcAdapter != null) {
-                nfcAdapter.setNdefPushMessage(null, getActivity());
+                // nfcAdapter.setNdefPushMessage(null, getActivity());//--fuad:20240528
             }
 
         });
@@ -640,7 +651,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(getActivity());
 
             if (nfcAdapter != null) {
-                nfcAdapter.setBeamPushUris(null, getActivity());
+                // nfcAdapter.setBeamPushUris(null, getActivity()); //--fuad:20240528
             }
 
         });
